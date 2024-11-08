@@ -2,19 +2,17 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-// Vuetify
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import '@mdi/font/css/materialdesignicons.css'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
 import router from './router'
 
+import { vuetify } from './plugins/vuetify'
+
 import { initializeApp } from 'firebase/app'
 import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
 import { getIdToken } from 'firebase/auth'
+
 import axios from 'axios'
 export const firebaseApp = initializeApp({
   apiKey: 'AIzaSyDNl4-jg9yzfSmXy89Sblw8ZdNX8wJJYNI',
@@ -26,13 +24,6 @@ export const firebaseApp = initializeApp({
 })
 
 const app = createApp(App)
-const vuetify = createVuetify({
-  components,
-  directives,
-  icons: {
-    defaultSet: 'mdi',
-  },
-})
 
 app.use(VueFire, {
   // imported above but could also just be created here
@@ -43,7 +34,10 @@ app.use(VueFire, {
   ],
 })
 
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
+app.use(pinia)
 app.use(router)
 app.use(vuetify)
 

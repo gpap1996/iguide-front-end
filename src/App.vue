@@ -1,7 +1,3 @@
-<script setup>
-import { RouterView } from 'vue-router'
-</script>
-
 <template>
   <v-app>
     <Appbar v-if="$route.path != '/login'" />
@@ -12,5 +8,20 @@ import { RouterView } from 'vue-router'
     <!-- <BottomNavigation v-if="$route.path != '/areas' && !loader" /> -->
   </v-app>
 </template>
+
+<script setup>
+import { onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useBaseStore } from './stores/base'
+import { useTheme } from 'vuetify'
+import { storeToRefs } from 'pinia'
+
+const { theme } = storeToRefs(useBaseStore())
+const vuetifyTheme = useTheme()
+
+onMounted(() => {
+  vuetifyTheme.global.name.value = theme.value === 'light' ? 'light' : 'dark'
+})
+</script>
 
 <style scoped></style>
