@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <Appbar v-if="$route.path != '/login'" />
+    <appbar v-if="$route.path != '/login'" />
+    <drawer />
 
     <v-main>
       <RouterView />
@@ -24,4 +25,4 @@ onMounted(() => {
 })
 </script>
 
-<style scoped></style>
+<style></style>

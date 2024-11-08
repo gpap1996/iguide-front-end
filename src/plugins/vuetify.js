@@ -16,15 +16,15 @@ export const vuetify = createVuetify({
       light: {
         dark: false,
         colors: {
-          primary: '#ffffff',
-          text: '#000000',
+          // primary: '#43B883',
+          background: '#1A1A1A',
         },
       },
       dark: {
         dark: true,
         colors: {
-          primary: '#000000',
-          text: '#ffffffff',
+          // primary: '#43B883',
+          background: '#1A1A1A',
         },
       },
     },

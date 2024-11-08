@@ -23,13 +23,19 @@ const router = createRouter({
       component: () => import('../views/auth/Login.vue'),
       meta: { requiresAuth: false },
     },
+
+    {
+      path: '/areas',
+      name: 'area',
+      component: () => import('../views/areas/Areas.vue'),
+      meta: { requiresAuth: false },
+    },
   ],
 })
 
 const authGuard = async (to, from, next) => {
   const { globalLoader } = storeToRefs(useBaseStore())
   const { requiresAuth } = to.meta
-  globalLoader.value = true
 
   const user = await getCurrentUser()
   // Prevent logged-in users from going to the login page
