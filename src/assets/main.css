@@ -1,9 +1,9 @@
 .v-main {
   display: flex;
-  padding: 10px;
 }
 
 .component-wrapper {
   flex-grow: 1;
   min-height: 100vh;
+  padding: 10px;
 }
