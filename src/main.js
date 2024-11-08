@@ -13,8 +13,9 @@ import App from './App.vue'
 import router from './router'
 
 import { initializeApp } from 'firebase/app'
-import { VueFire, VueFireAuth } from 'vuefire'
-
+import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
+import { getIdToken } from 'firebase/auth'
+import axios from 'axios'
 export const firebaseApp = initializeApp({
   apiKey: 'AIzaSyDNl4-jg9yzfSmXy89Sblw8ZdNX8wJJYNI',
   authDomain: 'iguide-demo.firebaseapp.com',
@@ -45,4 +46,35 @@ app.use(VueFire, {
 app.use(createPinia())
 app.use(router)
 app.use(vuetify)
+
+// Set up axios default url and 401 interceptor
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
+
+// Axios request interceptor to add Authorization header
+axios.interceptors.request.use(
+  async (config) => {
+    const user = await getCurrentUser() // Get the current logged-in user
+
+    if (user) {
+      // If the user is logged in, get their Firebase ID token
+      const idToken = await getIdToken(user)
+
+      // Set the Authorization header with the token
+      config.headers['Authorization'] = `Bearer ${idToken}`
+    }
+
+    return config // Always return the config object after modifying it
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Optionally, clear axios authorization header if set
+      delete axios.defaults.headers.common['Authorization']
+
+      // Redirect to login page
+      router.push('/login')
+    }
+    return Promise.reject(error)
+  },
+)
+
 app.mount('#app')
