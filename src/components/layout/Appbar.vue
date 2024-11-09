@@ -1,7 +1,8 @@
 <template>
   <v-app-bar extension-height="4">
-    <v-app-bar-title> iGuide </v-app-bar-title>
     <template v-slot:prepend>
+      <div class="logo-title ml-2">Northern Lights</div>
+
       <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
 
@@ -34,7 +35,7 @@ const auth = useFirebaseAuth()
 
 const onLogout = async () => {
   await signOut(auth)
-  router.push('/login')
+  router.push('/')
 }
 
 const onToogleTheme = () => {
@@ -46,4 +47,19 @@ const onToogleTheme = () => {
 const isMobile = computed(() => mdAndDown.value)
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.logo-title {
+  font-weight: bold;
+  font-size: 30px;
+  line-height: 90px;
+  color: transparent;
+  background: linear-gradient(
+    to right,
+    rgb(var(--v-theme-primary)),
+    rgb(var(--v-theme-success)),
+    rgb(var(--v-theme-error))
+  );
+
+  background-clip: text;
+}
+</style>

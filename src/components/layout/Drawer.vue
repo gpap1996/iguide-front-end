@@ -1,5 +1,11 @@
 <template>
-  <v-navigation-drawer :rail="!isMobile" :expand-on-hover="!isMobile" v-model="drawer" width="300">
+  <v-navigation-drawer
+    v-if="$route.path != '/login'"
+    :rail="!isMobile"
+    :expand-on-hover="!isMobile"
+    v-model="drawer"
+    width="300"
+  >
     <v-list>
       <v-list-item
         prepend-icon="mdi-account"
@@ -35,7 +41,7 @@ const navigation = ref([
   {
     icon: 'mdi-home',
     title: 'Home',
-    path: '/',
+    path: '/home',
   },
   {
     icon: 'mdi-image-area',

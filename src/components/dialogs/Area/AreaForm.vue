@@ -1,32 +1,30 @@
 <template>
-  <div class="flex-grow-1 d-flex flex-column pa-8 bg-background">
-    <div class="d-flex align-center mb-4">
-      <v-btn
-        @click="$emit('close')"
-        class="mr-4"
-        color="primary"
-        icon="mdi-close"
-        size="x-small"
-      ></v-btn>
-
+  <v-card class="flex-grow-1 d-flex flex-column">
+    <v-card-title class="d-flex align-center bg-primary-darken-1">
       <div class="title">Create Area</div>
-    </div>
+      <v-spacer></v-spacer>
+      <v-icon @click="$emit('close')" style="cursor: pointer">mdi-close</v-icon>
+    </v-card-title>
 
-    <v-card class="pa-8">
-      <v-tabs v-model="tab" :show-arrows="true">
-        <v-tab value="Basic Information">Basic Information</v-tab>
-        <v-tab value="Media">Media</v-tab>
-      </v-tabs>
+    <v-tabs v-model="tab" :show-arrows="true" class="mt-4 px-4" color="primary">
+      <v-tab value="Basic Information">Basic Information</v-tab>
+      <v-tab value="Media">Media</v-tab>
+    </v-tabs>
 
-      <v-tabs-window v-model="tab" class="mt-8">
-        <v-tabs-window-item value="Basic Information">
-          <area-basic-information />
-        </v-tabs-window-item>
+    <v-tabs-window v-model="tab" class="mt-8" id="single-user-tabs">
+      <v-tabs-window-item value="Basic Information">
+        <area-basic-information />
+      </v-tabs-window-item>
 
-        <v-tabs-window-item value="Media"> Media </v-tabs-window-item>
-      </v-tabs-window>
-    </v-card>
-  </div>
+      <v-tabs-window-item value="Media"> Media </v-tabs-window-item>
+    </v-tabs-window>
+
+    <v-card-actions class="my-4 mr-2">
+      <v-spacer></v-spacer>
+      <v-btn variant="outlined" text="Close" @click="$emit('close')" class="mr-2"></v-btn>
+      <v-btn color="primary" text="Save" variant="flat" @click="$emit('close')"></v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script setup>

@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 export const useBaseStore = defineStore(
   'base',
   () => {
-    const globalLoader = ref(false)
+    const globalLoader = ref(true)
     const theme = ref('light')
     const drawer = ref(true)
     return { globalLoader, theme, drawer }

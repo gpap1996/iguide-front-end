@@ -11,24 +11,28 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
+      path: '/',
       name: 'login',
       component: () => import('../views/auth/Login.vue'),
       meta: { requiresAuth: false },
     },
-
     {
-      path: '/',
+      path: '/home',
       name: 'home',
       component: () => import('../views/Home.vue'),
       meta: { requiresAuth: true },
     },
-
     {
       path: '/areas',
       name: 'area',
       component: () => import('../views/areas/Areas.vue'),
       meta: { requiresAuth: true },
+    },
+    // Catch-all route for non-existent paths
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      meta: { requiresAuth: false }, // This route does not require authentication
     },
   ],
 })
@@ -36,8 +40,8 @@ const router = createRouter({
 const authGuard = async (to, from, next) => {
   const { globalLoader } = storeToRefs(useBaseStore())
   const { requiresAuth } = to.meta
-
   const user = await getCurrentUser()
+
   // Prevent logged-in users from going to the login page
   if (to.name === 'login' && user) {
     globalLoader.value = false
@@ -70,6 +74,16 @@ const authGuard = async (to, from, next) => {
       next({ name: 'home' })
       return
     }
+  }
+
+  // Handle non-existent routes
+  if (to.name === 'not-found') {
+    if (user) {
+      next({ name: 'home' }) // Redirect logged-in users to the home page for non-existent routes
+    } else {
+      next({ name: 'login' }) // Redirect non-logged-in users to the login page for non-existent routes
+    }
+    return
   }
 
   // Allow the navigation

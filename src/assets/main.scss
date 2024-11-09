@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 * {
   font-family: 'Inter', sans-serif !important;
+  // scrollbar-width: none;
 }
 
 .title {
@@ -25,4 +26,47 @@
   padding: 20px;
   display: flex;
   min-height: calc(100vh - 68px);
+}
+
+.scrollable {
+  flex: 1 0 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 0;
+}
+
+.dialog-wrapper {
+  height: 100%;
+
+  &.scrollable-dialog {
+    display: flex;
+    flex-direction: column;
+
+    @media only screen and (min-width: 600px) {
+      height: 90vh;
+
+      &.small {
+        height: 60vh;
+      }
+    }
+  }
+}
+
+#single-user-tabs,
+.scrollable-tabs {
+  flex-grow: 1 !important;
+  display: flex;
+  flex-direction: column;
+
+  .v-window__container {
+    flex-grow: 1 !important;
+    display: flex;
+    flex-direction: column;
+
+    .v-window-item.v-window-item--active {
+      flex-grow: 1 !important;
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }

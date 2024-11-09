@@ -88,7 +88,7 @@ const onLogin = async () => {
 
   try {
     await signInWithEmailAndPassword(auth, email.value, password.value)
-    router.push('/')
+    router.push('/home')
   } catch (error) {
     console.log(error)
     //todo snackbar

@@ -8,10 +8,11 @@ import App from './App.vue'
 import router from './router'
 
 import { vuetify } from './plugins/vuetify'
-
+import { vuetifyProTipTap } from './plugins/tiptap'
 import { initializeApp } from 'firebase/app'
 import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
 import { getIdToken } from 'firebase/auth'
+import { MotionPlugin } from '@vueuse/motion'
 
 import axios from 'axios'
 export const firebaseApp = initializeApp({
@@ -40,6 +41,8 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(vuetify)
+app.use(vuetifyProTipTap)
+app.use(MotionPlugin)
 
 // Set up axios default url and 401 interceptor
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL

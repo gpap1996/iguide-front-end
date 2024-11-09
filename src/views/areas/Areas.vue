@@ -11,12 +11,15 @@
         clearable
         hide-details
         class="ml-auto"
+        density="compact"
       >
       </v-text-field>
     </page-title>
 
-    <v-dialog v-model="areaFormDialog" persistent max-width="1400px" min-height="800px">
-      <area-form class="rounded-lg" @close="areaFormDialog = false"></area-form>
+    <v-dialog v-model="areaFormDialog" max-width="1250px">
+      <div class="dialog-wrapper scrollable-dialog">
+        <area-form @close="areaFormDialog = false"></area-form>
+      </div>
     </v-dialog>
   </div>
 </template>

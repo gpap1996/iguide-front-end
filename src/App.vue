@@ -1,26 +1,52 @@
 <template>
-  <v-layout>
-    <appbar v-if="$route.path != '/login'" />
-    <drawer v-if="$route.path != '/login'" />
-
+  <v-layout
+    v-motion
+    :initial="{
+      opacity: 0,
+      transition: {
+        duration: 500,
+      },
+    }"
+    :enter="{
+      opacity: 1,
+      transition: {
+        duration: 500,
+      },
+    }"
+  >
+    <appbar v-if="route.path != '/'" />
+    <drawer v-if="route.path != '/'" />
     <v-main>
-      <RouterView />
+      <RouterView
+        v-motion
+        :initial="{
+          opacity: 0,
+          transition: {
+            duration: 500,
+          },
+        }"
+        :enter="{
+          opacity: 1,
+          transition: {
+            duration: 500,
+          },
+        }"
+      />
     </v-main>
-    <!-- <BottomNavigation v-if="$route.path != '/areas' && !loader" /> -->
   </v-layout>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { RouterView } from 'vue-router'
+import { onBeforeMount } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import { useBaseStore } from './stores/base'
 import { useTheme } from 'vuetify'
 import { storeToRefs } from 'pinia'
 
 const { theme } = storeToRefs(useBaseStore())
 const vuetifyTheme = useTheme()
-
-onMounted(() => {
+const route = useRoute()
+onBeforeMount(async () => {
   vuetifyTheme.global.name.value = theme.value === 'light' ? 'light' : 'dark'
 })
 </script>
