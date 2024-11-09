@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" width="300">
+  <v-navigation-drawer :rail="!isMobile" :expand-on-hover="!isMobile" v-model="drawer" width="300">
     <v-list>
       <v-list-item
         prepend-icon="mdi-account"
@@ -12,6 +12,7 @@
 
     <v-list density="compact" nav>
       <v-list-item
+        active-class="active-item"
         color="primary"
         link
         v-for="item in navigation"
@@ -25,10 +26,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
-
+import { useDisplay } from 'vuetify'
 const { drawer } = storeToRefs(useBaseStore())
 const navigation = ref([
   {
@@ -42,6 +43,18 @@ const navigation = ref([
     path: '/areas',
   },
 ])
+
+const { mdAndDown } = useDisplay()
+const isMobile = computed(() => mdAndDown.value)
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.active-item::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  height: 25px;
+  border-radius: 10px;
+  border-left: 3.5px solid rgb(var(--v-theme-primary));
+}
+</style>

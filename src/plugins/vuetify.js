@@ -25,15 +25,17 @@ export const vuetify = createVuetify({
           background: '#F0F8FF',
           success: '#66D9E8',
           error: '#FF6B6B',
+          oposite: '#121212',
         },
       },
       dark: {
         dark: true,
         colors: {
           primary: '#00B894',
-          // background: '#1A1A2E',
+          background: '#121212',
           success: '#3DB8CC',
           error: '#D83A56',
+          oposite: '#F0F8FF',
         },
       },
     },

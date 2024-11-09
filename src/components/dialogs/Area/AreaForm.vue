@@ -1,12 +1,12 @@
 <template>
   <div class="flex-grow-1 d-flex flex-column pa-8 bg-background">
-    <div class="d-flex mb-4">
+    <div class="d-flex align-center mb-4">
       <v-btn
         @click="$emit('close')"
         class="mr-4"
         color="primary"
         icon="mdi-close"
-        size="small"
+        size="x-small"
       ></v-btn>
 
       <div class="title">Create Area</div>

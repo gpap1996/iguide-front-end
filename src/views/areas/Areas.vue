@@ -1,7 +1,7 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
     <page-title title="Areas">
-      <v-btn @click="areaFormDialog = true" size="small" color="primary" icon="mdi-plus"></v-btn>
+      <v-btn @click="areaFormDialog = true" size="x-small" color="primary" icon="mdi-plus"></v-btn>
       <v-text-field
         color="primary"
         append-inner-icon="mdi-magnify"
