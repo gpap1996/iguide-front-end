@@ -1,21 +1,30 @@
 <template>
-  <div class="d-flex-column d-lg-flex flex-grow-1" style="width: 100vw; min-width: 100vh">
+  <div class="d-flex-column d-lg-flex" style="width: 100vw; min-height: 100vh">
     <!-- 1st column -->
     <div class="left-column d-flex flex-grow-1" style="overflow: hidden; position: relative">
       <div class="d-flex flex-column align-center justify-center flex-grow-1">
         <div>
-          <div class="left-column-title">iGuide</div>
-          <div class="left-column-subtitle">Ψηφιακή διαδραστική ξενάγηση</div>
+          <div class="left-column-title">Northern Lights</div>
+          <div class="left-column-subtitle">Digital interactive tour.</div>
+          <v-img
+            :width="580"
+            :height="350"
+            aspect-ratio="16/9"
+            cover
+            src="/images/login-card.jpg"
+            class="rounded-xl mt-10"
+          ></v-img>
         </div>
       </div>
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
+
+      <!-- <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div> -->
     </div>
     <!-- 2nd-column -->
     <div class="d-flex flex-column align-center justify-center flex-grow-1">
       <div class="text-start mb-10" style="width: 50%">
-        <div class="title">Γεια και πάλι</div>
-        <div class="subtitle">Καλώς Ήρθατε</div>
+        <div class="title">Hello again,</div>
+        <div class="subtitle">Welcome Back!</div>
       </div>
 
       <v-form @submit.prevent="onLogin" class="d-flex flex-column" style="width: 50%">
@@ -33,7 +42,7 @@
           color="primary"
           variant="outlined"
           v-model="password"
-          label="Κωδικός"
+          label="Password"
           type="password"
           style="font-family: 'Roboto'"
         >
@@ -106,20 +115,29 @@ const onLogin = async () => {
 }
 
 .left-column {
-  background: linear-gradient(to bottom, #0b7fe7, #021b79);
+  border-right: 2px solid rgb(var(--v-theme-surface));
 }
 
 .left-column-title {
   font-weight: bold;
   font-size: 80px;
-  line-height: 80px;
-  color: white;
+  line-height: 90px;
+  color: transparent;
+
+  background: linear-gradient(
+    to right,
+    rgb(var(--v-theme-primary)),
+    rgb(var(--v-theme-success)),
+    rgb(var(--v-theme-error))
+  );
+
+  background-clip: text;
 }
 
 .left-column-subtitle {
-  font-weight: semi-bold;
-  font-size: 36px;
-  color: white;
+  font-weight: 400;
+  font-size: 32px;
+  // color: white;
   //   line-height: 80px;
 }
 </style>

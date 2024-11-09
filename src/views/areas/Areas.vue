@@ -15,8 +15,8 @@
       </v-text-field>
     </page-title>
 
-    <v-dialog v-model="areaFormDialog" fullscreen persistent>
-      <area-form @close="areaFormDialog = false"></area-form>
+    <v-dialog v-model="areaFormDialog" persistent max-width="1400px" min-height="800px">
+      <area-form class="rounded-lg" @close="areaFormDialog = false"></area-form>
     </v-dialog>
   </div>
 </template>

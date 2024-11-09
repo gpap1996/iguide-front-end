@@ -1,13 +1,19 @@
 <template>
   <div class="flex-grow-1 d-flex flex-column pa-8 bg-background">
     <div class="d-flex mb-4">
-      <v-btn @click="$emit('close')" class="mr-4" color="primary" icon="mdi-close"></v-btn>
+      <v-btn
+        @click="$emit('close')"
+        class="mr-4"
+        color="primary"
+        icon="mdi-close"
+        size="small"
+      ></v-btn>
 
-      <div class="title">Create New Area</div>
+      <div class="title">Create Area</div>
     </div>
 
     <v-card class="pa-8">
-      <v-tabs v-model="tab">
+      <v-tabs v-model="tab" :show-arrows="true">
         <v-tab value="Basic Information">Basic Information</v-tab>
         <v-tab value="Media">Media</v-tab>
       </v-tabs>

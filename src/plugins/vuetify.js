@@ -12,15 +12,28 @@ export const vuetify = createVuetify({
     defaultSet: 'mdi',
   },
   theme: {
+    variations: {
+      colors: ['primary', 'secondary', 'background'],
+      lighten: 2,
+      darken: 2,
+    },
     themes: {
       light: {
         dark: false,
-        colors: {},
+        colors: {
+          primary: '#5DAE8B',
+          background: '#F0F8FF',
+          success: '#66D9E8',
+          error: '#FF6B6B',
+        },
       },
       dark: {
         dark: true,
         colors: {
-          background: '#1A1A1A',
+          primary: '#00B894',
+          // background: '#1A1A2E',
+          success: '#3DB8CC',
+          error: '#D83A56',
         },
       },
     },
