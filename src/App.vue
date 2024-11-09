@@ -1,13 +1,13 @@
 <template>
-  <v-app>
+  <v-layout>
     <appbar v-if="$route.path != '/login'" />
-    <drawer />
+    <drawer v-if="$route.path != '/login'" />
 
     <v-main>
       <RouterView />
     </v-main>
     <!-- <BottomNavigation v-if="$route.path != '/areas' && !loader" /> -->
-  </v-app>
+  </v-layout>
 </template>
 
 <script setup>

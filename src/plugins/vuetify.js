@@ -15,15 +15,11 @@ export const vuetify = createVuetify({
     themes: {
       light: {
         dark: false,
-        colors: {
-          // primary: '#43B883',
-          background: '#1A1A1A',
-        },
+        colors: {},
       },
       dark: {
         dark: true,
         colors: {
-          // primary: '#43B883',
           background: '#1A1A1A',
         },
       },

@@ -13,11 +13,14 @@
 }
 .v-main {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .component-wrapper {
   flex-grow: 1;
-  min-width: 100vh;
-  // padding: 10px;
+  max-width: 1400px;
+  padding: 20px;
+  display: flex;
+  min-height: calc(100vh - 68px);
 }

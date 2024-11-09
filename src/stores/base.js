@@ -6,8 +6,8 @@ export const useBaseStore = defineStore(
   () => {
     const globalLoader = ref(false)
     const theme = ref('light')
-
-    return { globalLoader, theme }
+    const drawer = ref(true)
+    return { globalLoader, theme, drawer }
   },
   {
     persist: [

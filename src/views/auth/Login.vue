@@ -1,5 +1,5 @@
 <template>
-  <div class="component-wrapper d-flex-column d-lg-flex" style="width: 100vw">
+  <div class="d-flex-column d-lg-flex flex-grow-1" style="width: 100vw; min-width: 100vh">
     <!-- 1st column -->
     <div class="left-column d-flex flex-grow-1" style="overflow: hidden; position: relative">
       <div class="d-flex flex-column align-center justify-center flex-grow-1">
