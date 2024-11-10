@@ -1,9 +1,9 @@
 <template>
   <v-app-bar extension-height="4">
     <template v-slot:prepend>
-      <div class="logo-title ml-2">Northern Lights</div>
-
       <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
+
+      <div class="logo-title ml-2">Northern Lights</div>
     </template>
 
     <template v-slot:append>

@@ -25,7 +25,14 @@ const router = createRouter({
     {
       path: '/areas',
       name: 'area',
-      component: () => import('../views/areas/Areas.vue'),
+      component: () => import('../views/area/Areas.vue'),
+      meta: { requiresAuth: true },
+    },
+
+    {
+      path: '/media',
+      name: 'media',
+      component: () => import('../views/media/Media.vue'),
       meta: { requiresAuth: true },
     },
     // Catch-all route for non-existent paths

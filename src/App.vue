@@ -32,6 +32,14 @@
           },
         }"
       />
+
+      <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000">
+        {{ snackbar.text }}
+
+        <template v-slot:actions>
+          <v-icon style="cursor: pointer" @click="snackbar.show = false"> mdi-close </v-icon>
+        </template>
+      </v-snackbar>
     </v-main>
   </v-layout>
 </template>
@@ -43,7 +51,7 @@ import { useBaseStore } from './stores/base'
 import { useTheme } from 'vuetify'
 import { storeToRefs } from 'pinia'
 
-const { theme } = storeToRefs(useBaseStore())
+const { theme, snackbar } = storeToRefs(useBaseStore())
 const vuetifyTheme = useTheme()
 const route = useRoute()
 onBeforeMount(async () => {

@@ -7,7 +7,12 @@ export const useBaseStore = defineStore(
     const globalLoader = ref(true)
     const theme = ref('light')
     const drawer = ref(true)
-    return { globalLoader, theme, drawer }
+    const snackbar = ref({
+      show: false,
+      text: '',
+      color: '',
+    })
+    return { globalLoader, theme, drawer, snackbar }
   },
   {
     persist: [

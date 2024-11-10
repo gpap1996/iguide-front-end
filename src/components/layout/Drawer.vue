@@ -48,6 +48,12 @@ const navigation = ref([
     title: 'Areas',
     path: '/areas',
   },
+
+  {
+    icon: 'mdi-folder',
+    title: 'Media',
+    path: '/media',
+  },
 ])
 
 const { mdAndDown } = useDisplay()
