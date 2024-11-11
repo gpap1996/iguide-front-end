@@ -39,7 +39,6 @@ const onLogout = async () => {
 }
 
 const onToogleTheme = () => {
-  console.log(theme.value)
   vuetifyTheme.global.name.value = theme.value === 'light' ? 'dark' : 'light'
   theme.value = vuetifyTheme.global.name.value
 }

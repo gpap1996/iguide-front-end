@@ -16,7 +16,7 @@
       </v-text-field>
     </page-title>
 
-    <v-dialog v-model="areaFormDialog" max-width="1250px">
+    <v-dialog v-model="areaFormDialog" max-width="1250px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <area-form @close="areaFormDialog = false"></area-form>
       </div>

@@ -12,7 +12,29 @@ export const useBaseStore = defineStore(
       text: '',
       color: '',
     })
-    return { globalLoader, theme, drawer, snackbar }
+
+    const itemsPerPageDropdown = [
+      {
+        label: '10',
+        value: 10,
+      },
+
+      {
+        label: '25',
+        value: 25,
+      },
+
+      {
+        label: '50',
+        value: 50,
+      },
+
+      {
+        label: 'All',
+        value: -1,
+      },
+    ]
+    return { globalLoader, theme, drawer, snackbar, itemsPerPageDropdown }
   },
   {
     persist: [

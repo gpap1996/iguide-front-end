@@ -3,49 +3,41 @@
     <v-card-title class="d-flex align-center bg-primary-darken-1">
       <div class="title">Upload Media</div>
       <v-spacer></v-spacer>
-      <v-icon @click="$emit('close')" style="cursor: pointer">mdi-close</v-icon>
+      <v-btn variant="text" @click="$emit('close')">mdi-close</v-btn>
     </v-card-title>
 
     <div class="pa-8 scrollable flex-grow-1">
       <v-form>
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="form.title"
-              density="comfortable"
-              variant="outlined"
-              label="Title"
-            ></v-text-field>
-          </v-col>
+        <v-text-field
+          v-model="form.title"
+          density="comfortable"
+          variant="outlined"
+          label="Title"
+        ></v-text-field>
 
-          <v-col cols="6">
-            <v-select
-              v-model="form.type"
-              label="Type"
-              :items="fileTypes"
-              variant="outlined"
-              density="comfortable"
-            ></v-select>
-          </v-col>
+        <v-select
+          v-model="form.type"
+          label="Type"
+          :items="fileTypes"
+          variant="outlined"
+          density="comfortable"
+        ></v-select>
 
-          <v-col cols="6">
-            <VuetifyTiptap
-              v-model="form.description"
-              minHeight="250"
-              maxHeight="250"
-              markdown-theme="github"
-            />
-          </v-col>
+        <VuetifyTiptap
+          label="Description"
+          v-model="form.description"
+          minHeight="250"
+          maxHeight="250"
+          markdown-theme="github"
+        />
 
-          <v-col cols="6">
-            <v-file-input
-              v-model="form.file"
-              label="Upload File"
-              variant="outlined"
-              density="comfortable"
-            ></v-file-input>
-          </v-col>
-        </v-row>
+        <v-file-input
+          class="mt-4"
+          v-model="form.file"
+          label="Upload File"
+          variant="outlined"
+          density="comfortable"
+        ></v-file-input>
       </v-form>
     </div>
 
@@ -71,7 +63,7 @@ const form = ref({
   file: [],
   description: null,
 })
-const fileTypes = ['image', 'audio', 'video', 'other']
+const fileTypes = ['image', 'audio', 'video', 'tiles']
 const { snackbar } = storeToRefs(useBaseStore())
 
 const onSubmitMedia = async () => {

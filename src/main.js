@@ -13,6 +13,7 @@ import { initializeApp } from 'firebase/app'
 import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
 import { getIdToken } from 'firebase/auth'
 import { MotionPlugin } from '@vueuse/motion'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 
 import axios from 'axios'
 export const firebaseApp = initializeApp({
@@ -43,6 +44,7 @@ app.use(router)
 app.use(vuetify)
 app.use(vuetifyProTipTap)
 app.use(MotionPlugin)
+app.use(VueQueryPlugin)
 
 // Set up axios default url and 401 interceptor
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL

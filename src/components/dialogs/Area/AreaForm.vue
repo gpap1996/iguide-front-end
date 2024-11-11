@@ -3,7 +3,7 @@
     <v-card-title class="d-flex align-center bg-primary-darken-1">
       <div class="title">Create Area</div>
       <v-spacer></v-spacer>
-      <v-icon @click="$emit('close')" style="cursor: pointer">mdi-close</v-icon>
+      <v-btn variant="text" @click="$emit('close')">mdi-close</v-btn>
     </v-card-title>
 
     <v-tabs v-model="tab" :show-arrows="true" class="mt-4 px-4" color="primary">

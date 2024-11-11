@@ -60,7 +60,6 @@ export const vuetifyProTipTap = createVuetifyProTipTap({
       // custom upload function
       upload(file) {
         const url = URL.createObjectURL(file)
-        console.log('mock upload api :>> ', url)
         return Promise.resolve(url)
       },
     }),
