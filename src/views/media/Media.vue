@@ -26,9 +26,18 @@
         hide-details
         class="ml-auto"
         density="compact"
+        @click:clear="
+          () =>
+            (filters = {
+              ...filters,
+              title: null,
+              page: 1,
+            })
+        "
         @keydown.enter="
           (e) => {
             filters = {
+              ...filters,
               title: e.target.value,
               page: 1,
             }
@@ -45,19 +54,17 @@
       item-value="id"
       :loading="isLoading"
       class="mx-auto mt-4"
-      style="max-width: 90vw"
+      style="max-width: 90vw; flex-grow: 1"
     >
       <template v-slot:[`item.url`]="{ item }">
-        <!-- <img
-          alt=""
+        <v-img
+          width="100px"
+          cover
+          aspect-ratio="16 / 9"
+          class="my-4 rounded-xl"
+          alt="image"
           :src="`http://localhost:3000${item.url}`"
-          class="my-4 rounded-xl"
-          style="width: 150px; height: auto"
-        /> -->
-        <MyImage
-          :url="`http://localhost:3000${item.url}`"
-          style="width: 150px; height: 100px"
-          class="my-4 rounded-xl"
+          :lazy-src="`http://localhost:3000${item.thumbnail_url}`"
         />
       </template>
 
@@ -69,7 +76,13 @@
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn variant="text" class="mr-4" icon="mdi-pencil"> </v-btn>
+        <v-btn
+          variant="text"
+          class="mr-4"
+          icon="mdi-pencil"
+          @click="(currentMedia = item), (mediaFormDialog = true)"
+        >
+        </v-btn>
 
         <v-btn variant="text" color="error" icon="mdi-delete"> </v-btn>
       </template>
@@ -87,6 +100,7 @@
             @update:model-value="
               (itemsPerPage) => {
                 filters = {
+                  ...filters,
                   itemsPerPage,
                   page: 1,
                 }
@@ -94,12 +108,14 @@
             "
             :items="itemsPerPageDropdown"
             width="90px"
+            :disabled="!data?.pagination.totalItems"
           >
           </v-select>
-          <div class="mt-2 ml-2">
+          <div v-if="data?.pagination.totalItems" class="mt-2 ml-2">
             {{ (filters.page - 1) * filters.itemsPerPage + 1 }} of
             {{ data?.pagination.totalItems || '...' }}
           </div>
+          <div v-else class="mt-2 ml-2">-</div>
         </div>
       </template>
     </v-data-table-server>
@@ -113,13 +129,20 @@
 
     <v-dialog v-model="mediaFormDialog" max-width="700px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
-        <media-form @close="mediaFormDialog = false"></media-form>
+        <media-form
+          :media="currentMedia"
+          @reset="onFiltersReset"
+          @close="mediaFormDialog = false"
+        ></media-form>
       </div>
     </v-dialog>
 
     <v-dialog v-model="mediaMassUploadDialog" max-width="1250px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
-        <media-mass-upload @close="mediaMassUploadDialog = false"></media-mass-upload>
+        <media-mass-upload
+          @reset="onFiltersReset"
+          @close="mediaMassUploadDialog = false"
+        ></media-mass-upload>
       </div>
     </v-dialog>
   </div>
@@ -128,13 +151,14 @@
 <script setup>
 import axios from 'axios'
 import { ref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 
 const { itemsPerPageDropdown } = useBaseStore()
 
 const mediaMassUploadDialog = ref(false)
 const mediaFormDialog = ref(false)
+const currentMedia = ref(null)
 
 const filters = ref({
   page: 1,
@@ -180,12 +204,17 @@ const fetchMedia = async () => {
 
   return res.data
 }
+const queryClient = useQueryClient()
 
 const { isLoading, data } = useQuery({
   queryKey: ['media', filters],
   queryFn: fetchMedia,
   retry: 0,
 })
+
+const onFiltersReset = async () => {
+  queryClient.resetQueries({ queryKey: ['media'] })
+}
 </script>
 
 <style lang="scss" scoped></style>

@@ -37,7 +37,7 @@
         {{ snackbar.text }}
 
         <template v-slot:actions>
-          <v-btn variant="text" @click="snackbar.show = false"> mdi-close </v-btn>
+          <v-btn variant="text" icon="mdi-close" @click="snackbar.show = false"> </v-btn>
         </template>
       </v-snackbar>
     </v-main>

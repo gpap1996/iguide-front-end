@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.59.20",
+    "@vee-validate/zod": "^4.14.7",
     "@vueuse/core": "^11.2.0",
     "@vueuse/motion": "^2.2.6",
     "axios": "^1.7.7",
@@ -19,12 +20,14 @@
     "firebase": "^9.0.0",
     "pinia": "^2.2.6",
     "pinia-plugin-persistedstate": "^4.1.2",
+    "vee-validate": "^4.14.7",
     "vue": "^3.5.12",
     "vue-chart-3": "^3.1.8",
     "vue-router": "^4.4.5",
     "vuefire": "^3.2.0",
     "vuetify": "^3.7.4",
-    "vuetify-pro-tiptap": "^2.4.3"
+    "vuetify-pro-tiptap": "^2.4.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

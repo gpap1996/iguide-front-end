@@ -1,9 +1,9 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">Upload Media</div>
+      <div class="title">{{ media ? 'Edit Media' : 'Upload Media' }}</div>
       <v-spacer></v-spacer>
-      <v-btn variant="text" @click="$emit('close')">mdi-close</v-btn>
+      <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
 
     <div class="pa-8 scrollable flex-grow-1">
@@ -43,7 +43,13 @@
 
     <v-card-actions class="my-4 mr-2">
       <v-spacer></v-spacer>
-      <v-btn variant="outlined" text="Close" @click="$emit('close')" class="mr-2"></v-btn>
+      <v-btn
+        color="primary"
+        variant="outlined"
+        text="Close"
+        @click="$emit('close')"
+        class="mr-2"
+      ></v-btn>
       <v-btn color="primary" text="Save" variant="flat" @click="onSubmitMedia"></v-btn>
     </v-card-actions>
   </v-card>
@@ -53,9 +59,20 @@
 import { useBaseStore } from '@/stores/base'
 import axios from 'axios'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+
+onMounted(() => {
+  if (media) {
+    form.value.title = media.title
+    form.value.type = media.type
+    form.value.description = media.description
+  }
+})
 
 const emits = defineEmits(['close'])
+const { media } = defineProps({
+  media: Object,
+})
 
 const form = ref({
   title: null,
@@ -96,6 +113,7 @@ const onSubmitMedia = async () => {
     }
 
     emits('close')
+    emits('reset')
   } catch (e) {
     console.error(e)
     snackbar.value = {
