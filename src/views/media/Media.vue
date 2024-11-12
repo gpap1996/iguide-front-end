@@ -58,14 +58,23 @@
     >
       <template v-slot:[`item.url`]="{ item }">
         <v-img
+          v-if="item.type == 'image'"
           width="100px"
+          height="67px"
           cover
-          aspect-ratio="16 / 9"
           class="my-4 rounded-xl"
           alt="image"
           :src="`http://localhost:3000${item.url}`"
           :lazy-src="`http://localhost:3000${item.thumbnail_url}`"
         />
+        <span v-else> - </span>
+      </template>
+
+      <template v-slot:[`item.title`]="{ item }">
+        <span v-if="item.title">
+          {{ item.title }}
+        </span>
+        <span v-else> - </span>
       </template>
 
       <template v-slot:[`item.type`]="{ item }">
@@ -131,7 +140,7 @@
       <div class="dialog-wrapper scrollable-dialog">
         <media-form
           :media="currentMedia"
-          @reset="onFiltersReset"
+          @reset="onFiltersReset('media')"
           @close="mediaFormDialog = false"
         ></media-form>
       </div>
@@ -140,7 +149,7 @@
     <v-dialog v-model="mediaMassUploadDialog" max-width="1250px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <media-mass-upload
-          @reset="onFiltersReset"
+          @reset="onFiltersReset('multiple_media')"
           @close="mediaMassUploadDialog = false"
         ></media-mass-upload>
       </div>
@@ -212,8 +221,12 @@ const { isLoading, data } = useQuery({
   retry: 0,
 })
 
-const onFiltersReset = async () => {
-  queryClient.resetQueries({ queryKey: ['media'] })
+const onFiltersReset = async (type) => {
+  console.log(type, '??')
+  if (type == 'media') mediaFormDialog.value = false
+  else type == 'multiple_media'
+  mediaMassUploadDialog.value = false
+  await queryClient.resetQueries({ queryKey: ['media'] })
 }
 </script>
 

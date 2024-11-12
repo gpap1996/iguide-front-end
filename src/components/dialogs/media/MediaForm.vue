@@ -7,9 +7,19 @@
     </v-card-title>
 
     <div class="pa-8 scrollable flex-grow-1">
+      <v-select
+        v-model="language"
+        :items="languages"
+        item-title="name"
+        item-value="locale"
+        variant="outlined"
+        density="comfortable"
+        label="Language"
+      ></v-select>
+
       <v-form>
         <v-text-field
-          v-model="form.title"
+          v-model="currentTitle"
           density="comfortable"
           variant="outlined"
           label="Title"
@@ -25,7 +35,7 @@
 
         <VuetifyTiptap
           label="Description"
-          v-model="form.description"
+          v-model="currentDescription"
           minHeight="250"
           maxHeight="250"
           markdown-theme="github"
@@ -56,44 +66,67 @@
 </template>
 
 <script setup>
-import { useBaseStore } from '@/stores/base'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-import { storeToRefs } from 'pinia'
-import { onMounted, ref } from 'vue'
+
+const { media } = defineProps({ media: Object })
+const emits = defineEmits(['close', 'reset'])
+const language = ref('el') // Set default language to Greek
+const languages = [
+  { name: 'Ελληνικά', locale: 'el' },
+  { name: 'Αγγλικά', locale: 'en' },
+]
+
+const form = ref({
+  type: null,
+  file: [],
+  translations: {
+    el: { title: '', description: '' },
+    en: { title: '', description: '' },
+  },
+})
+
+const fileTypes = ['image', 'audio', 'video', 'tiles']
 
 onMounted(() => {
   if (media) {
-    form.value.title = media.title
     form.value.type = media.type
-    form.value.description = media.description
+    // Populate translations from the media data
+    form.value.translations.el.title = media.title?.el || ''
+    form.value.translations.en.title = media.title?.en || ''
+    form.value.translations.el.description = media.description?.el || ''
+    form.value.translations.en.description = media.description?.en || ''
   }
 })
 
-const emits = defineEmits(['close'])
-const { media } = defineProps({
-  media: Object,
+// Computed properties to dynamically get/set title and description based on selected language
+const currentTitle = computed({
+  get: () => form.value.translations[language.value].title,
+  set: (value) => (form.value.translations[language.value].title = value),
 })
 
-const form = ref({
-  title: null,
-  type: null,
-  file: [],
-  description: null,
+const currentDescription = computed({
+  get: () => form.value.translations[language.value].description,
+  set: (value) => (form.value.translations[language.value].description = value),
 })
-const fileTypes = ['image', 'audio', 'video', 'tiles']
-const { snackbar } = storeToRefs(useBaseStore())
 
 const onSubmitMedia = async () => {
   const formData = new FormData()
-
   formData.append('files', form.value.file)
+
+  // Convert translations to an array structure for the API payload
+  const translationsArray = Object.keys(form.value.translations).map((lang) => ({
+    locale: lang,
+    title: form.value.translations[lang].title,
+    description: form.value.translations[lang].description,
+  }))
+
   formData.append(
     'metadata',
     JSON.stringify([
       {
-        title: form.value.title,
         type: form.value.type,
-        description: form.value.description,
+        translations: translationsArray,
         fileIndex: 0,
       },
     ]),
@@ -101,26 +134,11 @@ const onSubmitMedia = async () => {
 
   try {
     await axios.post('/media', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
-
-    snackbar.value = {
-      show: true,
-      text: 'File uploaded successfully!',
-      color: 'success',
-    }
-
-    emits('close')
     emits('reset')
-  } catch (e) {
-    console.error(e)
-    snackbar.value = {
-      show: true,
-      text: 'Error uploading files. Please try again.',
-      color: 'error',
-    }
+  } catch (error) {
+    console.error('Error uploading media:', error)
   }
 }
 </script>
