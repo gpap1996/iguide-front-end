@@ -35,6 +35,12 @@ const router = createRouter({
       component: () => import('../views/media/Media.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/languages',
+      name: 'languages',
+      component: () => import('../views/language/Languages.vue'),
+      meta: { requiresAuth: true },
+    },
     // Catch-all route for non-existent paths
     {
       path: '/:pathMatch(.*)*',

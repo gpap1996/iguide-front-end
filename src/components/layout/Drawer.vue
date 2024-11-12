@@ -54,6 +54,12 @@ const navigation = ref([
     title: 'Media',
     path: '/media',
   },
+
+  {
+    icon: 'mdi-translate',
+    title: 'Languages',
+    path: '/languages',
+  },
 ])
 
 const { mdAndDown } = useDisplay()
