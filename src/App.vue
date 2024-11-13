@@ -56,6 +56,7 @@ const vuetifyTheme = useTheme()
 const route = useRoute()
 onBeforeMount(async () => {
   vuetifyTheme.global.name.value = theme.value === 'light' ? 'light' : 'dark'
+  await useBaseStore().getLanguages()
 })
 </script>
 

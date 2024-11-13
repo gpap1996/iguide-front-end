@@ -10,6 +10,7 @@
       ></v-btn>
 
       <v-btn
+        :disabled="true"
         @click="mediaMassUploadDialog = true"
         size="x-small"
         color="primary"
@@ -93,7 +94,13 @@
         >
         </v-btn>
 
-        <v-btn variant="text" color="error" icon="mdi-delete"> </v-btn>
+        <v-btn
+          variant="text"
+          color="error"
+          icon="mdi-delete"
+          @click="(currentMedia = item), (mediaDeleteDialog = true)"
+        >
+        </v-btn>
       </template>
       <!-- table footer -->
       <template v-slot:bottom>
@@ -146,13 +153,15 @@
       </div>
     </v-dialog>
 
-    <v-dialog v-model="mediaMassUploadDialog" max-width="1250px" persistent>
-      <div class="dialog-wrapper scrollable-dialog">
-        <media-mass-upload
-          @reset="onFiltersReset('multiple_media')"
-          @close="mediaMassUploadDialog = false"
-        ></media-mass-upload>
-      </div>
+    <v-dialog v-model="mediaDeleteDialog" max-width="500px">
+      <delete-entity
+        title="Delete media"
+        :isLoading="isDeleteLoading"
+        @close="mediaDeleteDialog = false"
+        @delete="onMediaDelete"
+      >
+        Are you sure you want to delete {{ currentMedia?.title }} media?
+      </delete-entity>
     </v-dialog>
   </div>
 </template>
@@ -165,8 +174,9 @@ import { useBaseStore } from '@/stores/base'
 
 const { itemsPerPageDropdown } = useBaseStore()
 
-const mediaMassUploadDialog = ref(false)
 const mediaFormDialog = ref(false)
+const mediaDeleteDialog = ref(false)
+const isDeleteLoading = ref(false)
 const currentMedia = ref(null)
 
 const filters = ref({
@@ -222,11 +232,24 @@ const { isLoading, data } = useQuery({
 })
 
 const onFiltersReset = async (type) => {
-  console.log(type, '??')
   if (type == 'media') mediaFormDialog.value = false
-  else type == 'multiple_media'
-  mediaMassUploadDialog.value = false
+  // else type == 'multiple_media'
+  // mediaMassUploadDialog.value = false
   await queryClient.resetQueries({ queryKey: ['media'] })
+}
+
+const onMediaDelete = async () => {
+  isDeleteLoading.value = true
+
+  try {
+    await axios.delete(`/media/${currentMedia.value.id}`)
+    mediaDeleteDialog.value = false
+    await onFiltersReset()
+  } catch (error) {
+    console.log(error)
+  } finally {
+    isDeleteLoading.value = false
+  }
 }
 </script>
 

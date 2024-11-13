@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ media ? 'Edit Language' : 'Upload Language' }}</div>
+      <div class="title">{{ language ? 'Edit Language' : 'Upload Language' }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -16,7 +16,7 @@
         ></v-text-field>
 
         <v-text-field
-          v-model="form.code"
+          v-model="form.locale"
           density="comfortable"
           variant="outlined"
           label="Code"
@@ -47,13 +47,13 @@ const emits = defineEmits(['close', 'reset'])
 
 const form = ref({
   name: null,
-  code: null,
+  locale: null,
 })
 
 onMounted(() => {
   if (language) {
     form.value.name = language.name
-    form.value.code = language.code
+    form.value.locale = language.locale
   }
 })
 
@@ -61,7 +61,7 @@ const onSubmitLanguage = async () => {
   try {
     await axios.post('/language', {
       name: form.value.name,
-      code: form.value.code,
+      locale: form.value.locale,
     })
     emits('reset')
   } catch (error) {

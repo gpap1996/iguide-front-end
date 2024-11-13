@@ -116,9 +116,10 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
+import { storeToRefs } from 'pinia'
 
 const { itemsPerPageDropdown } = useBaseStore()
-
+const { languages } = storeToRefs(useBaseStore())
 const languageFormDialog = ref(false)
 const currentLanguage = ref(null)
 
@@ -135,8 +136,8 @@ const headers = [
     sortable: false,
   },
   {
-    title: 'Code',
-    key: 'code',
+    title: 'Locale',
+    key: 'locale',
 
     sortable: false,
   },
@@ -151,7 +152,7 @@ const headers = [
 
 const fetchLanguages = async () => {
   const res = await axios.get('/language', {})
-
+  languages.value = res.data.languages
   return res.data
 }
 const queryClient = useQueryClient()

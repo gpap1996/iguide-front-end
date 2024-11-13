@@ -1,14 +1,14 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ media ? 'Edit Media' : 'Upload Media' }}</div>
+      <div class="title">{{ isEdit ? 'Edit Media' : 'Upload Media' }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
 
     <div class="pa-8 scrollable flex-grow-1">
       <v-select
-        v-model="language"
+        v-model="selectedLanguageLocale"
         :items="languages"
         item-title="name"
         item-value="locale"
@@ -41,13 +41,31 @@
           markdown-theme="github"
         />
 
-        <v-file-input
-          class="mt-4"
-          v-model="form.file"
-          label="Upload File"
-          variant="outlined"
-          density="comfortable"
-        ></v-file-input>
+        <div class="d-flex align-center gap-4 my-4">
+          <v-file-input
+            v-model="form.file"
+            :label="isEdit ? 'Replace File' : 'Upload File'"
+            variant="outlined"
+            density="comfortable"
+            accept="image/*,video/*,audio/*"
+            @update:model-value="handleFileChange"
+          ></v-file-input>
+
+          <div v-if="isEdit && media?.thumbnail_url" class="current-media">
+            <img
+              :src="media.thumbnail_url"
+              alt="Current media"
+              class="rounded"
+              width="100"
+              height="100"
+              style="object-fit: cover"
+            />
+          </div>
+        </div>
+
+        <v-alert v-if="errorMessage" type="error" variant="tonal" closable class="mt-4">
+          {{ errorMessage }}
+        </v-alert>
       </v-form>
     </div>
 
@@ -60,7 +78,14 @@
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
-      <v-btn color="primary" text="Save" variant="flat" @click="onSubmitMedia"></v-btn>
+      <v-btn
+        color="primary"
+        text="Save"
+        variant="flat"
+        @click="onSubmitMedia"
+        :loading="isLoading"
+        :disabled="isLoading"
+      ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -68,77 +93,140 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import { useBaseStore } from '@/stores/base'
+import { storeToRefs } from 'pinia'
 
-const { media } = defineProps({ media: Object })
-const emits = defineEmits(['close', 'reset'])
-const language = ref('el') // Set default language to Greek
-const languages = [
-  { name: 'Ελληνικά', locale: 'el' },
-  { name: 'Αγγλικά', locale: 'en' },
-]
-
-const form = ref({
-  type: null,
-  file: [],
-  translations: {
-    el: { title: '', description: '' },
-    en: { title: '', description: '' },
+// Define props and emitters
+const props = defineProps({
+  media: {
+    type: Object,
+    default: null,
   },
 })
+const emit = defineEmits(['close', 'reset'])
 
+// Component state
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+// Access language list from the store
+const { languages } = storeToRefs(useBaseStore())
+
+// Default selected language ID
+const selectedLanguageLocale = ref(languages.value[0]?.locale)
+
+// Computed property to determine if we're editing
+const isEdit = computed(() => !!props.media)
+
+// Form data
+const form = ref({
+  type: null,
+  file: null,
+  translations: {},
+})
+
+// File types
 const fileTypes = ['image', 'audio', 'video', 'tiles']
 
+// Initialize form data
 onMounted(() => {
-  if (media) {
-    form.value.type = media.type
-    // Populate translations from the media data
-    form.value.translations.el.title = media.title?.el || ''
-    form.value.translations.en.title = media.title?.en || ''
-    form.value.translations.el.description = media.description?.el || ''
-    form.value.translations.en.description = media.description?.en || ''
+  // Initialize translations
+  languages.value.forEach((lang) => {
+    form.value.translations[lang.locale] = { title: '', description: '' }
+  })
+
+  if (props.media) {
+    form.value.type = props.media.type
+
+    // Populate translations if they exist
+    if (props.media.translations) {
+      Object.entries(props.media.translations).forEach(([langId, translation]) => {
+        form.value.translations[langId] = {
+          title: translation.title || '',
+          description: translation.description || '',
+        }
+      })
+    }
   }
 })
 
-// Computed properties to dynamically get/set title and description based on selected language
+// Computed properties for current translation fields
 const currentTitle = computed({
-  get: () => form.value.translations[language.value].title,
-  set: (value) => (form.value.translations[language.value].title = value),
+  get: () => form.value.translations[selectedLanguageLocale.value]?.title || '',
+  set: (value) => {
+    if (!form.value.translations[selectedLanguageLocale.value]) {
+      form.value.translations[selectedLanguageLocale.value] = {}
+    }
+    form.value.translations[selectedLanguageLocale.value].title = value
+  },
 })
 
 const currentDescription = computed({
-  get: () => form.value.translations[language.value].description,
-  set: (value) => (form.value.translations[language.value].description = value),
+  get: () => form.value.translations[selectedLanguageLocale.value]?.description || '',
+  set: (value) => {
+    if (!form.value.translations[selectedLanguageLocale.value]) {
+      form.value.translations[selectedLanguageLocale.value] = {}
+    }
+    form.value.translations[selectedLanguageLocale.value].description = value
+  },
 })
 
+// File change handler
+const handleFileChange = (file) => {
+  if (file) {
+    const validTypes = ['image/', 'video/', 'audio/']
+    const isValidType = validTypes.some((type) => file.type.startsWith(type))
+
+    if (!isValidType) {
+      form.value.file = null
+      errorMessage.value = 'Invalid file type. Please upload an image, video, or audio file.'
+    } else {
+      errorMessage.value = ''
+    }
+  }
+}
+
+// Form submission handler
 const onSubmitMedia = async () => {
-  const formData = new FormData()
-  formData.append('files', form.value.file)
-
-  // Convert translations to an array structure for the API payload
-  const translationsArray = Object.keys(form.value.translations).map((lang) => ({
-    locale: lang,
-    title: form.value.translations[lang].title,
-    description: form.value.translations[lang].description,
-  }))
-
-  formData.append(
-    'metadata',
-    JSON.stringify([
-      {
-        type: form.value.type,
-        translations: translationsArray,
-        fileIndex: 0,
-      },
-    ]),
-  )
-
   try {
-    await axios.post('/media', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    emits('reset')
+    errorMessage.value = ''
+    isLoading.value = true
+
+    const formData = new FormData()
+
+    // Only append file if it exists
+    if (form.value.file) {
+      formData.append('file', form.value.file)
+    }
+
+    if (form.value.type) {
+      formData.append('type', form.value.type)
+    }
+
+    // Prepare metadata
+    const metadata = {
+      translations: form.value.translations,
+    }
+
+    formData.append('metadata', JSON.stringify(metadata))
+
+    if (isEdit.value) {
+      await axios.patch(`/media/${props.media.id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    } else {
+      await axios.post('/media', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
+
+    emit('reset')
+    emit('close')
   } catch (error) {
-    console.error('Error uploading media:', error)
+    console.error('Error handling media:', error)
+    errorMessage.value = error.response?.data?.error || 'An error occurred while saving the media'
+  } finally {
+    isLoading.value = false
   }
 }
 </script>

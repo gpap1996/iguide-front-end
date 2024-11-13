@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import axios from 'axios'
 
 export const useBaseStore = defineStore(
   'base',
@@ -12,6 +13,16 @@ export const useBaseStore = defineStore(
       text: '',
       color: '',
     })
+
+    const languages = ref([])
+    const getLanguages = async () => {
+      try {
+        const res = await axios.get(`/language`)
+        languages.value = res.data?.languages
+      } catch (e) {
+        console.log(e)
+      }
+    }
 
     const itemsPerPageDropdown = [
       {
@@ -34,7 +45,7 @@ export const useBaseStore = defineStore(
         value: -1,
       },
     ]
-    return { globalLoader, theme, drawer, snackbar, itemsPerPageDropdown }
+    return { globalLoader, theme, drawer, snackbar, itemsPerPageDropdown, languages, getLanguages }
   },
   {
     persist: [
