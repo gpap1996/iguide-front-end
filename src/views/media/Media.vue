@@ -72,10 +72,12 @@
       </template>
 
       <template v-slot:[`item.title`]="{ item }">
-        <span v-if="item.title">
-          {{ item.title }}
-        </span>
-        <span v-else> - </span>
+        <div v-for="(tr, key) in item?.translations" :key="key">
+          <div :class="{ 'font-weight-bold': key == 'el' }">
+            {{ tr.title }}
+          </div>
+        </div>
+        <!-- <span v-else> - </span> -->
       </template>
 
       <template v-slot:[`item.type`]="{ item }">
@@ -124,12 +126,12 @@
             "
             :items="itemsPerPageDropdown"
             width="90px"
-            :disabled="!data?.pagination.totalItems"
+            :disabled="!data?.pagination?.totalItems"
           >
           </v-select>
-          <div v-if="data?.pagination.totalItems" class="mt-2 ml-2">
+          <div v-if="data?.pagination?.totalItems" class="mt-2 ml-2">
             {{ (filters.page - 1) * filters.itemsPerPage + 1 }} of
-            {{ data?.pagination.totalItems || '...' }}
+            {{ data?.pagination?.totalItems || '...' }}
           </div>
           <div v-else class="mt-2 ml-2">-</div>
         </div>
@@ -160,7 +162,7 @@
         @close="mediaDeleteDialog = false"
         @delete="onMediaDelete"
       >
-        Are you sure you want to delete {{ currentMedia?.title }} media?
+        Are you sure you want to delete the media?
       </delete-entity>
     </v-dialog>
   </div>
@@ -240,7 +242,6 @@ const onFiltersReset = async (type) => {
 
 const onMediaDelete = async () => {
   isDeleteLoading.value = true
-
   try {
     await axios.delete(`/media/${currentMedia.value.id}`)
     mediaDeleteDialog.value = false
@@ -249,6 +250,7 @@ const onMediaDelete = async () => {
     console.log(error)
   } finally {
     isDeleteLoading.value = false
+    currentMedia.value = null
   }
 }
 </script>

@@ -203,9 +203,17 @@ const onSubmitMedia = async () => {
       formData.append('type', form.value.type)
     }
 
+    // Filter out empty translations
+    const filteredTranslations = Object.fromEntries(
+      Object.entries(form.value.translations).filter(
+        ([, translation]) =>
+          translation.title.trim() !== '' || translation.description.trim() !== '',
+      ),
+    )
+
     // Prepare metadata
     const metadata = {
-      translations: form.value.translations,
+      translations: filteredTranslations,
     }
 
     formData.append('metadata', JSON.stringify(metadata))
