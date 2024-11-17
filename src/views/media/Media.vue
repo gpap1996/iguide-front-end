@@ -72,8 +72,9 @@
       </template>
 
       <template v-slot:[`item.title`]="{ item }">
-        <div v-for="(tr, key) in item?.translations" :key="key">
-          <div :class="{ 'font-weight-bold': key == 'el' }">
+        {{ item.title }}
+        <div v-for="tr in item?.translations" :key="tr.locale">
+          <div :class="{ 'font-weight-bold': tr.locale == 'el' }">
             {{ tr.title }}
           </div>
         </div>
@@ -150,7 +151,7 @@
         <media-form
           :media="currentMedia"
           @reset="onFiltersReset('media')"
-          @close="mediaFormDialog = false"
+          @close="(mediaFormDialog = false), (currentMedia = null)"
         ></media-form>
       </div>
     </v-dialog>
@@ -159,7 +160,7 @@
       <delete-entity
         title="Delete media"
         :isLoading="isDeleteLoading"
-        @close="mediaDeleteDialog = false"
+        @close="(mediaDeleteDialog = false), (currentMedia = null)"
         @delete="onMediaDelete"
       >
         Are you sure you want to delete the media?

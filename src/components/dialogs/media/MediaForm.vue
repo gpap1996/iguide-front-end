@@ -96,7 +96,6 @@ import axios from 'axios'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 
-// Define props and emitters
 const props = defineProps({
   media: {
     type: Object,
@@ -109,13 +108,10 @@ const emit = defineEmits(['close', 'reset'])
 const isLoading = ref(false)
 const errorMessage = ref('')
 
-// Access language list from the store
 const { languages } = storeToRefs(useBaseStore())
 
-// Default selected language ID
 const selectedLanguageLocale = ref(languages.value[0]?.locale)
 
-// Computed property to determine if we're editing
 const isEdit = computed(() => !!props.media)
 
 // Form data
@@ -125,10 +121,8 @@ const form = ref({
   translations: {},
 })
 
-// File types
 const fileTypes = ['image', 'audio', 'video', 'tiles']
 
-// Initialize form data
 onMounted(() => {
   // Initialize translations
   languages.value.forEach((lang) => {
@@ -140,8 +134,9 @@ onMounted(() => {
 
     // Populate translations if they exist
     if (props.media.translations) {
-      Object.entries(props.media.translations).forEach(([langId, translation]) => {
-        form.value.translations[langId] = {
+      console.log(props.media.translations)
+      props.media.translations.forEach((translation) => {
+        form.value.translations[translation.locale] = {
           title: translation.title || '',
           description: translation.description || '',
         }
@@ -219,7 +214,7 @@ const onSubmitMedia = async () => {
     formData.append('metadata', JSON.stringify(metadata))
 
     if (isEdit.value) {
-      await axios.patch(`/media/${props.media.id}`, formData, {
+      await axios.put(`/media/${props.media.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
     } else {
