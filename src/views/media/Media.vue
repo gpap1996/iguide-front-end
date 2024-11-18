@@ -72,8 +72,18 @@
       </template>
 
       <template v-slot:[`item.title`]="{ item }">
-        {{ item.title }}
-        <div v-for="tr in item?.translations" :key="tr.locale">
+        <div class="d-flex align-center mb-2" v-for="tr in item?.translations" :key="tr.locale">
+          <v-chip
+            density="compact"
+            size="small"
+            variant="tonal"
+            color="primary"
+            class="mr-2"
+            style="width: 32px"
+          >
+            {{ tr.locale }}
+          </v-chip>
+
           <div :class="{ 'font-weight-bold': tr.locale == 'el' }">
             {{ tr.title }}
           </div>
