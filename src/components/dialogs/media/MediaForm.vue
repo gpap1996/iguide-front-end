@@ -47,7 +47,7 @@
             :label="isEdit ? 'Replace File' : 'Upload File'"
             variant="outlined"
             density="comfortable"
-            accept="image/*,video/*,audio/*"
+            accept="image/*,video/*,audio/*,.mbtiles,application/x-mbtiles"
             @update:model-value="handleFileChange"
           ></v-file-input>
 

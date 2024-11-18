@@ -40,14 +40,7 @@
   &.scrollable-dialog {
     display: flex;
     flex-direction: column;
-
-    @media only screen and (min-width: 600px) {
-      height: 90vh;
-
-      &.small {
-        height: 60vh;
-      }
-    }
+    height: 90vh;
   }
 }
 

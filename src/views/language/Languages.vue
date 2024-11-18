@@ -90,6 +90,10 @@
           <div v-else class="mt-2 ml-2">-</div>
         </div>
       </template>
+
+      <template v-slot:loading>
+        <table-loader :headers="headers"></table-loader>
+      </template>
     </v-data-table-server>
 
     <v-pagination
@@ -116,10 +120,8 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
-import { storeToRefs } from 'pinia'
 
 const { itemsPerPageDropdown } = useBaseStore()
-const { languages } = storeToRefs(useBaseStore())
 const languageFormDialog = ref(false)
 const currentLanguage = ref(null)
 
@@ -151,8 +153,17 @@ const headers = [
 ]
 
 const fetchLanguages = async () => {
-  const res = await axios.get('/language', {})
-  languages.value = res.data.languages
+  const res = await axios.get('/language', {
+    params: {
+      limit: filters.value.itemsPerPage,
+      page: filters.value.page,
+    },
+  })
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 500)
+  })
   return res.data
 }
 const queryClient = useQueryClient()

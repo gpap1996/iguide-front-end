@@ -137,6 +137,10 @@
           <div v-else class="mt-2 ml-2">-</div>
         </div>
       </template>
+
+      <template v-slot:loading>
+        <table-loader :headers="headers"></table-loader>
+      </template>
     </v-data-table-server>
 
     <v-pagination
@@ -224,6 +228,12 @@ const fetchMedia = async () => {
     },
   })
 
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 500)
+  })
+
   return res.data
 }
 const queryClient = useQueryClient()
@@ -236,8 +246,7 @@ const { isLoading, data } = useQuery({
 
 const onFiltersReset = async (type) => {
   if (type == 'media') mediaFormDialog.value = false
-  // else type == 'multiple_media'
-  // mediaMassUploadDialog.value = false
+
   await queryClient.resetQueries({ queryKey: ['media'] })
 }
 
