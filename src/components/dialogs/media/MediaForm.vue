@@ -136,7 +136,7 @@ onMounted(() => {
     if (props.media.translations) {
       console.log(props.media.translations)
       props.media.translations.forEach((translation) => {
-        form.value.translations[translation.locale] = {
+        form.value.translations[translation.language.locale] = {
           title: translation.title || '',
           description: translation.description || '',
         }

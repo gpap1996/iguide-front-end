@@ -72,7 +72,11 @@
       </template>
 
       <template v-slot:[`item.title`]="{ item }">
-        <div class="d-flex align-center mb-2" v-for="tr in item?.translations" :key="tr.locale">
+        <div
+          class="d-flex align-center mb-2"
+          v-for="tr in item?.translations"
+          :key="tr.language.locale"
+        >
           <v-chip
             density="compact"
             size="small"
@@ -81,10 +85,10 @@
             class="mr-2"
             style="width: 32px"
           >
-            {{ tr.locale }}
+            {{ tr.language.locale }}
           </v-chip>
 
-          <div :class="{ 'font-weight-bold': tr.locale == 'el' }">
+          <div :class="{ 'font-weight-bold': tr.language.locale == 'el' }">
             {{ tr.title }}
           </div>
         </div>
@@ -265,7 +269,13 @@ const onMediaDelete = async () => {
   try {
     await axios.delete(`/media/${currentMedia.value.id}`)
     mediaDeleteDialog.value = false
-    await onFiltersReset()
+    if (data.value?.media?.length == 1)
+      filters.value = {
+        ...filters.value,
+        title: null,
+        page: 1,
+      }
+    else await onFiltersReset()
   } catch (error) {
     console.log(error)
   } finally {

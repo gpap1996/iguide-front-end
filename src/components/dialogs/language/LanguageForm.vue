@@ -59,10 +59,18 @@ onMounted(() => {
 
 const onSubmitLanguage = async () => {
   try {
-    await axios.post('/language', {
-      name: form.value.name,
-      locale: form.value.locale,
-    })
+    if (language) {
+      await axios.put(`/language/${language.id}`, {
+        name: form.value.name,
+        locale: form.value.locale,
+      })
+    } else {
+      await axios.post('/language', {
+        name: form.value.name,
+        locale: form.value.locale,
+      })
+    }
+
     emits('reset')
   } catch (error) {
     console.error('Error uploading language:', error)
