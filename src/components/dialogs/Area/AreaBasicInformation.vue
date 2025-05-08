@@ -71,10 +71,8 @@ import axios from 'axios'
 
 onMounted(async () => {
   if (areas.value.length) return
+
   const res = await axios.get('/areas/dropdown', {
-    params: {
-      limit: -1,
-    },
     headers: {
       'Accept-Language': 'el',
     },

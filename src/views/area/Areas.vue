@@ -2,7 +2,7 @@
   <div class="component-wrapper d-flex flex-column">
     <page-title title="Area">
       <v-btn
-        @click="areaFormDialog = true"
+        @click="onOpenAreaFormDialog(null)"
         size="x-small"
         color="primary"
         icon="mdi-plus"
@@ -95,25 +95,13 @@
 
       <template v-slot:[`item.parent`]="{ item }">
         <div
-          class="d-flex align-center mb-2"
+          class="d-flex align-center"
           v-for="tr in item?.parent?.translations"
           :key="tr.language.locale"
         >
-          <v-chip
-            density="compact"
-            size="small"
-            variant="tonal"
-            color="primary"
-            class="mr-2"
-            style="width: 32px"
-          >
-            {{ tr.language.locale }}
-          </v-chip>
-
-          <div v-if="tr.title" :class="{ 'font-weight-bold': tr.language.locale == 'el' }">
+          <div v-if="tr.language.locale == 'el'">
             {{ tr.title }}
           </div>
-          <div v-else>-</div>
         </div>
         <div v-if="!item.parent?.translations">
           <div class="font-weight-bold">-</div>
@@ -121,12 +109,7 @@
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn
-          variant="text"
-          class="mr-4"
-          icon="mdi-pencil"
-          @click="(form = item), (areaFormDialog = true)"
-        >
+        <v-btn variant="text" class="mr-4" icon="mdi-pencil" @click="onOpenAreaFormDialog(item.id)">
         </v-btn>
 
         <v-btn
@@ -182,9 +165,13 @@
       class="mt-10"
     ></v-pagination>
 
-    <v-dialog v-model="areaFormDialog" max-width="1000px" persistent>
+    <v-dialog v-model="areaFormDialog.open" max-width="1000px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
-        <area-form @reset="onFiltersReset('save')" @close="onCloseAreaFormDialog"></area-form>
+        <area-form
+          @reset="onFiltersReset('save')"
+          @close="onCloseAreaFormDialog"
+          :areaId="areaFormDialog.areaId"
+        ></area-form>
       </div>
     </v-dialog>
 
@@ -209,15 +196,21 @@ import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 import { useAreasStore } from '@/stores/areas'
 import { storeToRefs } from 'pinia'
-const { itemsPerPageDropdown } = useBaseStore()
 
-const areaFormDialog = ref(false)
+const baseStore = useBaseStore()
+const { itemsPerPageDropdown } = baseStore
+const { snackbar } = storeToRefs(baseStore)
+
+const areaFormDialog = ref({
+  open: false,
+  areaId: null,
+})
 const areasDeleteDialog = ref(false)
 const isDeleteLoading = ref(false)
 
 const areasStore = useAreasStore()
 const { resetForm } = areasStore
-const { form } = storeToRefs(areasStore)
+const { form, isEdit } = storeToRefs(areasStore)
 
 const filters = ref({
   page: 1,
@@ -239,14 +232,14 @@ const headers = [
   },
 
   {
-    title: 'Weight',
-    key: 'weight',
+    title: 'Wider Area',
+    key: 'parent',
     sortable: false,
   },
 
   {
-    title: 'Wider Area',
-    key: 'parent',
+    title: 'Weight',
+    key: 'weight',
     sortable: false,
   },
 
@@ -258,7 +251,7 @@ const headers = [
   },
 ]
 
-const fetchAreas = async () => {
+async function fetchAreas() {
   const res = await axios.get('/areas', {
     params: {
       limit: filters.value.itemsPerPage,
@@ -283,10 +276,9 @@ const { isLoading, data } = useQuery({
   retry: 0,
 })
 
-const onFiltersReset = async (action) => {
-  if (action == 'save') areaFormDialog.value = false
-
+async function onFiltersReset() {
   await queryClient.resetQueries({ queryKey: ['areas'] })
+  onCloseAreaFormDialog()
   resetForm()
 }
 
@@ -299,12 +291,24 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
-const onCloseAreaFormDialog = () => {
-  areaFormDialog.value = false
+async function onOpenAreaFormDialog(areaId) {
+  areaFormDialog.value = {
+    open: true,
+    areaId,
+  }
+  if (areaId) isEdit.value = true
+  else isEdit.value = false
+}
+
+async function onCloseAreaFormDialog() {
+  areaFormDialog.value = {
+    open: false,
+    areaId: null,
+  }
   resetForm()
 }
 
-const onDeleteArea = async () => {
+async function onDeleteArea() {
   isDeleteLoading.value = true
   try {
     await axios.delete(`/areas/${form.value.id}`)
@@ -316,11 +320,16 @@ const onDeleteArea = async () => {
         page: 1,
       }
     else await onFiltersReset()
+
+    snackbar.value = {
+      show: true,
+      text: 'Area deleted successfully!',
+      color: 'success',
+    }
   } catch (error) {
     console.log(error)
   } finally {
     isDeleteLoading.value = false
-    form.value = null
   }
 }
 </script>

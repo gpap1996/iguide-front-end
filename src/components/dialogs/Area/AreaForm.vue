@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">Create Area</div>
+      <div class="title">{{ !isEdit ? 'Create Area' : 'Edit Area' }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -34,16 +34,33 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAreasStore } from '@/stores/areas'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 
 const areasStore = useAreasStore()
-const { submitArea } = areasStore
+const { submitArea, fetchAreaById } = areasStore
+const { isEdit } = storeToRefs(areasStore)
 
 const baseStore = useBaseStore()
 const { snackbar } = storeToRefs(baseStore)
+
+onMounted(async () => {
+  if (props?.areaId) {
+    await fetchAreaById(props.areaId)
+  }
+})
+
+const props = defineProps({
+  areaId: {
+    type: Number,
+  },
+  isEdit: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const emits = defineEmits(['reset', 'close'])
 const tab = ref(null)
