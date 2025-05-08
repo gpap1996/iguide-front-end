@@ -15,6 +15,7 @@
         size="x-small"
         color="primary"
         icon="mdi-plus-box-multiple"
+        class="mr-2"
       ></v-btn>
 
       <v-text-field
@@ -160,21 +161,21 @@
       <div class="dialog-wrapper scrollable-dialog">
         <media-form
           :media="currentMedia"
-          @reset="onFiltersReset('media')"
+          @reset="onFiltersReset('save')"
           @close="(mediaFormDialog = false), (currentMedia = null)"
         ></media-form>
       </div>
     </v-dialog>
 
     <v-dialog v-model="mediaDeleteDialog" max-width="500px">
-      <delete-entity
+      <confirm-dialog
         title="Delete media"
         :isLoading="isDeleteLoading"
         @close="(mediaDeleteDialog = false), (currentMedia = null)"
-        @delete="onMediaDelete"
+        @confirm="onDeleteMedia"
       >
         Are you sure you want to delete the media?
-      </delete-entity>
+      </confirm-dialog>
     </v-dialog>
   </div>
 </template>
@@ -250,8 +251,8 @@ const { isLoading, data } = useQuery({
   retry: 0,
 })
 
-const onFiltersReset = async (type) => {
-  if (type == 'media') mediaFormDialog.value = false
+const onFiltersReset = async (action) => {
+  if (action == 'save') mediaFormDialog.value = false
 
   await queryClient.resetQueries({ queryKey: ['media'] })
 }
@@ -265,7 +266,7 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
-const onMediaDelete = async () => {
+const onDeleteMedia = async () => {
   isDeleteLoading.value = true
   try {
     await axios.delete(`/media/${currentMedia.value.id}`)

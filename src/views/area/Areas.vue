@@ -14,7 +14,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Media"
+        label="Search Area"
         clearable
         hide-details
         class="ml-auto"
@@ -41,23 +41,9 @@
       class="mx-auto mt-4"
       style="max-width: 90vw; flex-grow: 1"
     >
-      <template v-slot:[`item.url`]="{ item }">
-        <v-img
-          v-if="item.type == 'image'"
-          width="100px"
-          height="67px"
-          cover
-          class="my-4 rounded-xl"
-          alt="image"
-          :src="`http://localhost:3000${item.url}`"
-          :lazy-src="`http://localhost:3000${item.thumbnail_url}`"
-        />
-        <span v-else> - </span>
-      </template>
-
       <template v-slot:[`item.title`]="{ item }">
         <div
-          class="d-flex align-center mb-2"
+          class="d-flex align-center mb-2 mt-2"
           v-for="tr in item?.translations"
           :key="tr.language.locale"
         >
@@ -173,21 +159,21 @@
       <div class="dialog-wrapper scrollable-dialog">
         <area-form
           :area="currentArea"
-          @reset="onFiltersReset('areas')"
+          @reset="onFiltersReset('save')"
           @close="(areaFormDialog = false), (currentArea = null)"
         ></area-form>
       </div>
     </v-dialog>
 
     <v-dialog v-model="areasDeleteDialog" max-width="500px">
-      <delete-entity
+      <confirm-dialog
         title="Delete areas"
         :isLoading="isDeleteLoading"
         @close="(areasDeleteDialog = false), (currentArea = null)"
-        @delete="onMediaDelete"
+        @confirm="onDeleteArea"
       >
         Are you sure you want to delete the areas?
-      </delete-entity>
+      </confirm-dialog>
     </v-dialog>
   </div>
 </template>
@@ -263,8 +249,8 @@ const { isLoading, data } = useQuery({
   retry: 0,
 })
 
-const onFiltersReset = async (type) => {
-  if (type == 'areas') areaFormDialog.value = false
+const onFiltersReset = async (action) => {
+  if (action == 'save') areaFormDialog.value = false
 
   await queryClient.resetQueries({ queryKey: ['areas'] })
 }
@@ -278,7 +264,7 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
-const onMediaDelete = async () => {
+const onDeleteArea = async () => {
   isDeleteLoading.value = true
   try {
     await axios.delete(`/areas/${currentArea.value.id}`)

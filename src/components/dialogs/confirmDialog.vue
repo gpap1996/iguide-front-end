@@ -23,7 +23,7 @@
         color="primary"
         text="Save"
         variant="flat"
-        @click="$emit('delete')"
+        @click="$emit('confirm')"
         :loading="isLoading"
         :disabled="isLoading"
       ></v-btn>
@@ -36,7 +36,7 @@ defineProps({
   title: String,
   isLoading: Boolean,
 })
-defineEmits(['close', 'delete'])
+defineEmits(['close', 'confirm'])
 </script>
 
 <style lang="scss" scoped></style>
