@@ -59,7 +59,7 @@
           class="my-4 rounded-xl"
           alt="image"
           :src="`http://localhost:3000${item.url}`"
-          :lazy-src="`http://localhost:3000${item.thumbnail_url}`"
+          :lazy-src="`http://localhost:3000${item.thumbnailUrl}`"
         />
         <span v-else> - </span>
       </template>

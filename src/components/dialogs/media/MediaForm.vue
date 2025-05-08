@@ -41,7 +41,7 @@
           markdown-theme="github"
         />
 
-        <div class="d-flex align-center gap-4 my-4">
+        <div class="d-flex flex-column align-center my-4">
           <v-file-input
             v-model="form.file"
             :label="isEdit ? 'Replace File' : 'Upload File'"
@@ -49,11 +49,12 @@
             density="comfortable"
             accept="image/*,video/*,audio/*,.mbtiles,application/x-mbtiles"
             @update:model-value="handleFileChange"
+            width="100%"
           ></v-file-input>
 
-          <div v-if="isEdit && media?.thumbnail_url" class="current-media">
+          <div v-if="isEdit && media?.url" class="current-media ml-4">
             <img
-              :src="media.thumbnail_url"
+              :src="`http://localhost:3000${media.url}`"
               alt="Current media"
               class="rounded"
               width="100"
