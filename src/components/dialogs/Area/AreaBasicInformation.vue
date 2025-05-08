@@ -26,6 +26,17 @@
           label="Subtitle"
         ></v-text-field>
 
+        <v-select
+          v-model="form.parentId"
+          :items="areas"
+          density="comfortable"
+          variant="outlined"
+          label="Wider area"
+          item-text="title"
+          item-value="id"
+        >
+        </v-select>
+
         <v-text-field
           v-model="form.weight"
           density="comfortable"
@@ -52,10 +63,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useAreasStore } from '@/stores/areas'
+import axios from 'axios'
+
+onMounted(async () => {
+  if (areas.value.length) return
+  const res = await axios.get('/areas/dropdown', {
+    params: {
+      limit: -1,
+    },
+    headers: {
+      'Accept-Language': 'el',
+    },
+  })
+
+  areas.value = res.data.items
+})
 
 const areasStore = useAreasStore()
 const { form } = storeToRefs(areasStore)
@@ -67,6 +93,7 @@ const { languages } = storeToRefs(useBaseStore())
 
 const selectedLanguageLocale = ref(languages.value[0]?.locale)
 
+const areas = ref([])
 // Form data
 
 const currentTitle = computed({

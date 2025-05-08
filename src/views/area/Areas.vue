@@ -93,6 +93,33 @@
         </div>
       </template>
 
+      <template v-slot:[`item.parent`]="{ item }">
+        <div
+          class="d-flex align-center mb-2"
+          v-for="tr in item?.parent?.translations"
+          :key="tr.language.locale"
+        >
+          <v-chip
+            density="compact"
+            size="small"
+            variant="tonal"
+            color="primary"
+            class="mr-2"
+            style="width: 32px"
+          >
+            {{ tr.language.locale }}
+          </v-chip>
+
+          <div v-if="tr.title" :class="{ 'font-weight-bold': tr.language.locale == 'el' }">
+            {{ tr.title }}
+          </div>
+          <div v-else>-</div>
+        </div>
+        <div v-if="!item.parent?.translations">
+          <div class="font-weight-bold">-</div>
+        </div>
+      </template>
+
       <template v-slot:[`item.actions`]="{ item }">
         <v-btn
           variant="text"
@@ -214,6 +241,12 @@ const headers = [
   {
     title: 'Weight',
     key: 'weight',
+    sortable: false,
+  },
+
+  {
+    title: 'Wider Area',
+    key: 'parent',
     sortable: false,
   },
 

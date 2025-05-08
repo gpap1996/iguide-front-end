@@ -132,7 +132,6 @@ onMounted(() => {
 
     // Populate translations if they exist
     if (props.media.translations) {
-      console.log(props.media.translations)
       props.media.translations.forEach((translation) => {
         form.value.translations[translation.language.locale] = {
           title: translation.title || '',

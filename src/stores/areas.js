@@ -7,6 +7,7 @@ export const useAreasStore = defineStore('areas', () => {
     weight: 0,
     media: [],
     sound: null,
+    parentId: null,
     translations: {},
   })
 
@@ -22,6 +23,7 @@ export const useAreasStore = defineStore('areas', () => {
       weight: 0,
       media: [],
       sound: null,
+      parentId: null,
       translations: {},
     }
   }
