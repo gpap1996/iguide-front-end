@@ -4,7 +4,7 @@ import axios from 'axios'
 
 export const useAreasStore = defineStore('areas', () => {
   const form = ref({
-    weight: null,
+    weight: 0,
     media: [],
     sound: null,
     translations: {},
@@ -17,5 +17,14 @@ export const useAreasStore = defineStore('areas', () => {
     await axios.post('/areas', sanitizedForm)
   }
 
-  return { form, submitArea }
+  function resetForm() {
+    form.value = {
+      weight: 0,
+      media: [],
+      sound: null,
+      translations: {},
+    }
+  }
+
+  return { form, submitArea, resetForm }
 })

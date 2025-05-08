@@ -45,7 +45,7 @@ const { submitArea } = areasStore
 const baseStore = useBaseStore()
 const { snackbar } = storeToRefs(baseStore)
 
-const emits = defineEmits(['reset'])
+const emits = defineEmits(['reset', 'close'])
 const tab = ref(null)
 const isLoading = ref(false)
 
@@ -57,6 +57,7 @@ async function onSave() {
       text: 'Area saved successfully!',
       color: 'success',
     }
+    emits('reset')
   } catch (error) {
     snackbar.value = {
       show: true,
@@ -66,7 +67,6 @@ async function onSave() {
   } finally {
     isLoading.value = false
   }
-  emits('reset')
 }
 </script>
 

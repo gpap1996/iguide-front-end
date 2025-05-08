@@ -98,7 +98,7 @@
           variant="text"
           class="mr-4"
           icon="mdi-pencil"
-          @click="(currentArea = item), (areaFormDialog = true)"
+          @click="(form = item), (areaFormDialog = true)"
         >
         </v-btn>
 
@@ -106,7 +106,7 @@
           variant="text"
           color="error"
           icon="mdi-delete"
-          @click="(currentArea = item), (areasDeleteDialog = true)"
+          @click="(form = item), (areasDeleteDialog = true)"
         >
         </v-btn>
       </template>
@@ -157,11 +157,7 @@
 
     <v-dialog v-model="areaFormDialog" max-width="1000px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
-        <area-form
-          :area="currentArea"
-          @reset="onFiltersReset('save')"
-          @close="(areaFormDialog = false), (currentArea = null)"
-        ></area-form>
+        <area-form @reset="onFiltersReset('save')" @close="onCloseAreaFormDialog"></area-form>
       </div>
     </v-dialog>
 
@@ -169,7 +165,7 @@
       <confirm-dialog
         title="Delete areas"
         :isLoading="isDeleteLoading"
-        @close="(areasDeleteDialog = false), (currentArea = null)"
+        @close="(areasDeleteDialog = false), (form = null)"
         @confirm="onDeleteArea"
       >
         Are you sure you want to delete the areas?
@@ -184,12 +180,17 @@ import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
+import { useAreasStore } from '@/stores/areas'
+import { storeToRefs } from 'pinia'
 const { itemsPerPageDropdown } = useBaseStore()
 
 const areaFormDialog = ref(false)
 const areasDeleteDialog = ref(false)
 const isDeleteLoading = ref(false)
-const currentArea = ref(null)
+
+const areasStore = useAreasStore()
+const { resetForm } = areasStore
+const { form } = storeToRefs(areasStore)
 
 const filters = ref({
   page: 1,
@@ -224,7 +225,7 @@ const headers = [
   },
 ]
 
-const fetchMedia = async () => {
+const fetchAreas = async () => {
   const res = await axios.get('/areas', {
     params: {
       limit: filters.value.itemsPerPage,
@@ -245,7 +246,7 @@ const queryClient = useQueryClient()
 
 const { isLoading, data } = useQuery({
   queryKey: ['areas', filters],
-  queryFn: fetchMedia,
+  queryFn: fetchAreas,
   retry: 0,
 })
 
@@ -253,6 +254,7 @@ const onFiltersReset = async (action) => {
   if (action == 'save') areaFormDialog.value = false
 
   await queryClient.resetQueries({ queryKey: ['areas'] })
+  resetForm()
 }
 
 // Debounced function for updating filters
@@ -264,10 +266,15 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
+const onCloseAreaFormDialog = () => {
+  areaFormDialog.value = false
+  resetForm()
+}
+
 const onDeleteArea = async () => {
   isDeleteLoading.value = true
   try {
-    await axios.delete(`/areas/${currentArea.value.id}`)
+    await axios.delete(`/areas/${form.value.id}`)
     areasDeleteDialog.value = false
     if (data.value?.areas?.length == 1)
       filters.value = {
@@ -280,7 +287,7 @@ const onDeleteArea = async () => {
     console.log(error)
   } finally {
     isDeleteLoading.value = false
-    currentArea.value = null
+    form.value = null
   }
 }
 </script>

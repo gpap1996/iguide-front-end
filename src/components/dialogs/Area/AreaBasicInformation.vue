@@ -26,6 +26,15 @@
           label="Subtitle"
         ></v-text-field>
 
+        <v-text-field
+          v-model="form.weight"
+          density="comfortable"
+          variant="outlined"
+          label="Weight"
+          type="number"
+          @input="form.weight = Number(form.weight)"
+        ></v-text-field>
+
         <VuetifyTiptap
           label="Description"
           v-model="currentDescription"
