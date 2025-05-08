@@ -33,12 +33,16 @@
         }"
       />
 
-      <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000">
-        {{ snackbar.text }}
-
-        <template v-slot:actions>
-          <v-btn variant="text" icon="mdi-close" @click="snackbar.show = false"> </v-btn>
-        </template>
+      <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        :timeout="4000"
+        location="bottom right"
+      >
+        <div class="d-flex align-center">
+          {{ snackbar.text }}
+          <v-icon icon="mdi-check-circle" class="ml-auto" color="white"> </v-icon>
+        </div>
       </v-snackbar>
     </v-main>
   </v-layout>

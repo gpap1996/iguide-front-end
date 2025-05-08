@@ -22,7 +22,13 @@
     <v-card-actions class="my-4 mr-2">
       <v-spacer></v-spacer>
       <v-btn variant="outlined" text="Close" @click="$emit('close')" class="mr-2"></v-btn>
-      <v-btn color="primary" text="Save" variant="flat" @click="onSave"></v-btn>
+      <v-btn
+        :isLoading="isLoading"
+        color="primary"
+        text="Save"
+        variant="flat"
+        @click="onSave"
+      ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -30,16 +36,37 @@
 <script setup>
 import { ref } from 'vue'
 import { useAreasStore } from '@/stores/areas'
+import { useBaseStore } from '@/stores/base'
+import { storeToRefs } from 'pinia'
 
 const areasStore = useAreasStore()
 const { submitArea } = areasStore
 
-const emits = defineEmits(['close'])
+const baseStore = useBaseStore()
+const { snackbar } = storeToRefs(baseStore)
+
+const emits = defineEmits(['reset'])
 const tab = ref(null)
+const isLoading = ref(false)
 
 async function onSave() {
-  await submitArea()
-  emits('close')
+  try {
+    await submitArea()
+    snackbar.value = {
+      show: true,
+      text: 'Area saved successfully!',
+      color: 'success',
+    }
+  } catch (error) {
+    snackbar.value = {
+      show: true,
+      text: `Error handling area ${error}`,
+      color: 'error',
+    }
+  } finally {
+    isLoading.value = false
+  }
+  emits('reset')
 }
 </script>
 

@@ -63,10 +63,6 @@
             />
           </div>
         </div>
-
-        <v-alert v-if="errorMessage" type="error" variant="tonal" closable class="mt-4">
-          {{ errorMessage }}
-        </v-alert>
       </v-form>
     </div>
 
@@ -97,6 +93,9 @@ import axios from 'axios'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 
+const baseStore = useBaseStore()
+const { languages, snackbar } = storeToRefs(baseStore)
+
 const props = defineProps({
   media: {
     type: Object,
@@ -108,8 +107,6 @@ const emit = defineEmits(['close', 'reset'])
 // Component state
 const isLoading = ref(false)
 const errorMessage = ref('')
-
-const { languages } = storeToRefs(useBaseStore())
 
 const selectedLanguageLocale = ref(languages.value[0]?.locale)
 
@@ -226,9 +223,19 @@ const onSubmitMedia = async () => {
 
     emit('reset')
     emit('close')
+    snackbar.value = {
+      show: true,
+      text: 'Files uploaded successfully!',
+      color: 'success',
+    }
   } catch (error) {
+    snackbar.value = {
+      show: true,
+      text: `Error handling media ${error}`,
+      color: 'error',
+    }
+
     console.error('Error handling media:', error)
-    errorMessage.value = error.response?.data?.error || 'An error occurred while saving the media'
   } finally {
     isLoading.value = false
   }
