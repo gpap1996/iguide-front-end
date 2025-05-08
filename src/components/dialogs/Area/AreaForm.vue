@@ -34,10 +34,12 @@ import { useAreasStore } from '@/stores/areas'
 const areasStore = useAreasStore()
 const { submitArea } = areasStore
 
+const emits = defineEmits(['close'])
 const tab = ref(null)
 
 async function onSave() {
   await submitArea()
+  emits('close')
 }
 </script>
 
