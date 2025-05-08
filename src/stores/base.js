@@ -17,7 +17,7 @@ export const useBaseStore = defineStore(
     const languages = ref([])
     const getLanguages = async () => {
       try {
-        const res = await axios.get(`/language`)
+        const res = await axios.get(`/languages`)
         languages.value = res.data?.languages
       } catch (e) {
         console.log(e)

@@ -1,36 +1,94 @@
 <template>
-  <div class="pa-8 scrollable flex-grow-1">
-    <v-form>
-      <v-row>
-        <v-col cols="6">
-          <v-text-field density="comfortable" variant="outlined" label="Title"></v-text-field>
-        </v-col>
+  <v-card class="flex-grow-1 d-flex flex-column">
+    <div class="px-8 py-4 scrollable flex-grow-1">
+      <v-select
+        v-model="selectedLanguageLocale"
+        :items="languages"
+        item-title="name"
+        item-value="locale"
+        variant="outlined"
+        density="comfortable"
+        label="Language"
+      ></v-select>
 
-        <v-col cols="6">
-          <v-select density="comfortable" variant="outlined" label="Category"></v-select>
-        </v-col>
+      <v-form>
+        <v-text-field
+          v-model="currentTitle"
+          density="comfortable"
+          variant="outlined"
+          label="Title"
+        ></v-text-field>
 
-        <v-col cols="6">
-          <v-text-field density="comfortable" variant="outlined" label="Subtitle"></v-text-field>
-        </v-col>
+        <v-text-field
+          v-model="currentSubtitle"
+          density="comfortable"
+          variant="outlined"
+          label="Subtitle"
+        ></v-text-field>
 
-        <v-col cols="6">
-          <v-text-field
-            density="comfortable"
-            variant="outlined"
-            label="Order"
-            type="number"
-          ></v-text-field>
-        </v-col>
+        <VuetifyTiptap
+          label="Description"
+          v-model="currentDescription"
+          minHeight="250"
+          maxHeight="250"
+          markdown-theme="github"
+        />
 
-        <v-col cols="6">
-          <VuetifyTiptap minHeight="250" maxHeight="250" markdown-theme="github" />
-        </v-col>
-      </v-row>
-    </v-form>
-  </div>
+        <v-alert v-if="errorMessage" type="error" variant="tonal" closable class="mt-4">
+          {{ errorMessage }}
+        </v-alert>
+      </v-form>
+    </div>
+  </v-card>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref, computed } from 'vue'
+import { useBaseStore } from '@/stores/base'
+import { storeToRefs } from 'pinia'
+import { useAreasStore } from '@/stores/areas'
+
+const areasStore = useAreasStore()
+const { form } = storeToRefs(areasStore)
+
+// Component state
+const errorMessage = ref('')
+
+const { languages } = storeToRefs(useBaseStore())
+
+const selectedLanguageLocale = ref(languages.value[0]?.locale)
+
+// Form data
+
+const currentTitle = computed({
+  get: () => form.value.translations[selectedLanguageLocale.value]?.title || '',
+  set: (value) => {
+    if (!form.value.translations[selectedLanguageLocale.value]) {
+      form.value.translations[selectedLanguageLocale.value] = {}
+    }
+    form.value.translations[selectedLanguageLocale.value].title = value
+  },
+})
+
+const currentSubtitle = computed({
+  get: () => form.value.translations[selectedLanguageLocale.value]?.subtitle || '',
+  set: (value) => {
+    if (!form.value.translations[selectedLanguageLocale.value]) {
+      form.value.translations[selectedLanguageLocale.value] = {}
+    }
+    form.value.translations[selectedLanguageLocale.value].subtitle = value
+  },
+})
+
+const currentDescription = computed({
+  get: () => form.value.translations[selectedLanguageLocale.value]?.description || '',
+  set: (value) => {
+    if (!form.value.translations[selectedLanguageLocale.value]) {
+      form.value.translations[selectedLanguageLocale.value] = {}
+    }
+    form.value.translations[selectedLanguageLocale.value].description = value
+  },
+})
+</script>
 
 <style lang="scss" scoped></style>

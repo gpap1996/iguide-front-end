@@ -35,15 +35,7 @@
               page: 1,
             })
         "
-        @keydown.enter="
-          (e) => {
-            filters = {
-              ...filters,
-              title: e.target.value,
-              page: 1,
-            }
-          }
-        "
+        @input="(e) => updateFilters(e.target.value)"
       >
       </v-text-field>
     </page-title>
@@ -192,7 +184,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
-
+import { debounce } from 'lodash'
 const { itemsPerPageDropdown } = useBaseStore()
 
 const mediaFormDialog = ref(false)
@@ -264,12 +256,22 @@ const onFiltersReset = async (type) => {
   await queryClient.resetQueries({ queryKey: ['media'] })
 }
 
+// Debounced function for updating filters
+const updateFilters = debounce((value) => {
+  filters.value = {
+    ...filters.value,
+    title: value,
+    page: 1,
+  }
+}, 300)
+
 const onMediaDelete = async () => {
   isDeleteLoading.value = true
   try {
     await axios.delete(`/media/${currentMedia.value.id}`)
     mediaDeleteDialog.value = false
-    if (data.value?.media?.length == 1)
+
+    if (data.value?.media?.length == 1 && filters.value.page > 1)
       filters.value = {
         ...filters.value,
         title: null,

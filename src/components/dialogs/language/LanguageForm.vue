@@ -60,12 +60,12 @@ onMounted(() => {
 const onSubmitLanguage = async () => {
   try {
     if (language) {
-      await axios.put(`/language/${language.id}`, {
+      await axios.put(`/languages/${language.id}`, {
         name: form.value.name,
         locale: form.value.locale,
       })
     } else {
-      await axios.post('/language', {
+      await axios.post('/languages', {
         name: form.value.name,
         locale: form.value.locale,
       })

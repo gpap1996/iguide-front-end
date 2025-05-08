@@ -22,15 +22,23 @@
     <v-card-actions class="my-4 mr-2">
       <v-spacer></v-spacer>
       <v-btn variant="outlined" text="Close" @click="$emit('close')" class="mr-2"></v-btn>
-      <v-btn color="primary" text="Save" variant="flat" @click="$emit('close')"></v-btn>
+      <v-btn color="primary" text="Save" variant="flat" @click="onSave"></v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useAreasStore } from '@/stores/areas'
+
+const areasStore = useAreasStore()
+const { submitArea } = areasStore
 
 const tab = ref(null)
+
+async function onSave() {
+  await submitArea()
+}
 </script>
 
 <style lang="scss" scoped></style>

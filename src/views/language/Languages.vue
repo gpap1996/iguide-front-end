@@ -153,7 +153,7 @@ const headers = [
 ]
 
 const fetchLanguages = async () => {
-  const res = await axios.get('/language', {
+  const res = await axios.get('/languages', {
     params: {
       limit: filters.value.itemsPerPage,
       page: filters.value.page,
