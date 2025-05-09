@@ -205,10 +205,16 @@ const headers = [
     key: 'url',
     sortable: false,
   },
+
+  {
+    title: 'File Name',
+    key: 'fileName',
+    sortable: false,
+  },
+
   {
     title: 'Title',
     key: 'title',
-
     sortable: false,
   },
 
