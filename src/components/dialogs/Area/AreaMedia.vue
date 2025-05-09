@@ -17,7 +17,7 @@
           <v-chip
             v-bind="props"
             :prepend-avatar="`http://localhost:3000${item.raw.thumbnailUrl}`"
-            :text="item.raw.fileName"
+            :text="`${item.raw.fileName.slice(0, 10)}...${item.raw.fileName.slice(item.raw.fileName.lastIndexOf('.'))}`"
           ></v-chip>
         </template>
 
