@@ -16,7 +16,7 @@
         <area-basic-information />
       </v-tabs-window-item>
 
-      <v-tabs-window-item value="Media"> Media </v-tabs-window-item>
+      <v-tabs-window-item value="Media"> <area-media /> </v-tabs-window-item>
     </v-tabs-window>
 
     <v-card-actions class="my-4 mr-2">
