@@ -12,8 +12,8 @@ export const useAreasStore = defineStore('areas', () => {
 
   const form = ref({
     weight: 0,
-    media: [],
-    sound: null,
+    images: [],
+    audio: null,
     parentId: null,
     translations: {},
   })
@@ -21,8 +21,8 @@ export const useAreasStore = defineStore('areas', () => {
   function resetForm() {
     form.value = {
       weight: 0,
-      media: [],
-      sound: null,
+      images: [],
+      audio: null,
       parentId: null,
       translations: {},
     }
@@ -31,12 +31,11 @@ export const useAreasStore = defineStore('areas', () => {
   async function fetchAreaById(id) {
     const res = await axios.get(`/areas/${id}`)
     const area = res.data.area
-    console.log(area)
     // Initialize form with default values
     const updatedForm = {
       weight: area.weight || 0,
-      media: [], // Default empty array
-      sound: null,
+      images: [...area.images], //
+      audio: null,
       parentId: area.parentId || null,
       translations: {},
     }
