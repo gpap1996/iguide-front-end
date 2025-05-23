@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ isEdit ? 'Edit Media' : 'Upload Media' }}</div>
+      <div class="title">{{ isEdit ? 'Edit File' : 'Upload File' }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -17,20 +17,21 @@
         label="Language"
       ></v-select>
 
-      <v-form>
+      <v-form ref="formRef" v-model="formValid">
         <v-text-field
           v-model="currentTitle"
           density="comfortable"
           variant="outlined"
           label="Title"
         ></v-text-field>
-
         <v-select
           v-model="form.type"
           label="Type"
           :items="fileTypes"
           variant="outlined"
           density="comfortable"
+          :rules="[(v) => !!v || 'File type is required']"
+          required
         ></v-select>
 
         <VuetifyTiptap
@@ -50,12 +51,14 @@
             accept="image/*,video/*,audio/*,.mbtiles,application/x-mbtiles"
             @update:model-value="handleFileChange"
             width="100%"
+            :rules="[(v) => !!v || isEdit || 'File is required']"
+            :required="!isEdit"
           ></v-file-input>
 
-          <div v-if="isEdit && media?.url" class="current-media ml-4">
+          <div v-if="isEdit && file?.url" class="current-file ml-4">
             <img
-              :src="`http://localhost:3000${media.url}`"
-              alt="Current media"
+              :src="`http://localhost:3000${file.url}`"
+              alt="Current file"
               class="rounded"
               width="100"
               height="100"
@@ -79,7 +82,7 @@
         color="primary"
         text="Save"
         variant="flat"
-        @click="onSubmitMedia"
+        @click="onSubmitFile"
         :loading="isLoading"
         :disabled="isLoading"
       ></v-btn>
@@ -97,7 +100,7 @@ const baseStore = useBaseStore()
 const { languages, snackbar } = storeToRefs(baseStore)
 
 const props = defineProps({
-  media: {
+  file: {
     type: Object,
     default: null,
   },
@@ -107,10 +110,12 @@ const emit = defineEmits(['close', 'reset'])
 // Component state
 const isLoading = ref(false)
 const errorMessage = ref('')
+const formRef = ref(null)
+const formValid = ref(false)
 
 const selectedLanguageLocale = ref(languages.value[0]?.locale)
 
-const isEdit = computed(() => !!props.media)
+const isEdit = computed(() => !!props.file)
 
 // Form data
 const form = ref({
@@ -127,12 +132,12 @@ onMounted(() => {
     form.value.translations[lang.locale] = { title: '', description: '' }
   })
 
-  if (props.media) {
-    form.value.type = props.media.type
+  if (props.file) {
+    form.value.type = props.file.type
 
     // Populate translations if they exist
-    if (props.media.translations) {
-      props.media.translations.forEach((translation) => {
+    if (props.file.translations) {
+      props.file.translations.forEach((translation) => {
         form.value.translations[translation.language.locale] = {
           title: translation.title || '',
           description: translation.description || '',
@@ -179,10 +184,49 @@ const handleFileChange = (file) => {
 }
 
 // Form submission handler
-const onSubmitMedia = async () => {
+const onSubmitFile = async () => {
   try {
     errorMessage.value = ''
     isLoading.value = true
+
+    // Validate form
+    if (formRef.value) {
+      const { valid } = await formRef.value.validate()
+      if (!valid) {
+        isLoading.value = false
+        snackbar.value = {
+          show: true,
+          text: 'Please fill in all required fields',
+          color: 'error',
+          icon: 'mdi-alert-circle-outline',
+        }
+        return
+      }
+    }
+
+    // Validate file type is selected
+    if (!form.value.type) {
+      isLoading.value = false
+      snackbar.value = {
+        show: true,
+        text: 'Please select a file type',
+        color: 'error',
+        icon: 'mdi-alert-circle-outline',
+      }
+      return
+    }
+
+    // Validate file is uploaded (only if not in edit mode)
+    if (!isEdit.value && !form.value.file) {
+      isLoading.value = false
+      snackbar.value = {
+        show: true,
+        text: 'Please upload a file',
+        color: 'error',
+        icon: 'mdi-alert-circle-outline',
+      }
+      return
+    }
 
     const formData = new FormData()
 
@@ -211,11 +255,11 @@ const onSubmitMedia = async () => {
     formData.append('metadata', JSON.stringify(metadata))
 
     if (isEdit.value) {
-      await axios.put(`/media/${props.media.id}`, formData, {
+      await axios.put(`/files/${props.file.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
     } else {
-      await axios.post('/media', formData, {
+      await axios.post('/files', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
     }
@@ -224,19 +268,19 @@ const onSubmitMedia = async () => {
     emit('close')
     snackbar.value = {
       show: true,
-      text: 'Files uploaded successfully!',
+      text: 'File uploaded successfully!',
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
   } catch (error) {
     snackbar.value = {
       show: true,
-      text: `Error handling media ${error}`,
+      text: `Error handling file ${error}`,
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
 
-    console.error('Error handling media:', error)
+    console.error('Error handling file:', error)
   } finally {
     isLoading.value = false
   }

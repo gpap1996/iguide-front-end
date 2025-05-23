@@ -40,7 +40,9 @@
         location="bottom right"
       >
         <div class="d-flex align-center">
-          {{ snackbar.text }}
+          <div class="mr-2">
+            {{ snackbar.text }}
+          </div>
           <v-icon :icon="snackbar.icon" class="ml-auto" color="white"> </v-icon>
         </div>
       </v-snackbar>

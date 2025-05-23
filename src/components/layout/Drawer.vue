@@ -51,8 +51,8 @@ const navigation = ref([
 
   {
     icon: 'mdi-folder',
-    title: 'Media',
-    path: '/media',
+    title: 'Files',
+    path: '/files',
   },
 
   {

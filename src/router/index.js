@@ -25,20 +25,20 @@ const router = createRouter({
     {
       path: '/areas',
       name: 'area',
-      component: () => import('../views/area/Areas.vue'),
+      component: () => import('../views/areas/AreasList.vue'),
       meta: { requiresAuth: true },
     },
 
     {
-      path: '/media',
-      name: 'media',
-      component: () => import('../views/media/Media.vue'),
+      path: '/files',
+      name: 'files',
+      component: () => import('../views/files/FilesList.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/languages',
       name: 'languages',
-      component: () => import('../views/language/Languages.vue'),
+      component: () => import('../views/languages/LanguagesList.vue'),
       meta: { requiresAuth: true },
     },
     // Catch-all route for non-existent paths

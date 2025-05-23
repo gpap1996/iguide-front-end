@@ -1,6 +1,6 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Area">
+    <page-title title="Areas">
       <v-btn
         @click="onOpenAreaFormDialog(null)"
         size="x-small"
@@ -14,7 +14,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Area"
+        label="Search Areas"
         clearable
         hide-details
         class="ml-auto"
@@ -313,7 +313,7 @@ async function onDeleteArea() {
   try {
     await axios.delete(`/areas/${form.value.id}`)
     areasDeleteDialog.value = false
-    if (data.value?.areas?.length == 1)
+    if (data.value?.areas?.length == 1 && filters.value.page > 1)
       filters.value = {
         ...filters.value,
         title: null,

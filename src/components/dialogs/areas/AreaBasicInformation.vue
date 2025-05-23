@@ -3,20 +3,34 @@
     <div class="px-8 py-4 scrollable flex-grow-1">
       <v-select
         v-model="selectedLanguageLocale"
-        :items="languages"
+        :items="languagesWithStatus"
         item-title="name"
         item-value="locale"
         variant="outlined"
         density="comfortable"
         label="Language"
-      ></v-select>
+        @update:model-value="checkCurrentLanguageValidity"
+        persistent-hint
+      >
+        <template v-slot:item="{ props, item }">
+          <v-list-item v-bind="props">
+            <template v-slot:append>
+              <v-icon v-if="!isLanguageValid(item.raw.locale)" color="error">
+                mdi-alert-circle
+              </v-icon>
+              <v-icon v-else color="success"> mdi-check-circle </v-icon>
+            </template>
+          </v-list-item>
+        </template>
+      </v-select>
 
-      <v-form>
+      <v-form ref="formRef" v-model="formValid">
         <v-text-field
           v-model="currentTitle"
           density="comfortable"
           variant="outlined"
           label="Title"
+          required
         ></v-text-field>
 
         <v-text-field
@@ -45,18 +59,14 @@
           type="number"
           @input="form.weight = Number(form.weight)"
         ></v-text-field>
-
         <VuetifyTiptap
           label="Description"
           v-model="currentDescription"
           minHeight="250"
           maxHeight="250"
           markdown-theme="github"
+          required
         />
-
-        <v-alert v-if="errorMessage" type="error" variant="tonal" closable class="mt-4">
-          {{ errorMessage }}
-        </v-alert>
       </v-form>
     </div>
   </v-card>
@@ -86,10 +96,31 @@ const { form } = storeToRefs(areasStore)
 
 // Component state
 const errorMessage = ref('')
+const formRef = ref(null)
+const formValid = ref(false)
 
 const { languages } = storeToRefs(useBaseStore())
 
 const selectedLanguageLocale = ref(languages.value[0]?.locale)
+
+// Check if a language has valid title and description
+const isLanguageValid = (locale) => {
+  const translation = form.value.translations[locale]
+  return translation && !!translation.title && !!translation.description
+}
+
+// Computed property to add validation status to language items
+const languagesWithStatus = computed(() => {
+  return languages.value.map((lang) => ({
+    ...lang,
+    isValid: isLanguageValid(lang.locale),
+  }))
+})
+
+// Method to check the validity of the current language
+const checkCurrentLanguageValidity = () => {
+  errorMessage.value = ''
+}
 
 const areas = ref([])
 // Form data
@@ -123,6 +154,43 @@ const currentDescription = computed({
     form.value.translations[selectedLanguageLocale.value].description = value
   },
 })
+
+// Function to validate all languages
+const validateAllLanguages = () => {
+  // First ensure the current language form is valid
+  if (formRef.value) {
+    formRef.value.validate()
+  }
+
+  // Create translations for all languages if they don't exist
+  languages.value.forEach((lang) => {
+    if (!form.value.translations[lang.locale]) {
+      form.value.translations[lang.locale] = {
+        title: '',
+        description: '',
+        subtitle: '',
+      }
+    }
+  })
+
+  // Check all languages for required fields
+  const missingFields = languages.value.filter((lang) => {
+    const translation = form.value.translations[lang.locale]
+    return !translation || !translation.title || !translation.description
+  })
+
+  if (missingFields.length > 0) {
+    const missingLanguages = missingFields.map((lang) => lang.name).join(', ')
+    errorMessage.value = `Title and description are required for the following languages: ${missingLanguages}`
+    return false
+  } else {
+    errorMessage.value = ''
+    return true
+  }
+}
+
+// Export the validation function for the parent component
+defineExpose({ validateAllLanguages })
 </script>
 
 <style lang="scss" scoped></style>

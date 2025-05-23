@@ -1,8 +1,8 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Media">
+    <page-title title="Files">
       <v-btn
-        @click="mediaFormDialog = true"
+        @click="fileFormDialog = true"
         size="x-small"
         color="primary"
         icon="mdi-plus"
@@ -11,7 +11,7 @@
 
       <v-btn
         :disabled="true"
-        @click="mediaMassUploadDialog = true"
+        @click="fileMassUploadDialog = true"
         size="x-small"
         color="primary"
         icon="mdi-plus-box-multiple"
@@ -23,7 +23,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Media"
+        label="Search Files"
         clearable
         hide-details
         class="ml-auto"
@@ -43,7 +43,7 @@
 
     <v-data-table-server
       :headers="headers"
-      :items="data?.media"
+      :items="data?.files"
       :items-length="data?.pagination?.totalItems || 0"
       item-value="id"
       :loading="isLoading"
@@ -100,7 +100,7 @@
           variant="text"
           class="mr-4"
           icon="mdi-pencil"
-          @click="(currentMedia = item), (mediaFormDialog = true)"
+          @click="(currentFiles = item), (fileFormDialog = true)"
         >
         </v-btn>
 
@@ -108,7 +108,7 @@
           variant="text"
           color="error"
           icon="mdi-delete"
-          @click="(currentMedia = item), (mediaDeleteDialog = true)"
+          @click="(currentFiles = item), (fileDeleteDialog = true)"
         >
         </v-btn>
       </template>
@@ -157,24 +157,24 @@
       class="mt-10"
     ></v-pagination>
 
-    <v-dialog v-model="mediaFormDialog" max-width="700px" persistent>
+    <v-dialog v-model="fileFormDialog" max-width="700px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
-        <media-form
-          :media="currentMedia"
+        <file-form
+          :file="currentFiles"
           @reset="onFiltersReset('save')"
-          @close="(mediaFormDialog = false), (currentMedia = null)"
-        ></media-form>
+          @close="(fileFormDialog = false), (currentFiles = null)"
+        ></file-form>
       </div>
     </v-dialog>
 
-    <v-dialog v-model="mediaDeleteDialog" max-width="500px">
+    <v-dialog v-model="fileDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete media"
+        title="Delete file"
         :isLoading="isDeleteLoading"
-        @close="(mediaDeleteDialog = false), (currentMedia = null)"
-        @confirm="onDeleteMedia"
+        @close="(fileDeleteDialog = false), (currentFiles = null)"
+        @confirm="onDeleteFiles"
       >
-        Are you sure you want to delete the media?
+        Are you sure you want to delete the file?
       </confirm-dialog>
     </v-dialog>
   </div>
@@ -188,10 +188,10 @@ import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 const { itemsPerPageDropdown } = useBaseStore()
 
-const mediaFormDialog = ref(false)
-const mediaDeleteDialog = ref(false)
+const fileFormDialog = ref(false)
+const fileDeleteDialog = ref(false)
 const isDeleteLoading = ref(false)
-const currentMedia = ref(null)
+const currentFiles = ref(null)
 
 const filters = ref({
   page: 1,
@@ -232,8 +232,8 @@ const headers = [
   },
 ]
 
-const fetchMedia = async () => {
-  const res = await axios.get('/media', {
+const fetchFiles = async () => {
+  const res = await axios.get('/files', {
     params: {
       limit: filters.value.itemsPerPage,
       page: filters.value.page,
@@ -252,15 +252,15 @@ const fetchMedia = async () => {
 const queryClient = useQueryClient()
 
 const { isLoading, data } = useQuery({
-  queryKey: ['media', filters],
-  queryFn: fetchMedia,
+  queryKey: ['files', filters],
+  queryFn: fetchFiles,
   retry: 0,
 })
 
 const onFiltersReset = async (action) => {
-  if (action == 'save') mediaFormDialog.value = false
+  if (action == 'save') fileFormDialog.value = false
 
-  await queryClient.resetQueries({ queryKey: ['media'] })
+  await queryClient.resetQueries({ queryKey: ['files'] })
 }
 
 // Debounced function for updating filters
@@ -272,13 +272,13 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
-const onDeleteMedia = async () => {
+const onDeleteFiles = async () => {
   isDeleteLoading.value = true
   try {
-    await axios.delete(`/media/${currentMedia.value.id}`)
-    mediaDeleteDialog.value = false
+    await axios.delete(`/files/${currentFiles.value.id}`)
+    fileDeleteDialog.value = false
 
-    if (data.value?.media?.length == 1 && filters.value.page > 1)
+    if (data.value?.files?.length == 1 && filters.value.page > 1)
       filters.value = {
         ...filters.value,
         title: null,
@@ -289,7 +289,7 @@ const onDeleteMedia = async () => {
     console.log(error)
   } finally {
     isDeleteLoading.value = false
-    currentMedia.value = null
+    currentFiles.value = null
   }
 }
 </script>

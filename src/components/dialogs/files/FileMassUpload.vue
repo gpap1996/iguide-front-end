@@ -122,7 +122,7 @@ const onSubmit = async () => {
   formData.append('metadata', JSON.stringify(cleanMetadata))
 
   try {
-    await axios.post('/media', formData, {
+    await axios.post('/files', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

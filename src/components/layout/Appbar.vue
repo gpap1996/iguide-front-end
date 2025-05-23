@@ -3,7 +3,7 @@
     <template v-slot:prepend>
       <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-      <div class="logo-title ml-2">Northern Lights</div>
+      <div class="logo-title ml-2">i•Guide</div>
     </template>
 
     <template v-slot:append>
