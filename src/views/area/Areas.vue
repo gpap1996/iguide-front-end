@@ -325,6 +325,7 @@ async function onDeleteArea() {
       show: true,
       text: 'Area deleted successfully!',
       color: 'success',
+      icon: 'mdi-check-circle-outline',
     }
   } catch (error) {
     console.log(error)

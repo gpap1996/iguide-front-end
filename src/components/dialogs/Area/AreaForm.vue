@@ -73,6 +73,7 @@ async function onSave() {
       show: true,
       text: 'Area saved successfully!',
       color: 'success',
+      icon: 'mdi-check-circle-outline',
     }
     emits('reset')
   } catch (error) {
@@ -80,6 +81,7 @@ async function onSave() {
       show: true,
       text: `Error handling area ${error}`,
       color: 'error',
+      icon: 'mdi-alert-circle-outline',
     }
   } finally {
     isLoading.value = false

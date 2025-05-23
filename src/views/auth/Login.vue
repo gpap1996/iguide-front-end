@@ -68,14 +68,18 @@
 </template>
 
 <script setup>
+import { useBaseStore } from '@/stores/base'
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFirebaseAuth } from 'vuefire'
 import { useDisplay } from 'vuetify'
 
-const { mdAndDown } = useDisplay()
+const baseStore = useBaseStore()
+const { snackbar } = storeToRefs(baseStore)
 
+const { mdAndDown } = useDisplay()
 const router = useRouter()
 const auth = useFirebaseAuth()
 const email = ref(null)
@@ -91,7 +95,12 @@ const onLogin = async () => {
     router.push('/home')
   } catch (error) {
     console.log(error)
-    //todo snackbar
+    snackbar.value = {
+      show: true,
+      text: 'Invalid email or password',
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
   } finally {
     loginLoader.value = false
   }

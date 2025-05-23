@@ -132,6 +132,7 @@ const onSubmit = async () => {
       show: true,
       text: 'Files uploaded successfully!',
       color: 'success',
+      icon: 'mdi-check-circle-outline',
     }
 
     resetForm()
@@ -141,6 +142,7 @@ const onSubmit = async () => {
       show: true,
       text: 'Error uploading files. Please try again.',
       color: 'error',
+      icon: 'mdi-alert-circle-outline',
     }
   } finally {
     isLoading.value = false

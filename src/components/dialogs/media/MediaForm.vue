@@ -226,12 +226,14 @@ const onSubmitMedia = async () => {
       show: true,
       text: 'Files uploaded successfully!',
       color: 'success',
+      icon: 'mdi-check-circle-outline',
     }
   } catch (error) {
     snackbar.value = {
       show: true,
       text: `Error handling media ${error}`,
       color: 'error',
+      icon: 'mdi-alert-circle-outline',
     }
 
     console.error('Error handling media:', error)

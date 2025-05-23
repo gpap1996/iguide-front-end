@@ -12,6 +12,7 @@ export const useBaseStore = defineStore(
       show: false,
       text: '',
       color: '',
+      icon: '',
     })
 
     const languages = ref([])

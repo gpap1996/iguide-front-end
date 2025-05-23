@@ -41,7 +41,7 @@
       >
         <div class="d-flex align-center">
           {{ snackbar.text }}
-          <v-icon icon="mdi-check-circle" class="ml-auto" color="white"> </v-icon>
+          <v-icon :icon="snackbar.icon" class="ml-auto" color="white"> </v-icon>
         </div>
       </v-snackbar>
     </v-main>
