@@ -5,9 +5,9 @@
     :style="isMobile ? 'min-height:500px' : 'min-height:100vh'"
   >
     <div class="aurora-background" v-if="!isMobile">
-      <div class="aurora-circle purple"></div>
-      <div class="aurora-circle green"></div>
-      <div class="aurora-circle teal"></div>
+      <div class="aurora-circle aurora-blur purple"></div>
+      <div class="aurora-circle aurora-blur green"></div>
+      <div class="aurora-circle aurora-blur teal"></div>
     </div>
     <!-- 1st column -->
     <div class="left-column d-flex flex-grow-1" style="overflow: hidden; position: relative">
@@ -145,27 +145,47 @@ const onLogin = async () => {
   opacity: 0.6;
 }
 
+.aurora-blur {
+  position: absolute;
+  z-index: -10;
+  filter: blur(48px);
+  opacity: 0.3;
+  animation: aurora-glow 4s ease-in-out infinite;
+}
+
+@keyframes aurora-glow {
+  0%,
+  100% {
+    opacity: 0.8;
+    filter: blur(5px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(15px);
+  }
+}
+
 .aurora-circle.purple {
   top: 80px;
   left: 5%;
   width: 256px;
   height: 256px;
-  background-color: rgb(var(--v-theme-primary));
+  background-color: rgb(var(--v-theme-primary-lighten-2));
 }
 
 .aurora-circle.green {
   top: 160px;
-  right: 50%;
+  right: 52%;
   width: 384px;
   height: 384px;
-  background-color: rgb(var(--v-theme-success));
+  background-color: rgb(var(--v-theme-primary));
 }
 
 .aurora-circle.teal {
   bottom: 80px;
-  left: 14%;
+  left: 12%;
   width: 288px;
   height: 288px;
-  background-color: rgb(var(--v-theme-error));
+  background-color: rgb(var(--v-theme-primary-darken-2));
 }
 </style>
