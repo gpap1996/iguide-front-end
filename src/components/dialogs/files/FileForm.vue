@@ -55,15 +55,19 @@
             :required="!isEdit"
           ></v-file-input>
 
-          <div v-if="isEdit && file?.url" class="current-file ml-4">
+          <div v-if="isEdit && file?.url" class="align-self-start">
             <img
+              v-if="file?.type === 'image'"
               :src="`http://localhost:3000${file.url}`"
               alt="Current file"
-              class="rounded"
-              width="100"
-              height="100"
+              width="250"
+              height="250"
               style="object-fit: cover"
             />
+            <audio controls v-if="file?.type === 'audio'">
+              <source :src="`http://localhost:3000${file.url}`" type="audio/ogg" />
+              Your browser does not support the audio element.
+            </audio>
           </div>
         </div>
       </v-form>
