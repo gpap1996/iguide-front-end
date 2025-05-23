@@ -41,9 +41,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useBaseStore } from '@/stores/base'
+import { storeToRefs } from 'pinia'
 
 const { language } = defineProps({ language: Object })
 const emits = defineEmits(['close', 'reset'])
+
+const baseStore = useBaseStore()
+const { snackbar } = storeToRefs(baseStore)
 
 const form = ref({
   name: null,
@@ -73,7 +78,12 @@ const onSubmitLanguage = async () => {
 
     emits('reset')
   } catch (error) {
-    console.error('Error uploading language:', error)
+    snackbar.value = {
+      show: true,
+      text: `${error?.response?.data?.error?.issues?.[0]?.message || 'An error occurred'}`,
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
   }
 }
 </script>

@@ -4,21 +4,17 @@
     style="width: 100vw"
     :style="isMobile ? 'min-height:500px' : 'min-height:100vh'"
   >
+    <div class="aurora-background" v-if="!isMobile">
+      <div class="aurora-circle purple"></div>
+      <div class="aurora-circle green"></div>
+      <div class="aurora-circle teal"></div>
+    </div>
     <!-- 1st column -->
     <div class="left-column d-flex flex-grow-1" style="overflow: hidden; position: relative">
       <div class="d-flex flex-column align-center justify-center flex-grow-1">
         <div :class="{ 'text-center': isMobile }">
-          <div class="left-column-title">Northern Lights</div>
-          <div class="left-column-subtitle">Digital interactive tour.</div>
-          <v-img
-            v-if="!isMobile"
-            :width="580"
-            :height="350"
-            aspect-ratio="16/9"
-            cover
-            src="/images/login-card.jpg"
-            class="rounded-xl mt-10"
-          ></v-img>
+          <div class="left-column-title">i•Guide</div>
+          <div class="left-column-subtitle">Digital interactive tour•</div>
         </div>
       </div>
     </div>
@@ -133,5 +129,43 @@ const onLogin = async () => {
   font-size: 32px;
   // color: white;
   //   line-height: 80px;
+}
+
+.aurora-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.aurora-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+}
+
+.aurora-circle.purple {
+  top: 80px;
+  left: 5%;
+  width: 256px;
+  height: 256px;
+  background-color: rgb(var(--v-theme-primary));
+}
+
+.aurora-circle.green {
+  top: 160px;
+  right: 50%;
+  width: 384px;
+  height: 384px;
+  background-color: rgb(var(--v-theme-success));
+}
+
+.aurora-circle.teal {
+  bottom: 80px;
+  left: 14%;
+  width: 288px;
+  height: 288px;
+  background-color: rgb(var(--v-theme-error));
 }
 </style>
