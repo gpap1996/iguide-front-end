@@ -94,7 +94,7 @@ const onSubmitProject = async () => {
   } catch (error) {
     snackbar.value = {
       show: true,
-      text: `${error?.response?.data?.error?.issues?.[0]?.message || 'An error occurred'}`,
+      text: `${error?.response?.data?.error || 'An error occurred'}`,
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
