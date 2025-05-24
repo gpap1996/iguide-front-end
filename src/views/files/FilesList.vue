@@ -7,13 +7,16 @@
         color="primary"
         icon="mdi-plus"
         class="mr-2"
+        v-tooltip="'Upload File'"
       ></v-btn>
+
       <v-btn
         @click="fileMassUploadDialog = true"
         size="x-small"
         color="primary"
         icon="mdi-plus-box-multiple"
         class="mr-2"
+        v-tooltip="'Mass File Upload'"
       ></v-btn>
 
       <v-btn
@@ -22,6 +25,29 @@
         :color="massAction ? 'error' : 'primary'"
         :icon="massAction ? 'mdi-close' : 'mdi-delete-outline'"
         class="mr-2"
+        v-tooltip="'Mass File Delete'"
+        :disabled="data?.pagination?.totalItems === 0"
+      ></v-btn>
+
+      <v-btn
+        @click="openImportDialog"
+        size="x-small"
+        color="primary"
+        icon="mdi-file-import"
+        :loading="isImporting"
+        class="mr-2"
+        v-tooltip="'Import from Excel'"
+      ></v-btn>
+
+      <v-btn
+        @click="exportToExcel"
+        size="x-small"
+        color="primary"
+        icon="mdi-file-export"
+        :loading="isExporting"
+        class="mr-2"
+        v-tooltip="'Export to Excel'"
+        :disabled="data?.pagination?.totalItems === 0"
       ></v-btn>
 
       <!-- Mass Action Controls - Visible when mass action is active -->
@@ -41,7 +67,7 @@
             :loading="isDeleteLoading"
             @click="confirmMassDelete"
           >
-            Confirm
+            Delete Selected
           </v-btn>
         </div>
       </v-fade-transition>
@@ -132,6 +158,7 @@
           class="mr-4"
           icon="mdi-pencil"
           @click="(currentFiles = item), (fileFormDialog = true)"
+          v-tooltip="'Update File'"
         >
         </v-btn>
 
@@ -140,6 +167,7 @@
           color="error"
           icon="mdi-delete"
           @click="(currentFiles = item), (fileDeleteDialog = true)"
+          v-tooltip="'Delete File'"
         >
         </v-btn>
       </template>
@@ -216,7 +244,6 @@
         Are you sure you want to delete the file?
       </confirm-dialog>
     </v-dialog>
-
     <v-dialog v-model="massDeleteDialog" max-width="500px">
       <confirm-dialog
         title="Mass Delete Files"
@@ -227,6 +254,51 @@
         Are you sure you want to delete {{ selected.length }} selected files? This action cannot be
         undone.
       </confirm-dialog>
+    </v-dialog>
+
+    <!-- Import Excel Dialog -->
+    <v-dialog v-model="importDialog" max-width="500px">
+      <v-card>
+        <v-card-title class="d-flex align-center bg-primary-darken-1">
+          <div class="title">Import Files from Excel</div>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" @click="importDialog = false"></v-btn>
+        </v-card-title>
+        <v-card-text class="pa-6">
+          <p class="mb-4">
+            Please select an Excel file (.xlsx) to import file data. The Excel file should follow
+            the required template format.
+          </p>
+          <v-file-input
+            v-model="importFile"
+            label="Select Excel File"
+            accept=".xlsx"
+            prepend-icon="mdi-file-excel"
+            show-size
+            variant="outlined"
+            density="comfortable"
+            :rules="[(v) => !!v || 'Excel file is required']"
+          ></v-file-input>
+        </v-card-text>
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            variant="outlined"
+            text="Cancel"
+            @click="importDialog = false"
+            class="mr-2"
+          ></v-btn>
+          <v-btn
+            color="primary"
+            text="Import"
+            variant="flat"
+            @click="importExcel"
+            :loading="isImporting"
+            :disabled="!importFile"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </div>
 </template>
@@ -243,8 +315,12 @@ const fileFormDialog = ref(false)
 const fileMassUploadDialog = ref(false)
 const fileDeleteDialog = ref(false)
 const massDeleteDialog = ref(false)
+const importDialog = ref(false)
 const isDeleteLoading = ref(false)
+const isExporting = ref(false)
+const isImporting = ref(false)
 const currentFiles = ref(null)
+const importFile = ref(null)
 
 const filters = ref({
   page: 1,
@@ -397,6 +473,99 @@ const onMassDeleteFiles = async () => {
     console.log(error)
   } finally {
     isDeleteLoading.value = false
+  }
+}
+
+// Excel Export functionality
+const exportToExcel = async () => {
+  isExporting.value = true
+  try {
+    // Get current date for filename
+    const date = new Date()
+    const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    const filename = `files_export_${dateString}.xlsx`
+
+    // Make request with responseType blob to handle file download
+    const response = await axios.get('/files/export-excel', {
+      responseType: 'blob',
+    })
+
+    // Create download link and trigger download
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+
+    // Clean up
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(link)
+
+    // Show success message
+    useBaseStore().snackbar = {
+      show: true,
+      text: 'Excel file downloaded successfully',
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
+  } catch (error) {
+    console.error('Error exporting Excel:', error)
+    useBaseStore().snackbar = {
+      show: true,
+      text: 'Error exporting Excel file',
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
+  } finally {
+    isExporting.value = false
+  }
+}
+
+// Excel Import functionality
+const openImportDialog = () => {
+  importDialog.value = true
+  importFile.value = null
+}
+
+const importExcel = async () => {
+  if (!importFile.value) return
+
+  isImporting.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', importFile.value)
+
+    await axios.post('/files/import-excel', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    // Close dialog and reset file
+    importDialog.value = false
+    importFile.value = null
+
+    // Show success message
+    useBaseStore().snackbar = {
+      show: true,
+      text: 'Files imported successfully',
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
+
+    // Refresh the data
+    await onFiltersReset()
+  } catch (error) {
+    console.error('Error importing Excel:', error)
+    useBaseStore().snackbar = {
+      show: true,
+      text: error.response?.data?.details || 'Error importing files',
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
+  } finally {
+    isImporting.value = false
   }
 }
 </script>
