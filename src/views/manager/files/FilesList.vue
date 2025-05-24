@@ -206,7 +206,7 @@
           variant="text"
           icon="mdi-pencil"
           class="mr-1"
-          @click="(currentFiles = item), (fileFormDialog = true)"
+          @click="(currentFile = item), (fileFormDialog = true)"
           v-tooltip="'Edit File'"
         >
         </v-btn>
@@ -215,7 +215,7 @@
           variant="text"
           color="error"
           icon="mdi-delete"
-          @click="(currentFiles = item), (fileDeleteDialog = true)"
+          @click="(currentFile = item), (fileDeleteDialog = true)"
           v-tooltip="'Delete File'"
         >
         </v-btn>
@@ -268,9 +268,9 @@
     <v-dialog v-model="fileFormDialog" max-width="700px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <file-form
-          :file="currentFiles"
+          :file="currentFile"
           @reset="onFiltersReset('save')"
-          @close="(fileFormDialog = false), (currentFiles = null)"
+          @close="(fileFormDialog = false), (currentFile = null)"
         ></file-form>
       </div>
     </v-dialog>
@@ -287,8 +287,8 @@
       <confirm-dialog
         title="Delete file"
         :isLoading="isDeleteLoading"
-        @close="(fileDeleteDialog = false), (currentFiles = null)"
-        @confirm="onDeleteFiles"
+        @close="(fileDeleteDialog = false), (currentFile = null)"
+        @confirm="onDeleteFile"
       >
         Are you sure you want to delete the file?
       </confirm-dialog>
@@ -370,7 +370,7 @@ const isDeleteLoading = ref(false)
 const isExporting = ref(false)
 const isImporting = ref(false)
 const isCopying = ref(false)
-const currentFiles = ref(null)
+const currentFile = ref(null)
 const importFile = ref(null)
 
 const filters = ref({
@@ -459,10 +459,10 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
-const onDeleteFiles = async () => {
+const onDeleteFile = async () => {
   isDeleteLoading.value = true
   try {
-    await axios.delete(`/files/${currentFiles.value.id}`)
+    await axios.delete(`/files/${currentFile.value.id}`)
     fileDeleteDialog.value = false
 
     if (data.value?.files?.length == 1 && filters.value.page > 1)
@@ -476,7 +476,7 @@ const onDeleteFiles = async () => {
     console.log(error)
   } finally {
     isDeleteLoading.value = false
-    currentFiles.value = null
+    currentFile.value = null
   }
 }
 

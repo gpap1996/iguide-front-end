@@ -74,8 +74,8 @@ import { useFirebaseAuth } from 'vuefire'
 import { useDisplay } from 'vuetify'
 
 const authStore = useAuthStore()
-const { isAdmin, isManager } = authStore
-const { role } = storeToRefs(authStore)
+// const { isAdmin, isManager } = authStore
+const { role, isAdmin, isManager } = storeToRefs(authStore)
 
 const baseStore = useBaseStore()
 const { getLanguages } = baseStore
@@ -94,16 +94,12 @@ const onLogin = async () => {
 
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value)
-    // Let the router guard handle the redirection based on the user's role
     const idTokenResult = await userCredential.user.getIdTokenResult()
     role.value = idTokenResult.claims.role
 
-    console.log('User role:', role.value)
-    console.log('isAdmin:', isAdmin)
-    console.log('isManager:', isManager)
-    if (isAdmin) {
+    if (isAdmin.value) {
       router.push('/projects')
-    } else if (isManager) {
+    } else if (isManager.value) {
       await getLanguages()
       router.push('/dashboard')
     } else {

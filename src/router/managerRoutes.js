@@ -1,7 +1,7 @@
 // Manager routes configuration
 export default [
   {
-    path: '/Dashboard',
+    path: '/dashboard',
     name: 'dashboard',
     component: () => import('../views/manager/dashboard/Dashboard.vue'),
     meta: { requiresAuth: true, role: 'manager' },
