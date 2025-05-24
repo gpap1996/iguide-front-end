@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ language ? 'Edit Language' : 'Upload Language' }}</div>
+      <div class="title">{{ language ? 'Edit Language' : 'Create Language' }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>

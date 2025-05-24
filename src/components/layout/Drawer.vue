@@ -5,6 +5,7 @@
     :expand-on-hover="!isMobile"
     v-model="drawer"
     width="300"
+    disable-resize-watcher
   >
     <v-list>
       <v-list-item
@@ -32,7 +33,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useDisplay } from 'vuetify'
@@ -64,6 +65,12 @@ const navigation = ref([
 
 const { mdAndDown } = useDisplay()
 const isMobile = computed(() => mdAndDown.value)
+
+onMounted(() => {
+  if (isMobile.value) {
+    drawer.value = false
+  }
+})
 </script>
 
 <style lang="scss" scoped>

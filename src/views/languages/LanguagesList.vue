@@ -1,13 +1,15 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
     <page-title title="Languages">
-      <v-btn
-        @click="languageFormDialog = true"
-        size="x-small"
-        color="primary"
-        icon="mdi-plus"
-        class="mr-2"
-      ></v-btn>
+      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
+        <v-btn
+          @click="languageFormDialog = true"
+          color="primary"
+          icon="mdi-plus"
+          class="mr-2"
+          v-tooltip="'Create Language'"
+        ></v-btn>
+      </v-btn-group>
     </page-title>
 
     <v-data-table-server
@@ -52,11 +54,13 @@
           variant="text"
           class="mr-4"
           icon="mdi-pencil"
+          v-tooltip="'Edit Language'"
           @click="(currentLanguage = item), (languageFormDialog = true)"
         >
         </v-btn>
 
-        <v-btn variant="text" color="error" icon="mdi-delete"> </v-btn>
+        <v-btn variant="text" color="error" icon="mdi-delete" v-tooltip="'Delete Language'">
+        </v-btn>
       </template>
       <!-- table footer -->
       <template v-slot:bottom>

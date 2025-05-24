@@ -1,13 +1,15 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
     <page-title title="Areas">
-      <v-btn
-        @click="onOpenAreaFormDialog(null)"
-        size="x-small"
-        color="primary"
-        icon="mdi-plus"
-        class="mr-2"
-      ></v-btn>
+      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
+        <v-btn
+          @click="onOpenAreaFormDialog(null)"
+          color="primary"
+          icon="mdi-plus"
+          v-tooltip="'Create Area'"
+          class="mr-2"
+        ></v-btn>
+      </v-btn-group>
 
       <v-text-field
         color="primary"
@@ -109,7 +111,13 @@
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn variant="text" class="mr-4" icon="mdi-pencil" @click="onOpenAreaFormDialog(item.id)">
+        <v-btn
+          variant="text"
+          class="mr-4"
+          icon="mdi-pencil"
+          @click="onOpenAreaFormDialog(item.id)"
+          v-tooltip="'Edit Area'"
+        >
         </v-btn>
 
         <v-btn
@@ -117,6 +125,7 @@
           color="error"
           icon="mdi-delete"
           @click="(form = item), (areasDeleteDialog = true)"
+          v-tooltip="'Delete Area'"
         >
         </v-btn>
       </template>
@@ -177,7 +186,7 @@
 
     <v-dialog v-model="areasDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete areas"
+        title="Delete area"
         :isLoading="isDeleteLoading"
         @close="(areasDeleteDialog = false), (form = null)"
         @confirm="onDeleteArea"

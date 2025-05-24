@@ -1,54 +1,52 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
     <page-title title="Files">
-      <v-btn
-        @click="fileFormDialog = true"
-        size="x-small"
-        color="primary"
-        icon="mdi-plus"
-        class="mr-2"
-        v-tooltip="'Upload File'"
-      ></v-btn>
+      <!-- Create/Upload Button Group -->
+      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
+        <v-btn
+          @click="fileFormDialog = true"
+          color="primary"
+          icon="mdi-plus"
+          v-tooltip="'Upload File'"
+        ></v-btn>
 
-      <v-btn
-        @click="fileMassUploadDialog = true"
-        size="x-small"
-        color="primary"
-        icon="mdi-plus-box-multiple"
-        class="mr-2"
-        v-tooltip="'Mass File Upload'"
-      ></v-btn>
+        <v-btn
+          @click="fileMassUploadDialog = true"
+          color="primary"
+          icon="mdi-plus-box-multiple"
+          v-tooltip="'Mass Upload Files'"
+        ></v-btn>
+      </v-btn-group>
+      <!-- Bulk Actions Button Group -->
+      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
+        <v-btn
+          @click="toggleMassAction"
+          :color="massAction ? 'error' : 'primary'"
+          :icon="massAction ? 'mdi-close' : 'mdi-delete-outline'"
+          v-tooltip="massAction ? 'Cancel' : 'Mass Delete Files'"
+          :disabled="data?.pagination?.totalItems === 0"
+        ></v-btn>
+      </v-btn-group>
 
-      <v-btn
-        @click="toggleMassAction"
-        size="x-small"
-        :color="massAction ? 'error' : 'primary'"
-        :icon="massAction ? 'mdi-close' : 'mdi-delete-outline'"
-        class="mr-2"
-        v-tooltip="'Mass File Delete'"
-        :disabled="data?.pagination?.totalItems === 0"
-      ></v-btn>
+      <!-- Import/Export Button Group -->
+      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
+        <v-btn
+          @click="openImportDialog"
+          color="primary"
+          icon="mdi-file-import"
+          :loading="isImporting"
+          v-tooltip="'Import from Excel'"
+        ></v-btn>
 
-      <v-btn
-        @click="openImportDialog"
-        size="x-small"
-        color="primary"
-        icon="mdi-file-import"
-        :loading="isImporting"
-        class="mr-2"
-        v-tooltip="'Import from Excel'"
-      ></v-btn>
-
-      <v-btn
-        @click="exportToExcel"
-        size="x-small"
-        color="primary"
-        icon="mdi-file-export"
-        :loading="isExporting"
-        class="mr-2"
-        v-tooltip="'Export to Excel'"
-        :disabled="data?.pagination?.totalItems === 0"
-      ></v-btn>
+        <v-btn
+          @click="exportToExcel"
+          color="primary"
+          icon="mdi-file-export"
+          :loading="isExporting"
+          v-tooltip="'Export to Excel'"
+          :disabled="data?.pagination?.totalItems === 0"
+        ></v-btn>
+      </v-btn-group>
 
       <!-- Mass Action Controls - Visible when mass action is active -->
       <v-fade-transition>
@@ -158,7 +156,7 @@
           class="mr-4"
           icon="mdi-pencil"
           @click="(currentFiles = item), (fileFormDialog = true)"
-          v-tooltip="'Update File'"
+          v-tooltip="'Edit File'"
         >
         </v-btn>
 
