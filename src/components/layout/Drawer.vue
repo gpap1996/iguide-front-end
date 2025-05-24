@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useDisplay } from 'vuetify'
@@ -66,11 +66,17 @@ const navigation = ref([
 const { mdAndDown } = useDisplay()
 const isMobile = computed(() => mdAndDown.value)
 
-onMounted(() => {
-  if (isMobile.value) {
-    drawer.value = false
-  }
-})
+watch(
+  () => mdAndDown.value,
+  (newValue) => {
+    if (newValue) {
+      drawer.value = false
+    } else {
+      drawer.value = true
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <style lang="scss" scoped>
