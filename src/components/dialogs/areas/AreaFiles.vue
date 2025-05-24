@@ -5,7 +5,7 @@
         v-if="filesDropdown.length > 0"
         v-model="form.images"
         :items="filesDropdown"
-        item-title="fileName"
+        item-title="name"
         item-value="id"
         variant="outlined"
         density="comfortable"
@@ -17,16 +17,16 @@
         <template v-slot:chip="{ props, item }">
           <v-chip
             v-bind="props"
-            :prepend-avatar="`http://localhost:3000${item.raw?.thumbnailUrl || ''}`"
-            :text="`${item.raw?.fileName?.slice(0, 10) || ''}...${item.raw?.fileName?.slice(item.raw?.fileName?.lastIndexOf('.') || 0) || ''}`"
+            :prepend-avatar="`${fileUrl + item.raw?.thumbnailPath || ''}`"
+            :text="`${item.raw?.name?.slice(0, 10) || ''}...${item.raw?.name?.slice(item.raw?.name?.lastIndexOf('.') || 0) || ''}`"
           ></v-chip>
         </template>
 
         <template v-slot:item="{ props, item }">
           <v-list-item
             v-bind="props"
-            :prepend-avatar="`http://localhost:3000${item.raw?.thumbnailUrl || ''}`"
-            :title="item.raw?.fileName || ''"
+            :prepend-avatar="`${fileUrl + item.raw?.thumbnailPath || ''}`"
+            :title="item.raw?.name || ''"
           ></v-list-item>
         </template>
       </v-autocomplete>
@@ -50,9 +50,13 @@
 
 <script setup>
 import { useAreasStore } from '@/stores/areas'
+import { useBaseStore } from '@/stores/base'
 import { useFilesStore } from '@/stores/files'
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
+
+const baseStore = useBaseStore()
+const { fileUrl } = baseStore
 
 const areasStore = useAreasStore()
 const { form } = storeToRefs(areasStore)

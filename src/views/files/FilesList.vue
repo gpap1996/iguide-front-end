@@ -20,10 +20,17 @@
       <!-- Bulk Actions Button Group -->
       <v-btn-group variant="outlined" class="mr-3" density="comfortable">
         <v-btn
-          @click="toggleMassAction"
-          :color="massAction ? 'error' : 'primary'"
-          :icon="massAction ? 'mdi-close' : 'mdi-delete-outline'"
-          v-tooltip="massAction ? 'Cancel' : 'Mass Delete Files'"
+          @click="toggleMassAction('delete')"
+          :color="massAction && massActionType === 'delete' ? 'error' : 'primary'"
+          :icon="massAction && massActionType === 'delete' ? 'mdi-close' : 'mdi-delete-outline'"
+          v-tooltip="massAction && massActionType === 'delete' ? 'Cancel' : 'Mass Delete Files'"
+          :disabled="data?.pagination?.totalItems === 0"
+        ></v-btn>
+        <v-btn
+          @click="toggleMassAction('copy')"
+          :color="massAction && massActionType === 'copy' ? 'error' : 'primary'"
+          :icon="massAction && massActionType === 'copy' ? 'mdi-close' : 'mdi-content-copy'"
+          v-tooltip="massAction && massActionType === 'copy' ? 'Cancel' : 'Copy Selected IDs'"
           :disabled="data?.pagination?.totalItems === 0"
         ></v-btn>
       </v-btn-group>
@@ -47,7 +54,6 @@
           :disabled="data?.pagination?.totalItems === 0"
         ></v-btn>
       </v-btn-group>
-
       <!-- Mass Action Controls - Visible when mass action is active -->
       <v-fade-transition>
         <div v-if="massAction" class="d-flex align-center mr-4">
@@ -55,7 +61,9 @@
             {{ selected.length }} items selected
           </v-chip>
 
+          <!-- Delete action button -->
           <v-btn
+            v-if="massActionType === 'delete'"
             size="small"
             color="error"
             variant="tonal"
@@ -66,6 +74,21 @@
             @click="confirmMassDelete"
           >
             Delete Selected
+          </v-btn>
+
+          <!-- Copy action button -->
+          <v-btn
+            v-if="massActionType === 'copy'"
+            size="small"
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-content-copy"
+            class="mr-2"
+            :disabled="selected.length === 0"
+            :loading="isCopying"
+            @click="copySelectedIds"
+          >
+            Copy Selected
           </v-btn>
         </div>
       </v-fade-transition>
@@ -104,7 +127,7 @@
       style="max-width: 90vw; flex-grow: 1"
       :show-select="massAction"
     >
-      <template v-slot:[`item.url`]="{ item }">
+      <template v-slot:[`item.path`]="{ item }">
         <v-img
           v-if="item.type == 'image'"
           width="100px"
@@ -112,8 +135,7 @@
           cover
           class="my-4 rounded-xl"
           alt="image"
-          :src="`http://localhost:3000${item.url}`"
-          :lazy-src="`http://localhost:3000${item.thumbnailUrl}`"
+          :src="`http://localhost:3000${item.thumbnailPath}`"
         />
 
         <v-icon v-else color="white" icon="mdi-file-question-outline"></v-icon>
@@ -149,12 +171,41 @@
         <v-icon v-if="item.type == 'video'" icon="mdi-video"> </v-icon>
         <v-icon v-if="item.type == 'tiles'" icon="mdi-layers"> </v-icon>
       </template>
-
       <template v-slot:[`item.actions`]="{ item }">
+        <!-- Copy menu with options -->
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn
+              variant="text"
+              icon="mdi-content-copy"
+              class="mr-1"
+              v-bind="props"
+              v-tooltip="'Copy Options'"
+            ></v-btn>
+          </template>
+          <v-list density="compact">
+            <v-list-item
+              @click="copyToClipboard(item, 'id')"
+              prepend-icon="mdi-identifier"
+              title="Copy ID"
+            ></v-list-item>
+            <v-list-item
+              @click="copyToClipboard(item, 'url')"
+              prepend-icon="mdi-link"
+              title="Copy URL"
+            ></v-list-item>
+            <v-list-item
+              @click="copyToClipboard(item, 'name')"
+              prepend-icon="mdi-file"
+              title="Copy File Name"
+            ></v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-btn
           variant="text"
-          class="mr-4"
           icon="mdi-pencil"
+          class="mr-1"
           @click="(currentFiles = item), (fileFormDialog = true)"
           v-tooltip="'Edit File'"
         >
@@ -307,6 +358,7 @@ import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
+import { useClipboard } from '@vueuse/core'
 const { itemsPerPageDropdown } = useBaseStore()
 
 const fileFormDialog = ref(false)
@@ -317,6 +369,7 @@ const importDialog = ref(false)
 const isDeleteLoading = ref(false)
 const isExporting = ref(false)
 const isImporting = ref(false)
+const isCopying = ref(false)
 const currentFiles = ref(null)
 const importFile = ref(null)
 
@@ -328,17 +381,18 @@ const filters = ref({
 
 const selected = ref([])
 const massAction = ref(false)
+const massActionType = ref('delete') // 'delete' or 'copy'
 
 const headers = [
   {
     title: 'Preview',
-    key: 'url',
+    key: 'path',
     sortable: false,
   },
 
   {
-    title: 'File Name',
-    key: 'fileName',
+    title: 'Name',
+    key: 'name',
     sortable: false,
   },
 
@@ -426,17 +480,30 @@ const onDeleteFiles = async () => {
   }
 }
 
-// Mass delete functionality
-const toggleMassAction = () => {
-  massAction.value = !massAction.value
-  if (!massAction.value) {
+// Mass action functionality
+const toggleMassAction = (type) => {
+  // If already in mass action mode with the same type, cancel it
+  if (massAction.value && massActionType.value === type) {
+    massAction.value = false
     selected.value = []
+    return
   }
+
+  // If already in mass action mode but different type, switch types
+  if (massAction.value && massActionType.value !== type) {
+    massActionType.value = type
+    return
+  }
+
+  // If not in mass action mode, enable it with the selected type
+  massAction.value = true
+  massActionType.value = type
 }
 
 const cancelMassAction = () => {
   massAction.value = false
   selected.value = []
+  massActionType.value = 'delete' // Reset to default
 }
 
 const confirmMassDelete = () => {
@@ -517,6 +584,80 @@ const exportToExcel = async () => {
     }
   } finally {
     isExporting.value = false
+  }
+}
+
+// Clipboard functionality
+const { copy: copyToClip } = useClipboard()
+
+// Function to copy selected IDs to clipboard
+const copySelectedIds = async () => {
+  if (selected.value.length === 0) return
+
+  isCopying.value = true
+  try {
+    // Convert the array of IDs to a comma-separated string
+    const idsText = selected.value.join(', ')
+
+    // Copy to clipboard
+    await copyToClip(idsText)
+
+    // Show success message
+    useBaseStore().snackbar = {
+      show: true,
+      text: `${selected.value.length} file IDs copied to clipboard`,
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
+
+    // Keep mass action enabled so user can make additional selections if needed
+    // But only clear if there's a success
+    selected.value = []
+    massAction.value = false
+  } catch (error) {
+    console.error('Error copying to clipboard:', error)
+    useBaseStore().snackbar = {
+      show: true,
+      text: 'Failed to copy IDs to clipboard',
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
+  } finally {
+    isCopying.value = false
+  }
+}
+
+// Function to copy individual item ID or URL to clipboard
+const copyToClipboard = async (item, type = 'id') => {
+  try {
+    let copyText = ''
+
+    if (type === 'id') {
+      copyText = item.id
+    } else if (type === 'url') {
+      copyText = `http://localhost:3000${item.path}`
+    } else if (type === 'name') {
+      copyText = item.name
+    }
+
+    // Copy to clipboard
+    await copyToClip(copyText)
+
+    // Show success message
+    useBaseStore().snackbar = {
+      show: true,
+      text: `${type === 'id' ? 'ID' : type === 'url' ? 'URL' : 'File name'} copied to clipboard`,
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
+  } catch (error) {
+    console.error('Error copying to clipboard:', error)
+    useBaseStore().snackbar = {
+      show: true,
+      text: 'Failed to copy to clipboard',
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
   }
 }
 

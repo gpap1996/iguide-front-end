@@ -5,6 +5,7 @@ import axios from 'axios'
 export const useBaseStore = defineStore(
   'base',
   () => {
+    const fileUrl = import.meta.env.VITE_URL
     const globalLoader = ref(true)
     const theme = ref('light')
     const drawer = ref(true)
@@ -46,7 +47,16 @@ export const useBaseStore = defineStore(
         value: -1,
       },
     ]
-    return { globalLoader, theme, drawer, snackbar, itemsPerPageDropdown, languages, getLanguages }
+    return {
+      globalLoader,
+      theme,
+      drawer,
+      snackbar,
+      itemsPerPageDropdown,
+      languages,
+      getLanguages,
+      fileUrl,
+    }
   },
   {
     persist: [

@@ -47,7 +47,7 @@ app.use(MotionPlugin)
 app.use(VueQueryPlugin)
 
 // Set up axios default url and 401 interceptor
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
+axios.defaults.baseURL = import.meta.env.VITE_API_URL
 
 // Axios request interceptor to add Authorization header
 axios.interceptors.request.use(

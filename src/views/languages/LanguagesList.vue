@@ -21,7 +21,7 @@
       class="mx-auto mt-4"
       style="max-width: 90vw; flex-grow: 1"
     >
-      <template v-slot:[`item.url`]="{ item }">
+      <template v-slot:[`item.path`]="{ item }">
         <v-img
           v-if="item.type == 'image'"
           width="100px"
@@ -29,8 +29,8 @@
           cover
           class="my-4 rounded-xl"
           alt="image"
-          :src="`http://localhost:3000${item.url}`"
-          :lazy-src="`http://localhost:3000${item.thumbnail_url}`"
+          :src="`http://localhost:3000${item.path}`"
+          :lazy-src="`http://localhost:3000${item.thumbnailPath}`"
         />
         <span v-else> - </span>
       </template>
@@ -125,7 +125,8 @@ import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 
-const { itemsPerPageDropdown } = useBaseStore()
+const baseStore = useBaseStore()
+const { itemsPerPageDropdown } = baseStore
 const languageFormDialog = ref(false)
 const currentLanguage = ref(null)
 

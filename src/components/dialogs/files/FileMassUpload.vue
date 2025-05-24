@@ -19,8 +19,8 @@
         required
         hint="Select the type of files you want to upload"
         persistent-hint
+        :disabled="isLoading"
       ></v-select>
-
       <!-- Drop Zone -->
       <div v-if="selectedFileType" class="mb-6">
         <div
@@ -34,6 +34,7 @@
             {
               'drag-over': isDragOver,
               'has-files': files.length > 0,
+              disabled: isLoading,
             },
           ]"
         >
@@ -42,13 +43,16 @@
               {{ getFileTypeIcon(selectedFileType) }}
             </v-icon>
             <div class="text-h6 mb-2">
-              {{ files.length > 0 ? `${files.length} file(s) selected` : 'Drop your files here' }}
+              <template v-if="isLoading">Processing files...</template>
+              <template v-else>{{
+                files.length > 0 ? `${files.length} file(s) selected` : 'Drop your files here'
+              }}</template>
             </div>
             <div class="text-body-2 text-medium-emphasis mb-4">
-              or click to browse {{ selectedFileType }} files
+              <template v-if="!isLoading">or click to browse {{ selectedFileType }} files</template>
             </div>
             <v-chip
-              v-if="selectedFileType"
+              v-if="selectedFileType && !isLoading"
               color="primary"
               variant="tonal"
               size="small"
@@ -79,6 +83,7 @@
               variant="text"
               prepend-icon="mdi-delete-sweep"
               @click="clearFiles"
+              :disabled="isLoading"
             >
               Clear All
             </v-btn>
@@ -104,6 +109,7 @@
                     size="small"
                     @click="removeFile(index)"
                     color="error"
+                    :disabled="isLoading"
                   ></v-btn>
                 </div>
                 <v-divider v-if="index < files.length - 1" class="my-2"></v-divider>
@@ -220,12 +226,14 @@ const formatFileSize = (bytes) => {
 
 // File input events
 const triggerFileInput = () => {
+  if (isLoading.value) return
   if (fileInput.value) {
     fileInput.value.click()
   }
 }
 
 const handleFileInputChange = (event) => {
+  if (isLoading.value) return
   validateAndAddFiles(Array.from(event.target.files || []))
   // Reset file input so the same file can be selected again
   event.target.value = ''
@@ -233,19 +241,23 @@ const handleFileInputChange = (event) => {
 
 // Drag and drop events
 const handleDragOver = (e) => {
+  if (isLoading.value) return
   e.preventDefault()
 }
 
 const handleDragEnter = (e) => {
+  if (isLoading.value) return
   e.preventDefault()
   isDragOver.value = true
 }
 
 const handleDragLeave = () => {
+  if (isLoading.value) return
   isDragOver.value = false
 }
 
 const handleDrop = (e) => {
+  if (isLoading.value) return
   e.preventDefault()
   isDragOver.value = false
 
@@ -399,6 +411,13 @@ watch(selectedFileType, () => {
 
 .has-files {
   border-color: rgba(var(--v-theme-success), 0.5);
+}
+
+.disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: rgba(var(--v-theme-on-surface), 0.2);
 }
 
 .drop-zone-content {

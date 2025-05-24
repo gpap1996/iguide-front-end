@@ -48,6 +48,7 @@ const { language } = defineProps({ language: Object })
 const emits = defineEmits(['close', 'reset'])
 
 const baseStore = useBaseStore()
+const { getLanguages } = baseStore
 const { snackbar } = storeToRefs(baseStore)
 
 const form = ref({
@@ -75,6 +76,8 @@ const onSubmitLanguage = async () => {
         locale: form.value.locale,
       })
     }
+
+    await getLanguages()
 
     emits('reset')
   } catch (error) {

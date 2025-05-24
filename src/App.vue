@@ -57,12 +57,15 @@ import { useBaseStore } from './stores/base'
 import { useTheme } from 'vuetify'
 import { storeToRefs } from 'pinia'
 
-const { theme, snackbar } = storeToRefs(useBaseStore())
+const baseStore = useBaseStore()
+const { getLanguages } = baseStore
+const { theme, snackbar } = storeToRefs(baseStore)
+
 const vuetifyTheme = useTheme()
 const route = useRoute()
 onBeforeMount(async () => {
   vuetifyTheme.global.name.value = theme.value === 'light' ? 'light' : 'dark'
-  await useBaseStore().getLanguages()
+  await getLanguages()
 })
 </script>
 
