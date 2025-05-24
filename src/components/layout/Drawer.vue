@@ -33,35 +33,58 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useDisplay } from 'vuetify'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+const { isAdmin, isManager } = authStore
+
+onMounted(() => {
+  if (isAdmin) {
+    navigation.value.push(
+      {
+        icon: 'mdi-clipboard-text-multiple',
+        title: 'Projects',
+        path: '/projects',
+      },
+      {
+        icon: 'mdi-account-multiple',
+        title: 'Users',
+        path: '/users',
+      },
+    )
+  } else if (isManager)
+    navigation.value.push(
+      {
+        icon: 'mdi-view-dashboard',
+        title: 'Dashboard',
+        path: '/dashboard',
+      },
+      {
+        icon: 'mdi-image-area',
+        title: 'Areas',
+        path: '/areas',
+      },
+
+      {
+        icon: 'mdi-folder',
+        title: 'Files',
+        path: '/files',
+      },
+
+      {
+        icon: 'mdi-translate',
+        title: 'Languages',
+        path: '/languages',
+      },
+    )
+})
 const { drawer } = storeToRefs(useBaseStore())
-const navigation = ref([
-  {
-    icon: 'mdi-view-dashboard',
-    title: 'Dashboard',
-    path: '/dashboard',
-  },
-  {
-    icon: 'mdi-image-area',
-    title: 'Areas',
-    path: '/areas',
-  },
 
-  {
-    icon: 'mdi-folder',
-    title: 'Files',
-    path: '/files',
-  },
-
-  {
-    icon: 'mdi-translate',
-    title: 'Languages',
-    path: '/languages',
-  },
-])
+const navigation = ref([])
 
 const { mdAndDown } = useDisplay()
 const isMobile = computed(() => mdAndDown.value)

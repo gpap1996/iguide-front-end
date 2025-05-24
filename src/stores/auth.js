@@ -4,31 +4,26 @@ import { defineStore } from 'pinia'
 export const useAuthStore = defineStore(
   'auth',
   () => {
+    const role = ref(null)
+
     const isAdmin = computed(() => {
-      return user.value?.role === 'admin'
+      return role.value === 'admin'
     })
 
     const isManager = computed(() => {
-      return user.value?.role === 'manager'
-    })
-
-    const user = ref({
-      role: '',
-      projectid: '',
-      name: '',
-      lastName: '',
+      return role.value === 'manager'
     })
 
     return {
-      user,
       isAdmin,
       isManager,
+      role,
     }
   },
   {
     persist: [
       {
-        pick: ['user'],
+        pick: ['role'],
         storage: localStorage,
       },
     ],

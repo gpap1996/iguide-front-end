@@ -64,6 +64,7 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/auth'
 import { useBaseStore } from '@/stores/base'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { storeToRefs } from 'pinia'
@@ -71,6 +72,10 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFirebaseAuth } from 'vuefire'
 import { useDisplay } from 'vuetify'
+
+const authStore = useAuthStore()
+const { isAdmin, isManager } = authStore
+const { role } = storeToRefs(authStore)
 
 const baseStore = useBaseStore()
 const { snackbar } = storeToRefs(baseStore)
@@ -90,12 +95,14 @@ const onLogin = async () => {
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value)
     // Let the router guard handle the redirection based on the user's role
     const idTokenResult = await userCredential.user.getIdTokenResult()
-    const userRole = idTokenResult.claims.role
-    console.log('id Token Result', idTokenResult)
+    role.value = idTokenResult.claims.role
 
-    if (userRole === 'admin') {
+    console.log('User role:', role.value)
+    console.log('isAdmin:', isAdmin)
+    console.log('isManager:', isManager)
+    if (isAdmin) {
       router.push('/projects')
-    } else if (userRole === 'manager') {
+    } else if (isManager) {
       router.push('/dashboard')
     } else {
       // Handle invalid role scenario
