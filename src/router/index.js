@@ -16,29 +16,45 @@ const router = createRouter({
       component: () => import('../views/auth/Login.vue'),
       meta: { requiresAuth: false },
     },
+    // manager routes
     {
-      path: '/home',
-      name: 'home',
-      component: () => import('../views/Home.vue'),
+      path: '/Dashboard',
+      name: 'dashboard',
+      component: () => import('../views/manager/dashboard/Dashboard.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/areas',
       name: 'area',
-      component: () => import('../views/areas/AreasList.vue'),
+      component: () => import('../views/manager/areas/AreasList.vue'),
       meta: { requiresAuth: true },
     },
 
     {
       path: '/files',
       name: 'files',
-      component: () => import('../views/files/FilesList.vue'),
+      component: () => import('../views/manager/files/FilesList.vue'),
       meta: { requiresAuth: true },
     },
     {
       path: '/languages',
       name: 'languages',
-      component: () => import('../views/languages/LanguagesList.vue'),
+      component: () => import('../views/manager/languages/LanguagesList.vue'),
+      meta: { requiresAuth: true },
+    },
+
+    // admin routes
+    {
+      path: '/projects',
+      name: 'projects',
+      component: () => import('../views/admin/projects/ProjectsList.vue'),
+      meta: { requiresAuth: true },
+    },
+
+    {
+      path: '/users',
+      name: 'users',
+      component: () => import('../views/admin/users/UsersList.vue'),
       meta: { requiresAuth: true },
     },
     // Catch-all route for non-existent paths
@@ -58,7 +74,7 @@ const authGuard = async (to, from, next) => {
   // Prevent logged-in users from going to the login page
   if (to.name === 'login' && user) {
     globalLoader.value = false
-    next({ name: 'home' }) // Redirect logged-in users to home if they try to access the login page
+    next({ name: 'dashboard' }) // Redirect logged-in users to dashboard if they try to access the login page
     return
   }
 
@@ -81,10 +97,10 @@ const authGuard = async (to, from, next) => {
       return
     }
 
-    // If the route does not require authentication and the user is an admin, redirect to home
-    if (!requiresAuth && claims?.role === 'admin' && to.name !== 'home') {
+    // If the route does not require authentication and the user is an admin, redirect to dashboard
+    if (!requiresAuth && claims?.role === 'admin' && to.name !== 'dashboard') {
       globalLoader.value = false
-      next({ name: 'home' })
+      next({ name: 'dashboard' })
       return
     }
   }
@@ -92,7 +108,7 @@ const authGuard = async (to, from, next) => {
   // Handle non-existent routes
   if (to.name === 'not-found') {
     if (user) {
-      next({ name: 'home' }) // Redirect logged-in users to the home page for non-existent routes
+      next({ name: 'dashboard' }) // Redirect logged-in users to the dashboard page for non-existent routes
     } else {
       next({ name: 'login' }) // Redirect non-logged-in users to the login page for non-existent routes
     }

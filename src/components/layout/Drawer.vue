@@ -40,9 +40,9 @@ import { useDisplay } from 'vuetify'
 const { drawer } = storeToRefs(useBaseStore())
 const navigation = ref([
   {
-    icon: 'mdi-home',
-    title: 'Home',
-    path: '/home',
+    icon: 'mdi-view-dashboard',
+    title: 'Dashboard',
+    path: '/dashboard',
   },
   {
     icon: 'mdi-image-area',

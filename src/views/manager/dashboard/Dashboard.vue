@@ -1,6 +1,6 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Home"></page-title>
+    <page-title title="Dashboard"></page-title>
     <v-chart ref="chartRef" class="chart mt-4" :option="option" autoresize />
   </div>
 </template>
