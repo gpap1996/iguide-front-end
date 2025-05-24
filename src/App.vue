@@ -59,6 +59,7 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from './stores/auth'
 
 const authStore = useAuthStore()
+const { isManager } = authStore
 const { role } = storeToRefs(authStore)
 
 const baseStore = useBaseStore()
@@ -69,7 +70,7 @@ const vuetifyTheme = useTheme()
 const route = useRoute()
 onBeforeMount(async () => {
   vuetifyTheme.global.name.value = theme.value === 'light' ? 'light' : 'dark'
-  if (role.value) await getLanguages()
+  if (role.value && isManager) await getLanguages()
 })
 </script>
 

@@ -78,6 +78,7 @@ const { isAdmin, isManager } = authStore
 const { role } = storeToRefs(authStore)
 
 const baseStore = useBaseStore()
+const { getLanguages } = baseStore
 const { snackbar } = storeToRefs(baseStore)
 
 const { mdAndDown } = useDisplay()
@@ -103,6 +104,7 @@ const onLogin = async () => {
     if (isAdmin) {
       router.push('/projects')
     } else if (isManager) {
+      await getLanguages()
       router.push('/dashboard')
     } else {
       // Handle invalid role scenario
