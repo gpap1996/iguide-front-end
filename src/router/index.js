@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getCurrentUser } from 'vuefire'
+import { getCurrentUser, useFirebaseAuth } from 'vuefire'
 import { getIdTokenResult, signOut } from 'firebase/auth'
-import { useFirebaseAuth } from 'vuefire'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import adminRoutes from './adminRoutes'
+import managerRoutes from './managerRoutes'
 
 const auth = useFirebaseAuth()
 
@@ -16,47 +17,9 @@ const router = createRouter({
       component: () => import('../views/auth/Login.vue'),
       meta: { requiresAuth: false },
     },
-    // manager routes
-    {
-      path: '/Dashboard',
-      name: 'dashboard',
-      component: () => import('../views/manager/dashboard/Dashboard.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/areas',
-      name: 'area',
-      component: () => import('../views/manager/areas/AreasList.vue'),
-      meta: { requiresAuth: true },
-    },
-
-    {
-      path: '/files',
-      name: 'files',
-      component: () => import('../views/manager/files/FilesList.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/languages',
-      name: 'languages',
-      component: () => import('../views/manager/languages/LanguagesList.vue'),
-      meta: { requiresAuth: true },
-    },
-
-    // admin routes
-    {
-      path: '/projects',
-      name: 'projects',
-      component: () => import('../views/admin/projects/ProjectsList.vue'),
-      meta: { requiresAuth: true },
-    },
-
-    {
-      path: '/users',
-      name: 'users',
-      component: () => import('../views/admin/users/UsersList.vue'),
-      meta: { requiresAuth: true },
-    },
+    // Import manager and admin routes
+    ...managerRoutes,
+    ...adminRoutes,
     // Catch-all route for non-existent paths
     {
       path: '/:pathMatch(.*)*',
@@ -68,15 +31,8 @@ const router = createRouter({
 
 const authGuard = async (to, from, next) => {
   const { globalLoader } = storeToRefs(useBaseStore())
-  const { requiresAuth } = to.meta
+  const { requiresAuth, role: routeRole } = to.meta
   const user = await getCurrentUser()
-
-  // Prevent logged-in users from going to the login page
-  if (to.name === 'login' && user) {
-    globalLoader.value = false
-    next({ name: 'dashboard' }) // Redirect logged-in users to dashboard if they try to access the login page
-    return
-  }
 
   // Redirect to login if the route requires authentication and the user is not logged in
   if (requiresAuth && !user) {
@@ -86,21 +42,39 @@ const authGuard = async (to, from, next) => {
   }
 
   if (user) {
-    // Get the user's claims to check for the admin role
+    // Get the user's claims to check for role
     const { claims } = await getIdTokenResult(user)
+    const userRole = claims?.role
 
-    // If the user is not an admin, log them out and redirect to login
-    if (requiresAuth && claims?.role !== 'admin') {
-      await signOut(auth)
+    // Prevent logged-in users from going to the login page
+    if (to.name === 'login') {
       globalLoader.value = false
-      next({ name: 'login' })
+      // Redirect to appropriate home page based on role
+      if (userRole === 'admin') {
+        next({ name: 'projects' }) // Admin home is projects page
+      } else if (userRole === 'manager') {
+        next({ name: 'dashboard' }) // Manager home is dashboard page
+      } else {
+        // Invalid role, log them out
+        await signOut(auth)
+        next({ name: 'login' })
+      }
       return
     }
 
-    // If the route does not require authentication and the user is an admin, redirect to dashboard
-    if (!requiresAuth && claims?.role === 'admin' && to.name !== 'dashboard') {
+    // Check if user has access to this route
+    if (requiresAuth && routeRole && routeRole !== userRole) {
       globalLoader.value = false
-      next({ name: 'dashboard' })
+      // Redirect to appropriate home page based on role
+      if (userRole === 'admin') {
+        next({ name: 'projects' }) // Admin home is projects page
+      } else if (userRole === 'manager') {
+        next({ name: 'dashboard' }) // Manager home is dashboard page
+      } else {
+        // Invalid role, log them out
+        await signOut(auth)
+        next({ name: 'login' })
+      }
       return
     }
   }
@@ -108,9 +82,19 @@ const authGuard = async (to, from, next) => {
   // Handle non-existent routes
   if (to.name === 'not-found') {
     if (user) {
-      next({ name: 'dashboard' }) // Redirect logged-in users to the dashboard page for non-existent routes
+      const { claims } = await getIdTokenResult(user)
+      // Redirect based on user role
+      if (claims?.role === 'admin') {
+        next({ name: 'projects' }) // Redirect admin to projects page
+      } else if (claims?.role === 'manager') {
+        next({ name: 'dashboard' }) // Redirect manager to dashboard
+      } else {
+        // Invalid role, log them out
+        await signOut(auth)
+        next({ name: 'login' })
+      }
     } else {
-      next({ name: 'login' }) // Redirect non-logged-in users to the login page for non-existent routes
+      next({ name: 'login' }) // Redirect non-logged-in users to login
     }
     return
   }

@@ -87,8 +87,20 @@ const onLogin = async () => {
   loginLoader.value = true
 
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value)
-    router.push('/dashboard')
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value)
+    // Let the router guard handle the redirection based on the user's role
+    const idTokenResult = await userCredential.user.getIdTokenResult()
+    const userRole = idTokenResult.claims.role
+    console.log('id Token Result', idTokenResult)
+
+    if (userRole === 'admin') {
+      router.push('/projects')
+    } else if (userRole === 'manager') {
+      router.push('/dashboard')
+    } else {
+      // Handle invalid role scenario
+      throw new Error('Invalid user role')
+    }
   } catch (error) {
     console.log(error)
     snackbar.value = {
