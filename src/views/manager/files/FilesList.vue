@@ -127,7 +127,7 @@
       style="max-width: 90vw; flex-grow: 1"
       :show-select="massAction"
     >
-      <template v-slot:[`item.path`]="{ item }">
+      <template v-slot:[`item.preview`]="{ item }">
         <v-img
           v-if="item.type == 'image'"
           width="100px"
@@ -135,10 +135,10 @@
           cover
           class="my-4 rounded-xl"
           alt="image"
-          :src="`${fileUrl + item.thumbnailPath}`"
+          :src="`${item.thumbnailUrl}`"
         />
 
-        <v-icon v-else color="white" icon="mdi-file-question-outline"></v-icon>
+        <v-icon v-else color="white" icon="mdi-file-cancel-outline"></v-icon>
       </template>
 
       <template v-slot:[`item.title`]="{ item }">
@@ -359,7 +359,11 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 import { useClipboard } from '@vueuse/core'
-const { itemsPerPageDropdown, fileUrl } = useBaseStore()
+import { storeToRefs } from 'pinia'
+
+const baseStore = useBaseStore()
+const { itemsPerPageDropdown } = baseStore
+const { snackbar } = storeToRefs(baseStore)
 
 const fileFormDialog = ref(false)
 const fileMassUploadDialog = ref(false)
@@ -386,7 +390,7 @@ const massActionType = ref('delete') // 'delete' or 'copy'
 const headers = [
   {
     title: 'Preview',
-    key: 'path',
+    key: 'preview',
     sortable: false,
   },
 
@@ -568,7 +572,7 @@ const exportToExcel = async () => {
     document.body.removeChild(link)
 
     // Show success message
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: 'Excel file downloaded successfully',
       color: 'success',
@@ -576,7 +580,7 @@ const exportToExcel = async () => {
     }
   } catch (error) {
     console.error('Error exporting Excel:', error)
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: 'Error exporting Excel file',
       color: 'error',
@@ -603,7 +607,7 @@ const copySelectedIds = async () => {
     await copyToClip(idsText)
 
     // Show success message
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: `${selected.value.length} file IDs copied to clipboard`,
       color: 'success',
@@ -616,7 +620,7 @@ const copySelectedIds = async () => {
     massAction.value = false
   } catch (error) {
     console.error('Error copying to clipboard:', error)
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: 'Failed to copy IDs to clipboard',
       color: 'error',
@@ -635,7 +639,7 @@ const copyToClipboard = async (item, type = 'id') => {
     if (type === 'id') {
       copyText = item.id
     } else if (type === 'url') {
-      copyText = `${fileUrl + item.path}`
+      copyText = `${item.url}`
     } else if (type === 'name') {
       copyText = item.name
     }
@@ -644,7 +648,7 @@ const copyToClipboard = async (item, type = 'id') => {
     await copyToClip(copyText)
 
     // Show success message
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: `${type === 'id' ? 'ID' : type === 'url' ? 'URL' : 'File name'} copied to clipboard`,
       color: 'success',
@@ -652,7 +656,7 @@ const copyToClipboard = async (item, type = 'id') => {
     }
   } catch (error) {
     console.error('Error copying to clipboard:', error)
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: 'Failed to copy to clipboard',
       color: 'error',
@@ -686,7 +690,7 @@ const importExcel = async () => {
     importFile.value = null
 
     // Show success message
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: 'Files imported successfully',
       color: 'success',
@@ -697,7 +701,7 @@ const importExcel = async () => {
     await onFiltersReset()
   } catch (error) {
     console.error('Error importing Excel:', error)
-    useBaseStore().snackbar = {
+    snackbar.value = {
       show: true,
       text: error.response?.data?.details || 'Error importing files',
       color: 'error',

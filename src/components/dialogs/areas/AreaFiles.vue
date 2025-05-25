@@ -17,7 +17,7 @@
         <template v-slot:chip="{ props, item }">
           <v-chip
             v-bind="props"
-            :prepend-avatar="`${fileUrl + item.raw?.thumbnailPath || ''}`"
+            :prepend-avatar="`${item.raw?.thumbnailUrl || ''}`"
             :text="`${item.raw?.name?.slice(0, 10) || ''}...${item.raw?.name?.slice(item.raw?.name?.lastIndexOf('.') || 0) || ''}`"
           ></v-chip>
         </template>
@@ -25,7 +25,7 @@
         <template v-slot:item="{ props, item }">
           <v-list-item
             v-bind="props"
-            :prepend-avatar="`${fileUrl + item.raw?.thumbnailPath || ''}`"
+            :prepend-avatar="`${item.raw?.thumbnailUrl || ''}`"
             :title="item.raw?.name || ''"
           ></v-list-item>
         </template>
@@ -50,13 +50,9 @@
 
 <script setup>
 import { useAreasStore } from '@/stores/areas'
-import { useBaseStore } from '@/stores/base'
 import { useFilesStore } from '@/stores/files'
 import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
-
-const baseStore = useBaseStore()
-const { fileUrl } = baseStore
 
 const areasStore = useAreasStore()
 const { form } = storeToRefs(areasStore)

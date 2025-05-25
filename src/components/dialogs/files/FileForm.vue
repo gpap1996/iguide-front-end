@@ -56,16 +56,17 @@
           ></v-file-input>
 
           <div v-if="isEdit && file?.path" class="align-self-start">
-            <img
+            <v-img
               v-if="file?.type === 'image'"
-              :src="`${fileUrl + file?.path}`"
+              :src="`${file?.url}`"
               alt="Current file"
               width="250"
               height="250"
-              style="object-fit: cover"
+              cover
+              :lazy-src="file?.thumbnailUrl"
             />
             <audio controls v-if="file?.type === 'audio'">
-              <source :src="`${fileUrl + file.path}`" type="audio/ogg" />
+              <source :src="`${file?.url}`" type="audio/ogg" />
               Your browser does not support the audio element.
             </audio>
           </div>
@@ -101,7 +102,6 @@ import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 
 const baseStore = useBaseStore()
-const { fileUrl } = baseStore
 const { languages, snackbar } = storeToRefs(baseStore)
 
 const props = defineProps({
