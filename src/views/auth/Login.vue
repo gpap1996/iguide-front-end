@@ -4,23 +4,108 @@
     style="width: 100vw"
     :style="isMobile ? 'min-height:500px' : 'min-height:100vh'"
   >
-    <div class="aurora-background" v-if="!isMobile">
-      <div class="aurora-circle aurora-blur purple"></div>
-      <div class="aurora-circle aurora-blur green"></div>
-      <div class="aurora-circle aurora-blur teal"></div>
-    </div>
     <!-- 1st column -->
-    <div class="left-column d-flex flex-grow-1" style="overflow: hidden; position: relative">
-      <div class="d-flex flex-column align-center justify-center flex-grow-1">
+    <div class="left-column d-flex flex-grow-1" v-if="!isMobile">
+      <div class="particles-wrapper">
+        <vue-particles
+          @particles-loaded="particlesLoaded"
+          id="tsparticles"
+          :options="{
+            background: {
+              color: {
+                value: 'transparent',
+              },
+            },
+            fpsLimit: 60,
+            interactivity: {
+              events: {
+                onHover: {
+                  enable: true,
+                  mode: 'grab',
+                },
+              },
+              modes: {
+                grab: {
+                  distance: 140,
+                  links: {
+                    opacity: 0.5,
+                  },
+                },
+              },
+            },
+            particles: {
+              color: {
+                value: ['#5DAE8B', '#8BC4B0', '#B8D9CC'],
+              },
+              links: {
+                color: '#5DAE8B',
+                distance: 150,
+                enable: true,
+                opacity: 0.3,
+                width: 1,
+              },
+              move: {
+                direction: 'none',
+                enable: true,
+                outModes: {
+                  default: 'bounce',
+                },
+                random: true,
+                speed: { min: 0.5, max: 2 },
+                straight: false,
+                path: {
+                  enable: true,
+                  delay: {
+                    value: 0.1,
+                  },
+                  options: {
+                    size: 5,
+                    draw: false,
+                    increment: 0.001,
+                  },
+                },
+              },
+              number: {
+                density: {
+                  enable: true,
+                  area: 1200,
+                },
+                value: 60,
+              },
+              opacity: {
+                value: { min: 0.3, max: 0.8 },
+              },
+              shape: {
+                type: ['circle', 'triangle'],
+              },
+              size: {
+                value: { min: 1, max: 3 },
+                animation: {
+                  enable: true,
+                  speed: 2,
+                  minimumValue: 0.1,
+                  sync: false,
+                },
+              },
+            },
+            detectRetina: true,
+            fullScreen: {
+              enable: true,
+              zIndex: -1,
+            },
+          }"
+        />
+      </div>
+      <div class="content-wrapper">
         <div :class="{ 'text-center': isMobile }">
-          <div class="left-column-title">i•Guide</div>
-          <div class="left-column-subtitle">Digital interactive tour•</div>
+          <div class="left-column-title">i•GUIDE</div>
+          <div class="left-column-subtitle">Digital interactive tour</div>
         </div>
       </div>
     </div>
     <!-- 2nd-column -->
-    <div class="d-flex flex-column align-center justify-center flex-grow-1">
-      <div v-if="!isMobile" class="text-start mb-10" style="width: 50%">
+    <div class="d-flex flex-column align-center justify-center flex-grow-1 bg-background">
+      <div class="mb-10" style="width: 50%" :class="{ 'text-center': isMobile }">
         <div class="title">Hello again,</div>
         <div class="subtitle">Welcome Back!</div>
       </div>
@@ -76,7 +161,9 @@ import { useDisplay } from 'vuetify'
 const authStore = useAuthStore()
 // const { isAdmin, isManager } = authStore
 const { role, isAdmin, isManager } = storeToRefs(authStore)
-
+const particlesLoaded = async (container) => {
+  console.log('Particles container loaded', container)
+}
 const baseStore = useBaseStore()
 const { getLanguages } = baseStore
 const { snackbar } = storeToRefs(baseStore)
@@ -118,91 +205,58 @@ const onLogin = async () => {
     loginLoader.value = false
   }
 }
+
+// onMounted(async () => {
+//   await loadSlim(window.tsParticles)
+// })
 </script>
 
 <style lang="scss" scoped>
+.particles-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .left-column {
   border-right: 2px solid rgb(var(--v-theme-oposite), 0.1);
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  max-width: 50%;
+  height: 100vh;
+}
+
+@media (max-width: 960px) {
+  .left-column {
+    width: 100% !important;
+    max-width: 100%;
+    height: 500px;
+  }
 }
 
 .left-column-title {
   font-weight: bold;
   font-size: 80px;
   line-height: 90px;
-  color: transparent;
-
-  background: linear-gradient(
-    to right,
-    rgb(var(--v-theme-primary)),
-    rgb(var(--v-theme-success)),
-    rgb(var(--v-theme-error))
-  );
-
-  background-clip: text;
 }
 
 .left-column-subtitle {
   font-weight: 400;
   font-size: 32px;
-  // color: white;
-  //   line-height: 80px;
-}
-
-.aurora-background {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.aurora-circle {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.6;
-}
-
-.aurora-blur {
-  position: absolute;
-  z-index: -10;
-  filter: blur(48px);
-  opacity: 0.3;
-  animation: aurora-glow 4s ease-in-out infinite;
-}
-
-@keyframes aurora-glow {
-  0%,
-  100% {
-    opacity: 0.8;
-    filter: blur(5px);
-  }
-  50% {
-    opacity: 1;
-    filter: blur(15px);
-  }
-}
-
-.aurora-circle.purple {
-  top: 80px;
-  left: 5%;
-  width: 256px;
-  height: 256px;
-  background-color: rgb(var(--v-theme-primary-lighten-2));
-}
-
-.aurora-circle.green {
-  top: 160px;
-  right: 52%;
-  width: 384px;
-  height: 384px;
-  background-color: rgb(var(--v-theme-primary));
-}
-
-.aurora-circle.teal {
-  bottom: 80px;
-  left: 12%;
-  width: 288px;
-  height: 288px;
-  background-color: rgb(var(--v-theme-primary-darken-2));
 }
 </style>
