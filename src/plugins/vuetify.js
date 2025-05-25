@@ -23,7 +23,6 @@ export const vuetify = createVuetify({
         colors: {
           primary: '#5DAE8B',
           background: '#F9F9F9',
-          // surface: '#F9F9F9',
           success: '#66D9E8',
           error: '#FF6B6B',
           oposite: '#5DAE8B',
