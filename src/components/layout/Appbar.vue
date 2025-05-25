@@ -2,8 +2,6 @@
   <v-app-bar extension-height="4">
     <template v-slot:prepend>
       <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
-
-      <div class="logo-title ml-2">i•Guide</div>
     </template>
 
     <template v-slot:append>
@@ -46,19 +44,4 @@ const onToogleTheme = () => {
 const isMobile = computed(() => mdAndDown.value)
 </script>
 
-<style lang="scss" scoped>
-.logo-title {
-  font-weight: bold;
-  font-size: 30px;
-  line-height: 90px;
-  color: transparent;
-  background: linear-gradient(
-    to right,
-    rgb(var(--v-theme-primary)),
-    rgb(var(--v-theme-success)),
-    rgb(var(--v-theme-error))
-  );
-
-  background-clip: text;
-}
-</style>
+<style lang="scss" scoped></style>
