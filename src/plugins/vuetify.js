@@ -25,7 +25,7 @@ export const vuetify = createVuetify({
           background: '#F9F9F9',
           success: '#66D9E8',
           error: '#FF6B6B',
-          oposite: '#5DAE8B',
+          oposite: '#121212',
         },
       },
       dark: {

@@ -114,7 +114,7 @@
       </div>
     </div>
     <!-- 2nd-column -->
-    <div class="d-flex flex-column align-center justify-center flex-grow-1 bg-background">
+    <div class="d-flex flex-column align-center justify-center flex-grow-1 bg-surface">
       <div class="mb-10" style="width: 50%" :class="{ 'text-center': isMobile }">
         <div class="title">Hello again,</div>
         <div class="subtitle">Welcome Back!</div>
@@ -269,7 +269,7 @@ const onLogin = async () => {
   font-weight: 400;
   font-size: 32px;
   margin-top: 5px;
-  color: #5dae8b;
+  color: rgb(var(--v-theme-oposite));
   opacity: 0;
   animation: fadeIn 1s ease forwards 1s;
 }
@@ -290,7 +290,6 @@ const onLogin = async () => {
 .logo-i {
   font-size: 72px;
   font-weight: 900;
-  color: #5dae8b;
   position: relative;
   transform-origin: bottom;
   animation: stretch 2s ease-in-out infinite;
@@ -299,7 +298,8 @@ const onLogin = async () => {
 .logo-dot {
   width: 12px;
   height: 12px;
-  background: #5dae8b;
+  background: rgb(var(--v-theme-oposite));
+
   border-radius: 50%;
   position: relative;
   animation: blink 2s ease-in-out infinite;
@@ -313,7 +313,6 @@ const onLogin = async () => {
 .guide-letter {
   font-size: 72px;
   font-weight: 900;
-  color: #5dae8b;
   opacity: 0;
   transform: translateY(20px);
   animation: slideUp 0.4s ease forwards;
