@@ -29,8 +29,8 @@
           cover
           class="my-4 rounded-xl"
           alt="image"
-          :src="`http://localhost:3000${item.path}`"
-          :lazy-src="`http://localhost:3000${item.thumbnailPath}`"
+          :src="`${fileUrl + item.path}`"
+          :lazy-src="`${fileUrl + item.thumbnailPath}`"
         />
         <span v-else> - </span>
       </template>
@@ -126,7 +126,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 
 const baseStore = useBaseStore()
-const { itemsPerPageDropdown } = baseStore
+const { itemsPerPageDropdown, fileUrl } = baseStore
 const languageFormDialog = ref(false)
 const currentLanguage = ref(null)
 

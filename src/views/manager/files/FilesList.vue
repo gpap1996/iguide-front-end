@@ -135,7 +135,7 @@
           cover
           class="my-4 rounded-xl"
           alt="image"
-          :src="`http://localhost:3000${item.thumbnailPath}`"
+          :src="`${fileUrl + item.thumbnailPath}`"
         />
 
         <v-icon v-else color="white" icon="mdi-file-question-outline"></v-icon>
@@ -359,7 +359,7 @@ import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 import { useClipboard } from '@vueuse/core'
-const { itemsPerPageDropdown } = useBaseStore()
+const { itemsPerPageDropdown, fileUrl } = useBaseStore()
 
 const fileFormDialog = ref(false)
 const fileMassUploadDialog = ref(false)
@@ -635,7 +635,7 @@ const copyToClipboard = async (item, type = 'id') => {
     if (type === 'id') {
       copyText = item.id
     } else if (type === 'url') {
-      copyText = `http://localhost:3000${item.path}`
+      copyText = `${fileUrl + item.path}`
     } else if (type === 'name') {
       copyText = item.name
     }
