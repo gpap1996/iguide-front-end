@@ -11,20 +11,20 @@ import { vuetify } from './plugins/vuetify'
 import { vuetifyProTipTap } from './plugins/tiptap'
 import { initializeApp } from 'firebase/app'
 import { VueFire, VueFireAuth, getCurrentUser } from 'vuefire'
-import { getIdToken } from 'firebase/auth'
+import { getIdToken, signOut } from 'firebase/auth'
 import { MotionPlugin } from '@vueuse/motion'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 
 import axios from 'axios'
+// Initialize Firebase with environment variables
 export const firebaseApp = initializeApp({
-  apiKey: 'AIzaSyDNl4-jg9yzfSmXy89Sblw8ZdNX8wJJYNI',
-  authDomain: 'iguide-demo.firebaseapp.com',
-  projectId: 'iguide-demo',
-  storageBucket: 'iguide-demo.firebasestorage.app',
-  messagingSenderId: '251387545799',
-  appId: '1:251387545799:web:25da92d8b677c15e3e96e2',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 })
-
 const app = createApp(App)
 
 app.use(VueFire, {
@@ -64,13 +64,13 @@ axios.interceptors.request.use(
 
     return config // Always return the config object after modifying it
   },
-  (error) => {
+  async (error) => {
     if (error.response && error.response.status === 401) {
       // Optionally, clear axios authorization header if set
       delete axios.defaults.headers.common['Authorization']
-
+      await signOut(firebaseApp.auth()) // Sign out the user if 401 error occurs
       // Redirect to login page
-      router.push('/login')
+      router.push('/')
     }
     return Promise.reject(error)
   },
