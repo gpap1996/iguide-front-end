@@ -110,7 +110,7 @@
       class="mt-10"
     ></v-pagination>
 
-    <v-dialog v-model="projectFormDialog.open" max-width="700px" max-height="600px" persistent>
+    <v-dialog v-model="projectFormDialog.open" max-width="700px" max-height="800px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <project-form
           :project="projectFormDialog.project"

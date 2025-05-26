@@ -38,6 +38,15 @@
           :rules="[rules.fileSize]"
         ></v-file-input>
 
+        <v-img
+          v-if="project && project.imageUrl"
+          :src="project.imageUrl"
+          alt="Project Logo"
+          class="mt-4"
+          width="200"
+          height="200"
+          cover
+        ></v-img>
         <v-switch
           v-model="form.status"
           color="primary"
