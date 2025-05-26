@@ -1,8 +1,8 @@
 <template>
   <v-app-bar extension-height="4">
     <template v-slot:prepend>
-      <LogoSimple class="ml-2" />
       <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <LogoSimple class="ml-2" />
     </template>
 
     <template v-slot:append>

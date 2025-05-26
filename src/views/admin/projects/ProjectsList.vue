@@ -43,6 +43,12 @@
       class="mx-auto mt-4"
       style="max-width: 90vw; flex-grow: 1"
     >
+      <template v-slot:[`item.logo`]="{ item }">
+        <v-avatar size="40">
+          <v-img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name"></v-img>
+          <v-icon v-else icon="mdi-folder-image" size="large"></v-icon>
+        </v-avatar>
+      </template>
       <template v-slot:[`item.status`]="{ item }">
         <v-icon
           :color="item.status ? 'success' : 'error'"
@@ -104,7 +110,7 @@
       class="mt-10"
     ></v-pagination>
 
-    <v-dialog v-model="projectFormDialog.open" max-width="700px" max-height="500px" persistent>
+    <v-dialog v-model="projectFormDialog.open" max-width="700px" max-height="600px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <project-form
           :project="projectFormDialog.project"
@@ -137,6 +143,12 @@ const filters = ref({
 })
 
 const headers = [
+  {
+    title: 'Logo',
+    key: 'logo',
+    sortable: false,
+    width: '80px', // Adjust width as needed
+  },
   {
     title: 'Name',
     key: 'name',
