@@ -18,6 +18,7 @@
 
 <script setup>
 import { useBaseStore } from '@/stores/base'
+import { useAuthStore } from '@/stores/auth'
 import { signOut } from 'firebase/auth'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -27,13 +28,19 @@ import { useTheme, useDisplay } from 'vuetify'
 
 const { mdAndDown } = useDisplay()
 
+const baseStore = useBaseStore()
 const vuetifyTheme = useTheme()
-const { globalLoader, theme, drawer } = storeToRefs(useBaseStore())
+const { globalLoader, theme, drawer } = storeToRefs(baseStore)
+
+const authStore = useAuthStore()
+const { clearUser } = authStore
+
 const router = useRouter()
 const auth = useFirebaseAuth()
 
 const onLogout = async () => {
   await signOut(auth)
+  clearUser()
   router.push('/')
 }
 
