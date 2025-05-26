@@ -25,40 +25,48 @@
       </v-select>
 
       <v-form ref="formRef" v-model="formValid">
-        <v-text-field
-          v-model="currentTitle"
-          density="comfortable"
-          variant="outlined"
-          label="Title"
-          required
-        ></v-text-field>
+        <div class="d-flex" style="gap: 16px">
+          <v-text-field
+            v-model="currentTitle"
+            density="comfortable"
+            variant="outlined"
+            label="Title"
+            required
+            width="250"
+          ></v-text-field>
 
-        <v-text-field
-          v-model="currentSubtitle"
-          density="comfortable"
-          variant="outlined"
-          label="Subtitle"
-        ></v-text-field>
+          <v-text-field
+            v-model="currentSubtitle"
+            density="comfortable"
+            variant="outlined"
+            label="Subtitle"
+            width="250"
+          ></v-text-field>
+        </div>
+        <div class="d-flex" style="gap: 16px">
+          <v-select
+            v-model="form.parentId"
+            :items="areas"
+            density="comfortable"
+            variant="outlined"
+            label="Wider area"
+            item-text="title"
+            item-value="id"
+            width="250"
+          >
+          </v-select>
 
-        <v-select
-          v-model="form.parentId"
-          :items="areas"
-          density="comfortable"
-          variant="outlined"
-          label="Wider area"
-          item-text="title"
-          item-value="id"
-        >
-        </v-select>
+          <v-text-field
+            v-model="form.weight"
+            density="comfortable"
+            variant="outlined"
+            label="Weight"
+            type="number"
+            @input="form.weight = Number(form.weight)"
+            width="250"
+          ></v-text-field>
+        </div>
 
-        <v-text-field
-          v-model="form.weight"
-          density="comfortable"
-          variant="outlined"
-          label="Weight"
-          type="number"
-          @input="form.weight = Number(form.weight)"
-        ></v-text-field>
         <VuetifyTiptap
           label="Description"
           v-model="currentDescription"

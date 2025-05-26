@@ -1,9 +1,17 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
 export const useFilesStore = defineStore('files', () => {
   const filesDropdown = ref([])
+
+  const dropdownImages = computed(() => {
+    return filesDropdown.value.filter((file) => file.type === 'image')
+  })
+
+  const dropdownAudio = computed(() => {
+    return filesDropdown.value.filter((file) => file.type === 'audio')
+  })
 
   async function getFilesDropdown() {
     try {
@@ -14,5 +22,5 @@ export const useFilesStore = defineStore('files', () => {
     }
   }
 
-  return { filesDropdown, getFilesDropdown }
+  return { filesDropdown, getFilesDropdown, dropdownImages, dropdownAudio }
 })

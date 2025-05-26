@@ -174,7 +174,7 @@
       class="mt-10"
     ></v-pagination>
 
-    <v-dialog v-model="areaFormDialog.open" max-width="1000px" persistent>
+    <v-dialog v-model="areaFormDialog.open" max-width="800px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <area-form
           @reset="onFiltersReset('save')"

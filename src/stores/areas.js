@@ -13,7 +13,7 @@ export const useAreasStore = defineStore('areas', () => {
   const form = ref({
     weight: 0,
     images: [],
-    audio: null,
+    audio: [],
     parentId: null,
     translations: {},
   })
@@ -22,7 +22,7 @@ export const useAreasStore = defineStore('areas', () => {
     form.value = {
       weight: 0,
       images: [],
-      audio: null,
+      audio: [],
       parentId: null,
       translations: {},
     }
@@ -33,9 +33,10 @@ export const useAreasStore = defineStore('areas', () => {
     const area = res.data.area
     // Initialize form with default values
     const updatedForm = {
+      id: area.id,
       weight: area.weight || 0,
-      images: [...area.images], //
-      audio: null,
+      images: [...area.images],
+      audio: [...area.audio],
       parentId: area.parentId || null,
       translations: {},
     }
@@ -69,7 +70,11 @@ export const useAreasStore = defineStore('areas', () => {
     const sanitizedForm = Object.fromEntries(
       Object.entries({ ...form.value }).filter((entry) => entry[1] !== null),
     )
-    await axios.post('/areas', sanitizedForm)
+    if (isEdit.value) {
+      await axios.put(`/areas/${form.value.id}`, sanitizedForm)
+    } else {
+      await axios.post('/areas', sanitizedForm)
+    }
   }
 
   return { form, submitArea, resetForm, isEdit, fetchAreaById }
