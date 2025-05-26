@@ -14,6 +14,7 @@
           variant="outlined"
           label="Username"
           :rules="[rules.required]"
+          tabindex="1"
         ></v-text-field>
         <v-text-field
           v-model="form.email"
@@ -24,6 +25,7 @@
           :rules="[rules.required, rules.email]"
           class="mt-4"
           autocomplete="new-password"
+          tabindex="2"
         ></v-text-field>
         <div class="d-flex" style="gap: 16px">
           <v-text-field
@@ -38,6 +40,7 @@
             @click:append-inner="showPassword = !showPassword"
             autocomplete="new-password"
             max-width="310px"
+            tabindex="3"
           ></v-text-field>
 
           <v-text-field
@@ -53,6 +56,7 @@
             autocomplete="new-password"
             :disabled="!form.password"
             max-width="310px"
+            tabindex="4"
           ></v-text-field>
         </div>
 
@@ -66,6 +70,7 @@
             class="mt-4"
             autocomplete="new-name"
             max-width="310px"
+            tabindex="5"
           ></v-text-field>
 
           <v-text-field
@@ -77,6 +82,7 @@
             class="mt-4"
             autocomplete="new-name"
             max-width="310px"
+            tabindex="6"
           ></v-text-field>
         </div>
 
@@ -92,6 +98,7 @@
           class="mt-4"
           :loading="isProjectsLoading"
           no-data-text="No projects available"
+          tabindex="7"
         ></v-autocomplete>
 
         <v-radio-group
@@ -100,6 +107,7 @@
           inline
           :rules="[rules.required]"
           class="mt-4"
+          tabindex="8"
         >
           <v-radio value="manager" label="Manager"></v-radio>
         </v-radio-group>
