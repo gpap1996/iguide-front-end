@@ -2,7 +2,15 @@
   <v-app-bar extension-height="4">
     <template v-slot:prepend>
       <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <LogoSimple class="ml-2" />
+
+      <img
+        v-if="user?.project?.imageUrl"
+        :src="user?.project?.imageUrl"
+        width="100"
+        height="auto"
+        style="max-height: 60px; object-fit: contain"
+      />
+      <v-app-bar-title v-else> {{ user?.project?.name }}</v-app-bar-title>
     </template>
 
     <template v-slot:append>
@@ -34,6 +42,7 @@ const { globalLoader, theme, drawer } = storeToRefs(baseStore)
 
 const authStore = useAuthStore()
 const { clearUser } = authStore
+const { user } = storeToRefs(authStore)
 
 const router = useRouter()
 const auth = useFirebaseAuth()

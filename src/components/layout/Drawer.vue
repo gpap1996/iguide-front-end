@@ -29,6 +29,13 @@
         :to="item.path"
       ></v-list-item>
     </v-list>
+
+    <template v-slot:append>
+      <v-divider></v-divider>
+      <v-list class="d-flex align-center justify-center">
+        <v-list-item :title="`${user?.project?.name} © ${new Date().getFullYear()}`"></v-list-item>
+      </v-list>
+    </template>
   </v-navigation-drawer>
 </template>
 
