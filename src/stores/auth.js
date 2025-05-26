@@ -16,11 +16,17 @@ export const useAuthStore = defineStore(
 
     const user = ref(null)
 
+    const clearUser = () => {
+      role.value = null
+      user.value = null
+    }
+
     return {
       isAdmin,
       isManager,
       role,
       user,
+      clearUser,
     }
   },
   {

@@ -18,6 +18,8 @@ import { MotionPlugin } from '@vueuse/motion'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 
 import axios from 'axios'
+import { useAuthStore } from '@/stores/auth' // Import the auth store
+
 // Initialize Firebase with environment variables
 export const firebaseApp = initializeApp({
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -77,6 +79,33 @@ axios.interceptors.request.use(
       // Optionally, clear axios authorization header if set
       delete axios.defaults.headers.common['Authorization']
       await signOut(firebaseApp.auth()) // Sign out the user if 401 error occurs
+      // Redirect to login page
+      router.push('/')
+    }
+    return Promise.reject(error)
+  },
+)
+
+// Axios response interceptor to handle 401 errors
+axios.interceptors.response.use(
+  (response) => {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    return response
+  },
+  async (error) => {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    if (error.response && error.response.status === 401) {
+      const authStore = useAuthStore() // Access the store
+      authStore.clearUser() // Call a method to clear role and user (you'll need to create this)
+
+      // Optionally, clear axios authorization header if set
+      delete axios.defaults.headers.common['Authorization']
+      // Get the auth instance from firebaseApp if it's not directly available
+      // This might vary depending on your Firebase setup, adjust if needed
+      const authInstance = firebaseApp.auth ? firebaseApp.auth() : undefined
+      if (authInstance) {
+        await signOut(authInstance) // Sign out the user if 401 error occurs
+      }
       // Redirect to login page
       router.push('/')
     }
