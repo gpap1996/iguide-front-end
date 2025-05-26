@@ -111,7 +111,7 @@
                 :lazy-src="file?.thumbnailUrl"
               />
               <audio controls v-if="file?.type === 'audio'">
-                <source :src="`${file?.url}`" type="audio/ogg" />
+                <source :src="`${file?.url}`" type="audio/mp3" />
                 Your browser does not support the audio element.
               </audio>
             </div>
@@ -505,7 +505,7 @@ const onSubmitFile = async () => {
   } catch (error) {
     snackbar.value = {
       show: true,
-      text: `${error.response?.data?.error}`,
+      text: `${error.response?.data?.error + '. ' + error.response?.data?.details}`,
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
