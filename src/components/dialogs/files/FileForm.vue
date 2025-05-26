@@ -110,6 +110,7 @@
                 cover
                 :lazy-src="file?.thumbnailUrl"
               />
+
               <audio controls v-if="file?.type === 'audio'">
                 <source :src="`${file?.url}`" type="audio/mp3" />
                 Your browser does not support the audio element.
@@ -155,7 +156,17 @@ const FILE_LIMITS = {
   MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
   MAX_TOTAL_SIZE: 100 * 1024 * 1024, // 100MB per batch
   MAX_FILES_PER_BATCH: 50,
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  ALLOWED_IMAGE_TYPES: [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/tiff',
+    'image/bmp',
+    'image/ico',
+    'image/heic',
+  ],
   ALLOWED_AUDIO_TYPES: ['audio/mp3'],
 }
 
@@ -234,7 +245,7 @@ const getFileInputAccept = (type) => {
 const getAllowedTypesText = (type) => {
   switch (type) {
     case 'image':
-      return '.jpg, .jpeg, .png, .gif, .webp'
+      return '.jpg, .jpeg, .png, .gif, .webp, .svg, .tiff, .bmp, .ico, .heic'
     case 'audio':
       return '.mp3'
     default:
