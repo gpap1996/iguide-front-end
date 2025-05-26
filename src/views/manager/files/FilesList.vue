@@ -168,8 +168,6 @@
       <template v-slot:[`item.type`]="{ item }">
         <v-icon v-if="item.type == 'image'" icon="mdi-image"> </v-icon>
         <v-icon v-if="item.type == 'audio'" icon="mdi-play-circle"> </v-icon>
-        <v-icon v-if="item.type == 'video'" icon="mdi-video"> </v-icon>
-        <v-icon v-if="item.type == 'tiles'" icon="mdi-layers"> </v-icon>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
         <!-- Copy menu with options -->

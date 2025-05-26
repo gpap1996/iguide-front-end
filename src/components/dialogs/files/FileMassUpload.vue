@@ -21,6 +21,18 @@
         persistent-hint
         :disabled="isLoading"
       ></v-select>
+
+      <!-- File Limits Info -->
+      <v-alert v-if="selectedFileType" type="info" variant="tonal" class="mb-4">
+        <div class="text-subtitle-2 mb-2">Upload Limits:</div>
+        <ul class="text-body-2">
+          <li>Maximum file size: {{ formatFileSize(FILE_LIMITS.MAX_FILE_SIZE) }}</li>
+          <li>Maximum total size: {{ formatFileSize(FILE_LIMITS.MAX_TOTAL_SIZE) }}</li>
+          <li>Maximum files per batch: {{ FILE_LIMITS.MAX_FILES_PER_BATCH }}</li>
+          <li>Current total size: {{ formatFileSize(totalFileSize) }}</li>
+        </ul>
+      </v-alert>
+
       <!-- Drop Zone -->
       <div v-if="selectedFileType" class="mb-6">
         <div
@@ -76,7 +88,10 @@
         <!-- File List -->
         <div v-if="files.length > 0" class="mt-4">
           <div class="d-flex justify-space-between align-center mb-2">
-            <div class="text-subtitle-1">Selected Files</div>
+            <div class="text-subtitle-1">
+              Selected Files ({{ files.filter((f) => f.isValid !== false).length }} valid,
+              {{ files.length }} total / {{ FILE_LIMITS.MAX_FILES_PER_BATCH }} max)
+            </div>
             <v-btn
               size="small"
               color="error"
@@ -90,16 +105,28 @@
           </div>
           <v-card variant="outlined">
             <v-card-text>
-              <div v-for="(file, index) in files" :key="index" class="file-item">
+              <div
+                v-for="(file, index) in files"
+                :key="index"
+                :class="['file-item', { 'file-item-invalid': file.isValid === false }]"
+              >
                 <div class="d-flex align-center justify-space-between">
                   <div class="d-flex align-center">
-                    <v-icon class="mr-3" color="primary">
+                    <v-icon class="mr-3" :color="file.isValid === false ? 'error' : 'primary'">
                       {{ getFileIcon(file) }}
                     </v-icon>
                     <div>
-                      <div class="font-weight-medium">{{ file.name }}</div>
+                      <div
+                        class="font-weight-medium"
+                        :class="{ 'text-error': file.isValid === false }"
+                      >
+                        {{ file.name }}
+                      </div>
                       <div class="text-caption text-medium-emphasis">
                         {{ formatFileSize(file.size) }}
+                      </div>
+                      <div v-if="file.isValid === false" class="text-caption text-error">
+                        {{ file.errorMessage }}
                       </div>
                     </div>
                   </div>
@@ -117,14 +144,6 @@
             </v-card-text>
           </v-card>
         </div>
-
-        <!-- Validation Errors -->
-        <v-alert v-if="validationErrors.length > 0" type="error" variant="tonal" class="mt-4">
-          <div class="text-subtitle-2 mb-2">File Validation Errors:</div>
-          <ul>
-            <li v-for="error in validationErrors" :key="error">{{ error }}</li>
-          </ul>
-        </v-alert>
       </div>
     </div>
 
@@ -158,6 +177,15 @@ import { storeToRefs } from 'pinia'
 const emits = defineEmits(['close', 'reset'])
 const { snackbar } = storeToRefs(useBaseStore())
 
+// File limits from backend
+const FILE_LIMITS = {
+  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  MAX_TOTAL_SIZE: 100 * 1024 * 1024, // 100MB per batch
+  MAX_FILES_PER_BATCH: 50,
+  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  ALLOWED_AUDIO_TYPES: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/m4a'],
+}
+
 // Component state
 const files = ref([])
 const selectedFileType = ref(null)
@@ -168,6 +196,25 @@ const validationErrors = ref([])
 
 // File types definition
 const fileTypes = ['image', 'audio']
+
+// Computed properties
+const totalFileSize = computed(() => {
+  return files.value.reduce((total, file) => {
+    // Only count valid files towards total size
+    return total + (file.isValid !== false ? file.size : 0)
+  }, 0)
+})
+
+const canUpload = computed(() => {
+  const validFiles = files.value.filter((file) => file.isValid !== false)
+  return (
+    selectedFileType.value &&
+    validFiles.length > 0 &&
+    files.value.every((file) => file.isValid !== false) && // All files must be valid
+    validFiles.length <= FILE_LIMITS.MAX_FILES_PER_BATCH &&
+    totalFileSize.value <= FILE_LIMITS.MAX_TOTAL_SIZE
+  )
+})
 
 // Helper functions for file type validation and icons
 const getFileTypeIcon = (type) => {
@@ -182,6 +229,7 @@ const getFileTypeIcon = (type) => {
 }
 
 const getFileIcon = (file) => {
+  if (!file.type) return 'mdi-file'
   const type = file.type.split('/')[0]
   switch (type) {
     case 'image':
@@ -207,9 +255,9 @@ const getAcceptedFormats = (type) => {
 const getFileInputAccept = (type) => {
   switch (type) {
     case 'image':
-      return 'image/*'
+      return FILE_LIMITS.ALLOWED_IMAGE_TYPES.join(',')
     case 'audio':
-      return 'audio/*'
+      return FILE_LIMITS.ALLOWED_AUDIO_TYPES.join(',')
     default:
       return ''
   }
@@ -276,34 +324,87 @@ const validateAndAddFiles = (newFiles) => {
     return
   }
 
-  const validFiles = []
+  // Check if adding these files would exceed the batch limit
+  if (files.value.length + newFiles.length > FILE_LIMITS.MAX_FILES_PER_BATCH) {
+    validationErrors.value.push(
+      `Cannot add ${newFiles.length} files. Maximum ${FILE_LIMITS.MAX_FILES_PER_BATCH} files per batch. Currently have ${files.value.length} files.`,
+    )
+    return
+  }
+
+  const filesToAdd = []
+  let potentialTotalSize = totalFileSize.value
 
   newFiles.forEach((file) => {
-    // Validate file type
-    const isValid = validateFileType(file, selectedFileType.value)
+    let isValid = true
+    let errorMessage = ''
 
+    // Check file size
+    if (file.size > FILE_LIMITS.MAX_FILE_SIZE) {
+      isValid = false
+      errorMessage = `Exceeds maximum file size of ${formatFileSize(FILE_LIMITS.MAX_FILE_SIZE)}`
+      validationErrors.value.push(`"${file.name}" ${errorMessage}`)
+    }
+    // Check if adding this file would exceed total size limit
+    else if (potentialTotalSize + file.size > FILE_LIMITS.MAX_TOTAL_SIZE) {
+      isValid = false
+      errorMessage = `Would exceed maximum total size of ${formatFileSize(FILE_LIMITS.MAX_TOTAL_SIZE)}`
+      validationErrors.value.push(`Adding "${file.name}" ${errorMessage}`)
+    }
+    // Validate file type
+    else if (!validateFileType(file, selectedFileType.value)) {
+      isValid = false
+      const allowedTypes =
+        selectedFileType.value === 'image'
+          ? FILE_LIMITS.ALLOWED_IMAGE_TYPES
+          : FILE_LIMITS.ALLOWED_AUDIO_TYPES
+      errorMessage = `Invalid ${selectedFileType.value} file. Allowed: ${allowedTypes.join(', ')}`
+      validationErrors.value.push(
+        `"${file.name}" is not a valid ${selectedFileType.value} file. Allowed types: ${allowedTypes.join(', ')}`,
+      )
+    }
+    // Check for duplicates
+    else if (isDuplicateFile(file)) {
+      isValid = false
+      errorMessage = 'Duplicate file'
+      validationErrors.value.push(`"${file.name}" is a duplicate file`)
+    }
+
+    // Add file to list with validation status
+    const fileWithStatus = {
+      // Copy essential File properties explicitly
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified,
+      // Keep reference to original file for upload
+      originalFile: file,
+      // Add validation properties
+      isValid,
+      errorMessage,
+    }
+
+    filesToAdd.push(fileWithStatus)
+
+    // Only count valid files towards total size
     if (isValid) {
-      // Check for duplicates
-      const isDuplicate = isDuplicateFile(file)
-      if (!isDuplicate) {
-        validFiles.push(file)
-      } else {
-        validationErrors.value.push(`"${file.name}" is a duplicate file`)
-      }
-    } else {
-      validationErrors.value.push(`"${file.name}" is not a valid ${selectedFileType.value} file`)
+      potentialTotalSize += file.size
     }
   })
 
-  // Add valid files to the list
-  if (validFiles.length > 0) {
-    files.value = [...files.value, ...validFiles]
+  // Add all files (valid and invalid) to the list
+  if (filesToAdd.length > 0) {
+    files.value = [...files.value, ...filesToAdd]
   }
 }
 
 const validateFileType = (file, type) => {
-  if (type === 'image' && file.type.startsWith('image/')) return true
-  if (type === 'audio' && file.type.startsWith('audio/')) return true
+  if (type === 'image') {
+    return FILE_LIMITS.ALLOWED_IMAGE_TYPES.includes(file.type)
+  }
+  if (type === 'audio') {
+    return FILE_LIMITS.ALLOWED_AUDIO_TYPES.includes(file.type)
+  }
   return false
 }
 
@@ -326,23 +427,21 @@ const isDuplicateFile = (newFile) => {
   )
 }
 
-const canUpload = computed(() => {
-  return selectedFileType.value && files.value.length > 0 && validationErrors.value.length === 0
-})
-
 const uploadFiles = async () => {
   if (!canUpload.value) return
 
   isLoading.value = true
   const formData = new FormData()
 
-  // Append files
-  Array.from(files.value).forEach((file) => {
-    formData.append('files', file)
-  })
-
   // Add simple file type to the form data
   formData.append('type', selectedFileType.value)
+
+  // Append only valid files
+  Array.from(files.value).forEach((file) => {
+    if (file.isValid !== false) {
+      formData.append('files', file.originalFile || file)
+    }
+  })
 
   try {
     await axios.post('/files/mass-upload', formData, {
@@ -429,5 +528,12 @@ watch(selectedFileType, () => {
 
 .file-item {
   padding: 0.75rem 0;
+}
+
+.file-item-invalid {
+  background-color: rgba(var(--v-theme-error), 0.05);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 0.25rem 0;
 }
 </style>
