@@ -14,16 +14,19 @@ export const useAuthStore = defineStore(
       return role.value === 'manager'
     })
 
+    const user = ref(null)
+
     return {
       isAdmin,
       isManager,
       role,
+      user,
     }
   },
   {
     persist: [
       {
-        pick: ['role'],
+        pick: ['role', 'user'],
         storage: localStorage,
       },
     ],

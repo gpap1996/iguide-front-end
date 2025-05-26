@@ -10,8 +10,8 @@
     <v-list>
       <v-list-item
         prepend-icon="mdi-account"
-        title="Giorgos Papapanos"
-        subtitle="g.papapanos1996@gmail.com"
+        :title="user?.firstName + ' ' + user?.lastName"
+        :subtitle="user?.email"
       ></v-list-item>
     </v-list>
 
@@ -40,7 +40,7 @@ import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
-const { isAdmin, isManager } = authStore
+const { isAdmin, isManager, user } = authStore
 
 onMounted(() => {
   if (isAdmin) {
