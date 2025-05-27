@@ -81,6 +81,11 @@ onMounted(() => {
         title: 'Files',
         path: '/files',
       },
+      {
+        icon: 'mdi-link',
+        title: 'External Files',
+        path: '/external-files',
+      },
 
       {
         icon: 'mdi-translate',

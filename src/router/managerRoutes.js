@@ -19,6 +19,12 @@ export default [
     meta: { requiresAuth: true, role: 'manager' },
   },
   {
+    path: '/external-files',
+    name: 'external-files',
+    component: () => import('../views/manager/external_files/ExternalFilesList.vue'),
+    meta: { requiresAuth: true, role: 'manager' },
+  },
+  {
     path: '/languages',
     name: 'languages',
     component: () => import('../views/manager/languages/LanguagesList.vue'),

@@ -1,14 +1,15 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Areas">
+    <page-title title="External Files">
+      <!-- Create Button -->
       <v-btn
-        @click="onOpenAreaFormDialog(null)"
+        @click="fileFormDialog = true"
         color="primary"
         icon="mdi-plus"
-        v-tooltip="'Create Area'"
-        class="mr-2"
         variant="outlined"
+        class="mr-3"
         density="comfortable"
+        v-tooltip="'Add External File'"
       ></v-btn>
 
       <v-text-field
@@ -16,7 +17,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Areas"
+        label="Search External Files"
         clearable
         hide-details
         class="ml-auto"
@@ -35,8 +36,9 @@
     </page-title>
 
     <v-data-table-server
+      v-model="selected"
       :headers="headers"
-      :items="data?.areas"
+      :items="data?.externalFiles"
       :items-length="data?.pagination?.totalItems || 0"
       item-value="id"
       :loading="isLoading"
@@ -44,32 +46,6 @@
       style="max-width: 90vw; flex-grow: 1"
     >
       <template v-slot:[`item.title`]="{ item }">
-        <div
-          class="d-flex align-center mb-2 mt-2"
-          v-for="tr in item?.translations"
-          :key="tr.language.locale"
-        >
-          <v-chip
-            density="compact"
-            size="small"
-            variant="tonal"
-            color="primary"
-            class="mr-2"
-            style="width: 32px"
-          >
-            {{ tr.language.locale }}
-          </v-chip>
-
-          <div v-if="tr.title" :class="{ 'font-weight-bold': tr.language.locale == 'el' }">
-            {{ tr.title }}
-          </div>
-        </div>
-        <div v-if="item.translations.length == 0">
-          <div class="font-weight-bold">-</div>
-        </div>
-      </template>
-
-      <template v-slot:[`item.subtitle`]="{ item }">
         <div
           class="d-flex align-center mb-2"
           v-for="tr in item?.translations"
@@ -86,37 +62,24 @@
             {{ tr.language.locale }}
           </v-chip>
 
-          <div v-if="tr.subtitle" :class="{ 'font-weight-bold': tr.language.locale == 'el' }">
-            {{ tr.subtitle }}
-          </div>
-        </div>
-        <div v-if="item.translations.length == 0">
-          <div class="font-weight-bold">-</div>
-        </div>
-      </template>
-
-      <template v-slot:[`item.parent`]="{ item }">
-        <div
-          class="d-flex align-center"
-          v-for="tr in item?.parent?.translations"
-          :key="tr.language.locale"
-        >
-          <div v-if="tr.language.locale == 'el'">
+          <div :class="{ 'font-weight-bold': tr.language.locale == 'el' }">
             {{ tr.title }}
           </div>
         </div>
-        <div v-if="!item.parent?.translations">
-          <div class="font-weight-bold">-</div>
-        </div>
+      </template>
+
+      <template v-slot:[`item.type`]="{ item }">
+        <v-icon v-if="item.type === 'video'" icon="mdi-video"></v-icon>
+        <v-icon v-else-if="item.type === 'model'" icon="mdi-cube"></v-icon>
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
         <v-btn
           variant="text"
-          class="mr-4"
           icon="mdi-pencil"
-          @click="onOpenAreaFormDialog(item.id)"
-          v-tooltip="'Edit Area'"
+          class="mr-1"
+          @click="(currentFile = item), (fileFormDialog = true)"
+          v-tooltip="'Edit External File'"
         >
         </v-btn>
 
@@ -124,11 +87,12 @@
           variant="text"
           color="error"
           icon="mdi-delete"
-          @click="(form = item), (areasDeleteDialog = true)"
-          v-tooltip="'Delete Area'"
+          @click="(currentFile = item), (fileDeleteDialog = true)"
+          v-tooltip="'Delete External File'"
         >
         </v-btn>
       </template>
+
       <!-- table footer -->
       <template v-slot:bottom>
         <v-divider></v-divider>
@@ -174,58 +138,53 @@
       class="mt-10"
     ></v-pagination>
 
-    <v-dialog v-model="areaFormDialog.open" max-width="800px" persistent>
+    <v-dialog v-model="fileFormDialog" max-width="700px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
-        <area-form
+        <external-file-form
+          :file="currentFile"
           @reset="onFiltersReset('save')"
-          @close="onCloseAreaFormDialog"
-          :areaId="areaFormDialog.areaId"
-        ></area-form>
+          @close="(fileFormDialog = false), (currentFile = null)"
+        ></external-file-form>
       </div>
     </v-dialog>
 
-    <v-dialog v-model="areasDeleteDialog" max-width="500px">
+    <v-dialog v-model="fileDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete area"
+        title="Delete external file"
         :isLoading="isDeleteLoading"
-        @close="(areasDeleteDialog = false), (form = null)"
-        @confirm="onDeleteArea"
+        @close="(fileDeleteDialog = false), (currentFile = null)"
+        @confirm="onDeleteFile"
       >
-        Are you sure you want to delete the areas?
+        Are you sure you want to delete this external file?
       </confirm-dialog>
     </v-dialog>
   </div>
 </template>
 
 <script setup>
-import axios from 'axios'
 import { ref } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
-import { useAreasStore } from '@/stores/areas'
 import { storeToRefs } from 'pinia'
+import axios from 'axios'
 
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown } = baseStore
 const { snackbar } = storeToRefs(baseStore)
 
-const areaFormDialog = ref({
-  open: false,
-  areaId: null,
-})
-const areasDeleteDialog = ref(false)
+const fileFormDialog = ref(false)
+const fileDeleteDialog = ref(false)
 const isDeleteLoading = ref(false)
-
-const areasStore = useAreasStore()
-const { resetForm } = areasStore
-const { form, isEdit } = storeToRefs(areasStore)
+const currentFile = ref(null)
 
 const filters = ref({
   page: 1,
   itemsPerPage: 10,
   title: null,
 })
+
+const selected = ref([])
 
 const headers = [
   {
@@ -234,24 +193,10 @@ const headers = [
     sortable: false,
   },
   {
-    title: 'Subtitle',
-    key: 'subtitle',
-
+    title: 'Type',
+    key: 'type',
     sortable: false,
   },
-
-  {
-    title: 'Wider Area',
-    key: 'parent',
-    sortable: false,
-  },
-
-  {
-    title: 'Weight',
-    key: 'weight',
-    sortable: false,
-  },
-
   {
     title: 'Actions',
     key: 'actions',
@@ -260,8 +205,8 @@ const headers = [
   },
 ]
 
-async function fetchAreas() {
-  const res = await axios.get('/areas', {
+const fetchExternalFiles = async () => {
+  const res = await axios.get('/external-files', {
     params: {
       limit: filters.value.itemsPerPage,
       page: filters.value.page,
@@ -277,18 +222,21 @@ async function fetchAreas() {
 
   return res.data
 }
+
 const queryClient = useQueryClient()
 
 const { isLoading, data } = useQuery({
-  queryKey: ['areas', filters],
-  queryFn: fetchAreas,
+  queryKey: ['external-files', filters],
+  queryFn: fetchExternalFiles,
   retry: 0,
 })
 
-async function onFiltersReset() {
-  await queryClient.resetQueries({ queryKey: ['areas'] })
-  onCloseAreaFormDialog()
-  resetForm()
+const onFiltersReset = async (action) => {
+  if (action == 'save') {
+    fileFormDialog.value = false
+  }
+
+  await queryClient.resetQueries({ queryKey: ['external-files'] })
 }
 
 // Debounced function for updating filters
@@ -300,29 +248,13 @@ const updateFilters = debounce((value) => {
   }
 }, 300)
 
-async function onOpenAreaFormDialog(areaId) {
-  areaFormDialog.value = {
-    open: true,
-    areaId,
-  }
-  if (areaId) isEdit.value = true
-  else isEdit.value = false
-}
-
-async function onCloseAreaFormDialog() {
-  areaFormDialog.value = {
-    open: false,
-    areaId: null,
-  }
-  resetForm()
-}
-
-async function onDeleteArea() {
+const onDeleteFile = async () => {
   isDeleteLoading.value = true
   try {
-    await axios.delete(`/areas/${form.value.id}`)
-    areasDeleteDialog.value = false
-    if (data.value?.areas?.length == 1 && filters.value.page > 1)
+    await axios.delete(`/external-files/${currentFile.value.id}`)
+    fileDeleteDialog.value = false
+
+    if (data.value?.externalFiles?.length == 1 && filters.value.page > 1)
       filters.value = {
         ...filters.value,
         title: null,
@@ -332,14 +264,21 @@ async function onDeleteArea() {
 
     snackbar.value = {
       show: true,
-      text: 'Area deleted successfully!',
+      text: 'External file deleted successfully',
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
   } catch (error) {
     console.log(error)
+    snackbar.value = {
+      show: true,
+      text: error.response?.data?.error || 'Error deleting external file',
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
   } finally {
     isDeleteLoading.value = false
+    currentFile.value = null
   }
 }
 </script>
