@@ -188,6 +188,11 @@ const selected = ref([])
 
 const headers = [
   {
+    title: 'Name',
+    key: 'name',
+    sortable: false,
+  },
+  {
     title: 'Title',
     key: 'title',
     sortable: false,

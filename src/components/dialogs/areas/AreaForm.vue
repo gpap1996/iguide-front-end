@@ -5,15 +5,28 @@
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
-    <v-tabs v-model="tab" :show-arrows="true" class="mt-4 px-4" color="primary">
+    <v-progress-circular
+      v-if="isPageLoading"
+      indeterminate
+      class="mt-4 px-4 mx-auto mb-auto mt-auto"
+      color="primary"
+      size="100"
+    ></v-progress-circular>
+    <v-tabs
+      v-if="!isPageLoading"
+      v-model="tab"
+      :show-arrows="true"
+      class="mt-4 px-4"
+      color="primary"
+    >
       <v-tab value="Basic Information">
         Basic Information
         <v-icon v-if="validationError" color="error" class="ml-2">mdi-alert-circle</v-icon>
       </v-tab>
-      <v-tab value="Files">Files</v-tab>
+      <v-tab value="Files">Files / External Files</v-tab>
     </v-tabs>
 
-    <v-tabs-window v-model="tab" class="mt-8" id="single-user-tabs">
+    <v-tabs-window v-if="!isPageLoading" v-model="tab" class="mt-8" id="single-user-tabs">
       <v-tabs-window-item value="Basic Information">
         <area-basic-information ref="basicInfoRef" />
       </v-tabs-window-item>
@@ -25,7 +38,8 @@
       <v-spacer></v-spacer>
       <v-btn variant="outlined" text="Close" @click="$emit('close')" class="mr-2"></v-btn>
       <v-btn
-        :isLoading="isLoading"
+        :disabled="isPageLoading"
+        :loading="isLoading"
         color="primary"
         text="Save"
         variant="flat"
@@ -40,17 +54,51 @@ import { onMounted, ref, watch } from 'vue'
 import { useAreasStore } from '@/stores/areas'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import axios from 'axios'
+import { useFilesStore } from '@/stores/files'
+import { useExternalFilesStore } from '@/stores/externalFiles'
 
 const areasStore = useAreasStore()
 const { submitArea, fetchAreaById } = areasStore
-const { isEdit } = storeToRefs(areasStore)
+const { isEdit, areas } = storeToRefs(areasStore)
+
+const filesStore = useFilesStore()
+const { getFilesDropdown } = filesStore
+
+const externalFilesStore = useExternalFilesStore()
+const { getExternalFilesDropdown } = externalFilesStore
 
 const baseStore = useBaseStore()
 const { snackbar } = storeToRefs(baseStore)
 
+const isPageLoading = ref(false)
+
 onMounted(async () => {
   if (props?.areaId) {
     await fetchAreaById(props.areaId)
+  }
+
+  isPageLoading.value = true
+  try {
+    const areasRes = await axios.get('/areas/dropdown', {
+      headers: {
+        'Accept-Language': 'el',
+      },
+    })
+
+    areas.value = areasRes.data.items
+
+    await getFilesDropdown()
+    await getExternalFilesDropdown()
+  } catch (error) {
+    snackbar.value = {
+      show: true,
+      text: `Something went wrong ${error}`,
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
+  } finally {
+    isPageLoading.value = false
   }
 })
 

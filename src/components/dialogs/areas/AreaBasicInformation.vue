@@ -81,26 +81,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useAreasStore } from '@/stores/areas'
-import axios from 'axios'
-
-onMounted(async () => {
-  if (areas.value.length) return
-
-  const res = await axios.get('/areas/dropdown', {
-    headers: {
-      'Accept-Language': 'el',
-    },
-  })
-
-  areas.value = res.data.items
-})
 
 const areasStore = useAreasStore()
-const { form } = storeToRefs(areasStore)
+const { form, areas } = storeToRefs(areasStore)
 
 // Component state
 const errorMessage = ref('')
@@ -130,7 +117,6 @@ const checkCurrentLanguageValidity = () => {
   errorMessage.value = ''
 }
 
-const areas = ref([])
 // Form data
 
 const currentTitle = computed({

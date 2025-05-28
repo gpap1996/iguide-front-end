@@ -8,6 +8,17 @@
 
     <div class="pa-8 scrollable flex-grow-1">
       <v-form ref="formRef" v-model="formValid">
+        <!-- Name input -->
+        <v-text-field
+          v-model="form.name"
+          label="Name"
+          variant="outlined"
+          density="comfortable"
+          :rules="[(v) => !!v || 'Name is required']"
+          required
+          class="mb-4"
+        ></v-text-field>
+
         <!-- Type selection -->
         <v-select
           v-model="form.type"
@@ -21,18 +32,15 @@
         ></v-select>
 
         <!-- URL input -->
-        <v-text-field
+        <v-textarea
           v-model="form.url"
           label="URL"
           variant="outlined"
           density="comfortable"
-          :rules="[
-            (v) => !!v || 'URL is required',
-            (v) => validateUrl(v) || 'Please enter a valid URL',
-          ]"
+          :rules="[(v) => !!v || 'URL is required']"
           required
           class="mb-4"
-        ></v-text-field>
+        ></v-textarea>
 
         <!-- Language selection -->
         <v-select
@@ -118,25 +126,13 @@ const canSubmit = computed(() => {
 
 // Form data
 const form = ref({
+  name: '',
   type: null,
   url: '',
   translations: {},
 })
 
 const fileTypes = ['video', 'model']
-
-// URL validation function
-const validateUrl = (url) => {
-  if (!url) return true // Let the required rule handle empty values
-
-  try {
-    // More permissive URL validation pattern
-    const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/
-    return urlPattern.test(url)
-  } catch {
-    return false
-  }
-}
 
 // Computed properties for current translation fields
 const currentTitle = computed({
@@ -173,6 +169,7 @@ const currentDescription = computed({
 
 onMounted(() => {
   if (props.file) {
+    form.value.name = props.file.name
     form.value.type = props.file.type
     form.value.url = props.file.url
 
@@ -233,6 +230,7 @@ const onSubmitFile = async () => {
     }
 
     const payload = {
+      name: form.value.name,
       type: form.value.type,
       url: form.value.url,
       translations: form.value.translations,

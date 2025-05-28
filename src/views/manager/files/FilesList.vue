@@ -138,7 +138,7 @@
           :src="`${item.thumbnailUrl}`"
         />
 
-        <v-icon v-else color="white" icon="mdi-file-cancel-outline"></v-icon>
+        <v-icon v-else icon="mdi-file-cancel-outline"></v-icon>
       </template>
 
       <template v-slot:[`item.title`]="{ item }">
@@ -167,7 +167,7 @@
 
       <template v-slot:[`item.type`]="{ item }">
         <v-icon v-if="item.type == 'image'" icon="mdi-image"> </v-icon>
-        <v-icon v-if="item.type == 'audio'" icon="mdi-play-circle"> </v-icon>
+        <v-icon v-if="item.type == 'audio'" icon="mdi-music-circle"> </v-icon>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
         <!-- Copy menu with options -->

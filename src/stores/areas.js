@@ -9,11 +9,14 @@ export const useAreasStore = defineStore('areas', () => {
   const baseStore = useBaseStore()
   const { languages } = storeToRefs(baseStore)
   const isEdit = ref(false)
+  const areas = ref([])
 
   const form = ref({
     weight: 0,
     images: [],
     audio: [],
+    videos: [],
+    models: [],
     parentId: null,
     translations: {},
   })
@@ -23,6 +26,8 @@ export const useAreasStore = defineStore('areas', () => {
       weight: 0,
       images: [],
       audio: [],
+      videos: [],
+      models: [],
       parentId: null,
       translations: {},
     }
@@ -37,6 +42,8 @@ export const useAreasStore = defineStore('areas', () => {
       weight: area.weight || 0,
       images: [...area.images],
       audio: [...area.audio],
+      videos: [...area.videos],
+      models: [...area.models],
       parentId: area.parentId || null,
       translations: {},
     }
@@ -77,5 +84,5 @@ export const useAreasStore = defineStore('areas', () => {
     }
   }
 
-  return { form, submitArea, resetForm, isEdit, fetchAreaById }
+  return { form, submitArea, resetForm, isEdit, fetchAreaById, areas }
 })
