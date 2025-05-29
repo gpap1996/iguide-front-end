@@ -1,20 +1,20 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Files">
+    <page-title :title="$t('files.title')">
       <!-- Create/Upload Button Group -->
       <v-btn-group variant="outlined" class="mr-3" density="comfortable">
         <v-btn
           @click="fileFormDialog = true"
           color="primary"
           icon="mdi-plus"
-          v-tooltip="'Upload File'"
+          v-tooltip="$t('files.upload')"
         ></v-btn>
 
         <v-btn
           @click="fileMassUploadDialog = true"
           color="primary"
           icon="mdi-plus-box-multiple"
-          v-tooltip="'Mass Upload Files'"
+          v-tooltip="$t('files.massUpload')"
         ></v-btn>
       </v-btn-group>
       <!-- Bulk Actions Button Group -->
@@ -23,14 +23,18 @@
           @click="toggleMassAction('delete')"
           :color="massAction && massActionType === 'delete' ? 'error' : 'primary'"
           :icon="massAction && massActionType === 'delete' ? 'mdi-close' : 'mdi-delete-outline'"
-          v-tooltip="massAction && massActionType === 'delete' ? 'Cancel' : 'Mass Delete Files'"
+          v-tooltip="
+            massAction && massActionType === 'delete' ? $t('common.cancel') : $t('files.massDelete')
+          "
           :disabled="data?.pagination?.totalItems === 0"
         ></v-btn>
         <v-btn
           @click="toggleMassAction('copy')"
           :color="massAction && massActionType === 'copy' ? 'error' : 'primary'"
           :icon="massAction && massActionType === 'copy' ? 'mdi-close' : 'mdi-content-copy'"
-          v-tooltip="massAction && massActionType === 'copy' ? 'Cancel' : 'Copy Selected IDs'"
+          v-tooltip="
+            massAction && massActionType === 'copy' ? $t('common.cancel') : $t('files.copySelected')
+          "
           :disabled="data?.pagination?.totalItems === 0"
         ></v-btn>
       </v-btn-group>
@@ -42,7 +46,7 @@
           color="primary"
           icon="mdi-file-import"
           :loading="isImporting"
-          v-tooltip="'Import from Excel'"
+          v-tooltip="$t('files.importExcel')"
         ></v-btn>
 
         <v-btn
@@ -50,7 +54,7 @@
           color="primary"
           icon="mdi-file-export"
           :loading="isExporting"
-          v-tooltip="'Export to Excel'"
+          v-tooltip="$t('files.exportExcel')"
           :disabled="data?.pagination?.totalItems === 0"
         ></v-btn>
       </v-btn-group>
@@ -58,7 +62,7 @@
       <v-fade-transition>
         <div v-if="massAction" class="d-flex align-center mr-4">
           <v-chip color="primary" variant="tonal" class="mr-4">
-            {{ selected.length }} items selected
+            {{ $t('files.itemsSelected', { count: selected.length }) }}
           </v-chip>
 
           <!-- Delete action button -->
@@ -73,7 +77,7 @@
             :loading="isDeleteLoading"
             @click="confirmMassDelete"
           >
-            Delete Selected
+            {{ $t('files.deleteSelected') }}
           </v-btn>
 
           <!-- Copy action button -->
@@ -88,7 +92,7 @@
             :loading="isCopying"
             @click="copySelectedIds"
           >
-            Copy Selected
+            {{ $t('files.copySelected') }}
           </v-btn>
         </div>
       </v-fade-transition>
@@ -98,7 +102,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Files"
+        :label="$t('files.search')"
         clearable
         hide-details
         class="ml-auto"
@@ -178,24 +182,24 @@
               icon="mdi-content-copy"
               class="mr-1"
               v-bind="props"
-              v-tooltip="'Copy Options'"
+              v-tooltip="$t('files.copyId')"
             ></v-btn>
           </template>
           <v-list density="compact">
             <v-list-item
               @click="copyToClipboard(item, 'id')"
               prepend-icon="mdi-identifier"
-              title="Copy ID"
+              :title="$t('files.copyId')"
             ></v-list-item>
             <v-list-item
               @click="copyToClipboard(item, 'url')"
               prepend-icon="mdi-link"
-              title="Copy URL"
+              :title="$t('files.copyUrl')"
             ></v-list-item>
             <v-list-item
               @click="copyToClipboard(item, 'name')"
               prepend-icon="mdi-file"
-              title="Copy File Name"
+              :title="$t('files.copyName')"
             ></v-list-item>
           </v-list>
         </v-menu>
@@ -205,7 +209,7 @@
           icon="mdi-pencil"
           class="mr-1"
           @click="(currentFile = item), (fileFormDialog = true)"
-          v-tooltip="'Edit File'"
+          v-tooltip="$t('files.edit')"
         >
         </v-btn>
 
@@ -214,7 +218,7 @@
           color="error"
           icon="mdi-delete"
           @click="(currentFile = item), (fileDeleteDialog = true)"
-          v-tooltip="'Delete File'"
+          v-tooltip="$t('files.delete')"
         >
         </v-btn>
       </template>
@@ -283,23 +287,22 @@
     </v-dialog>
     <v-dialog v-model="fileDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete file"
+        :title="$t('files.delete')"
         :isLoading="isDeleteLoading"
         @close="(fileDeleteDialog = false), (currentFile = null)"
         @confirm="onDeleteFile"
       >
-        Are you sure you want to delete the file?
+        {{ $t('files.deleteConfirm') }}
       </confirm-dialog>
     </v-dialog>
     <v-dialog v-model="massDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Mass Delete Files"
+        :title="$t('files.massDelete')"
         :isLoading="isDeleteLoading"
         @close="massDeleteDialog = false"
         @confirm="onMassDeleteFiles"
       >
-        Are you sure you want to delete {{ selected.length }} selected files? This action cannot be
-        undone.
+        {{ $t('files.massDeleteConfirm', { count: selected.length }) }}
       </confirm-dialog>
     </v-dialog>
 
@@ -307,24 +310,23 @@
     <v-dialog v-model="importDialog" max-width="500px">
       <v-card>
         <v-card-title class="d-flex align-center bg-primary-darken-1">
-          <div class="title">Import Files from Excel</div>
+          <div class="title">{{ $t('files.importTitle') }}</div>
           <v-spacer></v-spacer>
           <v-btn icon="mdi-close" variant="text" @click="importDialog = false"></v-btn>
         </v-card-title>
         <v-card-text class="pa-6">
           <p class="mb-4">
-            Please select an Excel file (.xlsx) to import file data. The Excel file should follow
-            the required template format.
+            {{ $t('files.importDescription') }}
           </p>
           <v-file-input
             v-model="importFile"
-            label="Select Excel File"
+            :label="$t('files.importExcel')"
             accept=".xlsx"
             prepend-icon="mdi-file-excel"
             show-size
             variant="outlined"
             density="comfortable"
-            :rules="[(v) => !!v || 'Excel file is required']"
+            :rules="[(v) => !!v || $t('validation.fileRequired')]"
           ></v-file-input>
         </v-card-text>
         <v-card-actions class="pa-4">
@@ -332,13 +334,13 @@
           <v-btn
             color="primary"
             variant="outlined"
-            text="Cancel"
+            :text="$t('common.cancel')"
             @click="importDialog = false"
             class="mr-2"
           ></v-btn>
           <v-btn
             color="primary"
-            text="Import"
+            :text="$t('files.importExcel')"
             variant="flat"
             @click="importExcel"
             :loading="isImporting"
@@ -358,10 +360,13 @@ import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 import { useClipboard } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown } = baseStore
 const { snackbar } = storeToRefs(baseStore)
+
+const { t } = useI18n()
 
 const fileFormDialog = ref(false)
 const fileMassUploadDialog = ref(false)
@@ -474,6 +479,13 @@ const onDeleteFile = async () => {
         page: 1,
       }
     else await onFiltersReset()
+
+    snackbar.value = {
+      show: true,
+      text: t('files.deleteSuccess'),
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
   } catch (error) {
     console.log(error)
   } finally {
@@ -519,11 +531,9 @@ const onMassDeleteFiles = async () => {
 
   isDeleteLoading.value = true
   try {
-    // Send the array of selected IDs to the backend
     await axios.post('/files/mass-delete', { ids: selected.value })
     massDeleteDialog.value = false
 
-    // Reset to first page if all items on current page were deleted
     if (selected.value.length >= data.value?.files?.length) {
       filters.value = {
         ...filters.value,
@@ -531,11 +541,16 @@ const onMassDeleteFiles = async () => {
       }
     }
 
-    // Reset selection and mass action mode
     cancelMassAction()
 
-    // Refresh the data
     await onFiltersReset()
+
+    snackbar.value = {
+      show: true,
+      text: t('files.massDeleteSuccess'),
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
   } catch (error) {
     console.log(error)
   } finally {
@@ -547,17 +562,14 @@ const onMassDeleteFiles = async () => {
 const exportToExcel = async () => {
   isExporting.value = true
   try {
-    // Get current date for filename
     const date = new Date()
     const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     const filename = `files_export_${dateString}.xlsx`
 
-    // Make request with responseType blob to handle file download
     const response = await axios.get('/files/export-excel', {
       responseType: 'blob',
     })
 
-    // Create download link and trigger download
     const url = window.URL.createObjectURL(new Blob([response.data]))
     const link = document.createElement('a')
     link.href = url
@@ -565,14 +577,12 @@ const exportToExcel = async () => {
     document.body.appendChild(link)
     link.click()
 
-    // Clean up
     window.URL.revokeObjectURL(url)
     document.body.removeChild(link)
 
-    // Show success message
     snackbar.value = {
       show: true,
-      text: 'Excel file downloaded successfully',
+      text: t('files.exportSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
@@ -580,7 +590,7 @@ const exportToExcel = async () => {
     console.error('Error exporting Excel:', error)
     snackbar.value = {
       show: true,
-      text: 'Error exporting Excel file',
+      text: t('common.error'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
@@ -642,13 +652,13 @@ const copyToClipboard = async (item, type = 'id') => {
       copyText = item.name
     }
 
-    // Copy to clipboard
     await copyToClip(copyText)
 
-    // Show success message
     snackbar.value = {
       show: true,
-      text: `${type === 'id' ? 'ID' : type === 'url' ? 'URL' : 'File name'} copied to clipboard`,
+      text: t('files.copySuccess', {
+        type: t(`files.copy${type.charAt(0).toUpperCase() + type.slice(1)}`),
+      }),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
@@ -656,7 +666,7 @@ const copyToClipboard = async (item, type = 'id') => {
     console.error('Error copying to clipboard:', error)
     snackbar.value = {
       show: true,
-      text: 'Failed to copy to clipboard',
+      text: t('common.error'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
@@ -683,25 +693,22 @@ const importExcel = async () => {
       },
     })
 
-    // Close dialog and reset file
     importDialog.value = false
     importFile.value = null
 
-    // Show success message
     snackbar.value = {
       show: true,
-      text: 'Files imported successfully',
+      text: t('files.importSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
 
-    // Refresh the data
     await onFiltersReset()
   } catch (error) {
     console.error('Error importing Excel:', error)
     snackbar.value = {
       show: true,
-      text: error.response?.data?.details || 'Error importing files',
+      text: error.response?.data?.details || t('common.error'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }

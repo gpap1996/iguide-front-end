@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ !isEdit ? 'Create Area' : 'Edit Area' }}</div>
+      <div class="title">{{ !isEdit ? $t('areas.create') : $t('areas.edit') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -20,10 +20,10 @@
       color="primary"
     >
       <v-tab value="Basic Information">
-        Basic Information
+        {{ $t('areas.basicInfo') }}
         <v-icon v-if="validationError" color="error" class="ml-2">mdi-alert-circle</v-icon>
       </v-tab>
-      <v-tab value="Files">Files / External Files</v-tab>
+      <v-tab value="Files">{{ $t('areas.files') }}</v-tab>
     </v-tabs>
 
     <v-tabs-window v-if="!isPageLoading" v-model="tab" class="mt-8" id="single-user-tabs">
@@ -36,12 +36,17 @@
 
     <v-card-actions class="my-4 mr-2">
       <v-spacer></v-spacer>
-      <v-btn variant="outlined" text="Close" @click="$emit('close')" class="mr-2"></v-btn>
+      <v-btn
+        variant="outlined"
+        :text="$t('common.close')"
+        @click="$emit('close')"
+        class="mr-2"
+      ></v-btn>
       <v-btn
         :disabled="isPageLoading"
         :loading="isLoading"
         color="primary"
-        text="Save"
+        :text="$t('common.save')"
         variant="flat"
         @click="onSave"
       ></v-btn>
@@ -57,6 +62,7 @@ import { storeToRefs } from 'pinia'
 import axios from 'axios'
 import { useFilesStore } from '@/stores/files'
 import { useExternalFilesStore } from '@/stores/externalFiles'
+import { useI18n } from 'vue-i18n'
 
 const areasStore = useAreasStore()
 const { submitArea, fetchAreaById } = areasStore
@@ -70,6 +76,8 @@ const { getExternalFilesDropdown } = externalFilesStore
 
 const baseStore = useBaseStore()
 const { snackbar } = storeToRefs(baseStore)
+
+const { t } = useI18n()
 
 const isPageLoading = ref(false)
 
@@ -131,13 +139,12 @@ watch(tab, () => {
 async function onSave() {
   isLoading.value = true
   try {
-    // Validate that all languages have required fields
     if (basicInfoRef.value && !basicInfoRef.value.validateAllLanguages()) {
       tab.value = 'Basic Information'
       validationError.value = true
       snackbar.value = {
         show: true,
-        text: 'Title is required for at least one language',
+        text: t('validation.titleRequired'),
         color: 'error',
         icon: 'mdi-alert-circle-outline',
       }
@@ -149,7 +156,7 @@ async function onSave() {
     await submitArea()
     snackbar.value = {
       show: true,
-      text: 'Area saved successfully!',
+      text: t('areas.saveSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
@@ -157,7 +164,7 @@ async function onSave() {
   } catch (error) {
     snackbar.value = {
       show: true,
-      text: `Error handling area ${error}`,
+      text: t('areas.saveError', { error }),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }

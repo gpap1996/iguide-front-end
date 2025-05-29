@@ -8,7 +8,7 @@
         item-value="locale"
         variant="outlined"
         density="comfortable"
-        label="Language"
+        :label="$t('common.language')"
         @update:model-value="checkCurrentLanguageValidity"
         persistent-hint
       >
@@ -30,7 +30,7 @@
             v-model="currentTitle"
             density="comfortable"
             variant="outlined"
-            label="Title"
+            :label="$t('areas.title')"
             required
             width="250"
           ></v-text-field>
@@ -39,7 +39,7 @@
             v-model="currentSubtitle"
             density="comfortable"
             variant="outlined"
-            label="Subtitle"
+            :label="$t('areas.subtitle')"
             width="250"
           ></v-text-field>
         </div>
@@ -49,7 +49,7 @@
             :items="areas"
             density="comfortable"
             variant="outlined"
-            label="Wider area"
+            :label="$t('areas.widerArea')"
             item-text="title"
             item-value="id"
             width="250"
@@ -60,7 +60,7 @@
             v-model="form.weight"
             density="comfortable"
             variant="outlined"
-            label="Weight"
+            :label="$t('areas.weight')"
             type="number"
             @input="form.weight = Number(form.weight)"
             width="250"
@@ -68,7 +68,7 @@
         </div>
 
         <VuetifyTiptap
-          label="Description"
+          :label="$t('areas.description')"
           v-model="currentDescription"
           minHeight="250"
           maxHeight="250"
@@ -85,9 +85,12 @@ import { ref, computed } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useAreasStore } from '@/stores/areas'
+import { useI18n } from 'vue-i18n'
 
 const areasStore = useAreasStore()
 const { form, areas } = storeToRefs(areasStore)
+
+const { t } = useI18n()
 
 // Component state
 const errorMessage = ref('')

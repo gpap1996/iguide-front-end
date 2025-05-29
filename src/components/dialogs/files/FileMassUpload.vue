@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">Mass Upload Files</div>
+      <div class="title">{{ $t('files.massUpload') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -10,26 +10,30 @@
       <!-- File Type Selection -->
       <v-select
         v-model="selectedFileType"
-        label="File Type"
+        :label="$t('files.type')"
         :items="fileTypes"
         variant="outlined"
         density="comfortable"
         class="mb-6"
-        :rules="[(v) => !!v || 'File type is required']"
+        :rules="[(v) => !!v || $t('validation.required')]"
         required
-        hint="Select the type of files you want to upload"
+        :hint="$t('files.selectFileType')"
         persistent-hint
         :disabled="isLoading"
       ></v-select>
 
       <!-- File Limits Info -->
       <v-alert v-if="selectedFileType" type="info" variant="tonal" class="mb-4">
-        <div class="text-subtitle-2 mb-2">Upload Limits:</div>
+        <div class="text-subtitle-2 mb-2">{{ $t('files.uploadLimits') }}</div>
         <ul class="text-body-2">
-          <li>Maximum file size: {{ formatFileSize(FILE_LIMITS.MAX_FILE_SIZE) }}</li>
-          <li>Maximum total size: {{ formatFileSize(FILE_LIMITS.MAX_TOTAL_SIZE) }}</li>
-          <li>Maximum files per batch: {{ FILE_LIMITS.MAX_FILES_PER_BATCH }}</li>
-          <li>Current total size: {{ formatFileSize(totalFileSize) }}</li>
+          <li>
+            {{ $t('files.maxFileSize', { size: formatFileSize(FILE_LIMITS.MAX_FILE_SIZE) }) }}
+          </li>
+          <li>
+            {{ $t('files.maxTotalSize', { size: formatFileSize(FILE_LIMITS.MAX_TOTAL_SIZE) }) }}
+          </li>
+          <li>{{ $t('files.maxFilesPerBatch', { count: FILE_LIMITS.MAX_FILES_PER_BATCH }) }}</li>
+          <li>{{ $t('files.currentTotalSize', { size: formatFileSize(totalFileSize) }) }}</li>
         </ul>
       </v-alert>
 
@@ -55,13 +59,17 @@
               {{ getFileTypeIcon(selectedFileType) }}
             </v-icon>
             <div class="text-h6 mb-2">
-              <template v-if="isLoading">Processing files...</template>
+              <template v-if="isLoading">{{ $t('files.processingFiles') }}</template>
               <template v-else>{{
-                files.length > 0 ? `${files.length} file(s) selected` : 'Drop your files here'
+                files.length > 0
+                  ? $t('files.filesSelected', { count: files.length })
+                  : $t('files.dropFilesHere')
               }}</template>
             </div>
             <div class="text-body-2 text-medium-emphasis mb-4">
-              <template v-if="!isLoading">or click to browse {{ selectedFileType }} files</template>
+              <template v-if="!isLoading">{{
+                $t('files.clickToBrowse', { type: selectedFileType })
+              }}</template>
             </div>
             <v-chip
               v-if="selectedFileType && !isLoading"
@@ -70,7 +78,7 @@
               size="small"
               class="mb-2"
             >
-              Accepted: {{ getAcceptedFormats(selectedFileType) }}
+              {{ $t('files.accepted', { types: getAcceptedFormats(selectedFileType) }) }}
             </v-chip>
           </div>
 
@@ -89,8 +97,13 @@
         <div v-if="files.length > 0" class="mt-4">
           <div class="d-flex justify-space-between align-center mb-2">
             <div class="text-subtitle-1">
-              Selected Files ({{ files.filter((f) => f.isValid !== false).length }} valid,
-              {{ files.length }} total / {{ FILE_LIMITS.MAX_FILES_PER_BATCH }} max)
+              {{
+                $t('files.selectedFiles', {
+                  validCount: files.filter((f) => f.isValid !== false).length,
+                  totalCount: files.length,
+                  maxCount: FILE_LIMITS.MAX_FILES_PER_BATCH,
+                })
+              }}
             </div>
             <v-btn
               size="small"
@@ -100,7 +113,7 @@
               @click="clearFiles"
               :disabled="isLoading"
             >
-              Clear All
+              {{ $t('files.clearAll') }}
             </v-btn>
           </div>
           <v-card variant="outlined">
@@ -152,13 +165,13 @@
       <v-btn
         color="primary"
         variant="outlined"
-        text="Close"
+        :text="$t('common.close')"
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
       <v-btn
         color="primary"
-        text="Upload Files"
+        :text="$t('files.massUpload')"
         variant="flat"
         @click="uploadFiles"
         :loading="isLoading"
@@ -173,7 +186,9 @@ import axios from 'axios'
 import { ref, computed, watch } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const emits = defineEmits(['close', 'reset'])
 const { snackbar } = storeToRefs(useBaseStore())
 
@@ -330,14 +345,18 @@ const validateAndAddFiles = (newFiles) => {
 
   // Check if file type is selected
   if (!selectedFileType.value) {
-    validationErrors.value.push('Please select a file type first')
+    validationErrors.value.push(t('files.selectFileTypeFirst'))
     return
   }
 
   // Check if adding these files would exceed the batch limit
   if (files.value.length + newFiles.length > FILE_LIMITS.MAX_FILES_PER_BATCH) {
     validationErrors.value.push(
-      `Cannot add ${newFiles.length} files. Maximum ${FILE_LIMITS.MAX_FILES_PER_BATCH} files per batch. Currently have ${files.value.length} files.`,
+      t('files.cannotAddFiles', {
+        count: newFiles.length,
+        max: FILE_LIMITS.MAX_FILES_PER_BATCH,
+        current: files.value.length,
+      }),
     )
     return
   }
@@ -352,14 +371,16 @@ const validateAndAddFiles = (newFiles) => {
     // Check file size
     if (file.size > FILE_LIMITS.MAX_FILE_SIZE) {
       isValid = false
-      errorMessage = `Exceeds maximum file size of ${formatFileSize(FILE_LIMITS.MAX_FILE_SIZE)}`
+      errorMessage = t('files.exceedsFileSize', { size: formatFileSize(FILE_LIMITS.MAX_FILE_SIZE) })
       validationErrors.value.push(`"${file.name}" ${errorMessage}`)
     }
     // Check if adding this file would exceed total size limit
     else if (potentialTotalSize + file.size > FILE_LIMITS.MAX_TOTAL_SIZE) {
       isValid = false
-      errorMessage = `Would exceed maximum total size of ${formatFileSize(FILE_LIMITS.MAX_TOTAL_SIZE)}`
-      validationErrors.value.push(`Adding "${file.name}" ${errorMessage}`)
+      errorMessage = t('files.exceedsTotalSize', {
+        size: formatFileSize(FILE_LIMITS.MAX_TOTAL_SIZE),
+      })
+      validationErrors.value.push(`${t('common.adding')} "${file.name}" ${errorMessage}`)
     }
     // Validate file type
     else if (!validateFileType(file, selectedFileType.value)) {
@@ -368,16 +389,23 @@ const validateAndAddFiles = (newFiles) => {
         selectedFileType.value === 'image'
           ? FILE_LIMITS.ALLOWED_IMAGE_TYPES
           : FILE_LIMITS.ALLOWED_AUDIO_TYPES
-      errorMessage = `Invalid ${selectedFileType.value} file. Allowed: ${allowedTypes.join(', ')}`
+      errorMessage = t('files.invalidFileType', {
+        type: selectedFileType.value,
+        types: allowedTypes.join(', '),
+      })
       validationErrors.value.push(
-        `"${file.name}" is not a valid ${selectedFileType.value} file. Allowed types: ${allowedTypes.join(', ')}`,
+        t('files.notValidFileType', {
+          name: file.name,
+          type: selectedFileType.value,
+          types: allowedTypes.join(', '),
+        }),
       )
     }
     // Check for duplicates
     else if (isDuplicateFile(file)) {
       isValid = false
-      errorMessage = 'Duplicate file'
-      validationErrors.value.push(`"${file.name}" is a duplicate file`)
+      errorMessage = t('files.duplicateFile')
+      validationErrors.value.push(t('files.isDuplicateFile', { name: file.name }))
     }
 
     // Add file to list with validation status
@@ -462,7 +490,7 @@ const uploadFiles = async () => {
 
     snackbar.value = {
       show: true,
-      text: 'Files uploaded successfully!',
+      text: t('files.massUploadSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
@@ -473,7 +501,7 @@ const uploadFiles = async () => {
     console.error('Upload error:', error)
     snackbar.value = {
       show: true,
-      text: 'Error uploading files. Please try again.',
+      text: t('files.errorUploadingFiles'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }

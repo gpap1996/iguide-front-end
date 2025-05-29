@@ -2,16 +2,16 @@
   <v-card class="flex-grow-1 d-flex flex-column">
     <div class="px-8 py-4 scrollable flex-grow-1">
       <v-card>
-        <v-card-title>Files </v-card-title>
+        <v-card-title>{{ $t('areas.files') }}</v-card-title>
         <v-alert v-if="filesDropdown.length === 0" type="info" color="primary" variant="tonal">
           <div class="d-flex align-center justify-space-between">
-            <div>No files are currently available</div>
+            <div>{{ $t('files.noFiles') }}</div>
             <v-btn
               variant="outlined"
               class="text-capitalize"
               @click="$router.push({ name: 'files' })"
             >
-              Navigate to files
+              {{ $t('files.navigateToFiles') }}
               <v-icon icon="mdi-chevron-right" class="mt-1"></v-icon>
             </v-btn>
           </div>
@@ -25,7 +25,7 @@
             item-value="id"
             variant="outlined"
             density="comfortable"
-            label="Images"
+            :label="$t('files.images')"
             multiple
             chips
             closable-chips
@@ -54,7 +54,7 @@
             item-value="id"
             variant="outlined"
             density="comfortable"
-            label="Audio"
+            :label="$t('files.audio')"
             multiple
             chips
             closable-chips
@@ -79,7 +79,7 @@
       </v-card>
 
       <v-card class="mt-8">
-        <v-card-title>External Files </v-card-title>
+        <v-card-title>{{ $t('areas.externalFiles') }}</v-card-title>
         <v-alert
           v-if="externalFilesDropdown.length === 0"
           type="info"
@@ -87,13 +87,13 @@
           variant="tonal"
         >
           <div class="d-flex align-center justify-space-between">
-            <div>No external files are currently available</div>
+            <div>{{ $t('files.noExternalFiles') }}</div>
             <v-btn
               variant="outlined"
               class="text-capitalize"
               @click="$router.push({ name: 'external-files' })"
             >
-              Navigate to files
+              {{ $t('files.navigateToFiles') }}
               <v-icon icon="mdi-chevron-right" class="mt-1"></v-icon>
             </v-btn>
           </div>
@@ -107,7 +107,7 @@
             item-value="id"
             variant="outlined"
             density="comfortable"
-            label="Videos"
+            :label="$t('files.videos')"
             multiple
             chips
             closable-chips
@@ -136,7 +136,7 @@
             item-value="id"
             variant="outlined"
             density="comfortable"
-            label="Models"
+            :label="$t('files.models')"
             multiple
             chips
             closable-chips

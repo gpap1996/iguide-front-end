@@ -1,11 +1,11 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Areas">
+    <page-title :title="$t('areas.title')">
       <v-btn
         @click="onOpenAreaFormDialog(null)"
         color="primary"
         icon="mdi-plus"
-        v-tooltip="'Create Area'"
+        v-tooltip="$t('areas.create')"
         class="mr-2"
         variant="outlined"
         density="comfortable"
@@ -16,7 +16,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Areas"
+        :label="$t('areas.search')"
         clearable
         hide-details
         class="ml-auto"
@@ -116,7 +116,7 @@
           class="mr-4"
           icon="mdi-pencil"
           @click="onOpenAreaFormDialog(item.id)"
-          v-tooltip="'Edit Area'"
+          v-tooltip="$t('areas.edit')"
         >
         </v-btn>
 
@@ -125,7 +125,7 @@
           color="error"
           icon="mdi-delete"
           @click="(form = item), (areasDeleteDialog = true)"
-          v-tooltip="'Delete Area'"
+          v-tooltip="$t('areas.delete')"
         >
         </v-btn>
       </template>
@@ -186,12 +186,12 @@
 
     <v-dialog v-model="areasDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete area"
+        :title="$t('areas.deleteTitle')"
         :isLoading="isDeleteLoading"
         @close="(areasDeleteDialog = false), (form = null)"
         @confirm="onDeleteArea"
       >
-        Are you sure you want to delete the areas?
+        {{ $t('areas.deleteConfirm') }}
       </confirm-dialog>
     </v-dialog>
   </div>
@@ -199,16 +199,19 @@
 
 <script setup>
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 import { useAreasStore } from '@/stores/areas'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown } = baseStore
 const { snackbar } = storeToRefs(baseStore)
+
+const { t } = useI18n()
 
 const areaFormDialog = ref({
   open: false,
@@ -227,38 +230,34 @@ const filters = ref({
   title: null,
 })
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Title',
+    title: t('areas.title'),
     key: 'title',
     sortable: false,
   },
   {
-    title: 'Subtitle',
+    title: t('areas.subtitle'),
     key: 'subtitle',
-
     sortable: false,
   },
-
   {
-    title: 'Wider Area',
+    title: t('areas.widerArea'),
     key: 'parent',
     sortable: false,
   },
-
   {
-    title: 'Weight',
+    title: t('areas.weight'),
     key: 'weight',
     sortable: false,
   },
-
   {
-    title: 'Actions',
+    title: t('common.actions'),
     key: 'actions',
     align: 'start',
     sortable: false,
   },
-]
+])
 
 async function fetchAreas() {
   const res = await axios.get('/areas', {
@@ -332,7 +331,7 @@ async function onDeleteArea() {
 
     snackbar.value = {
       show: true,
-      text: 'Area deleted successfully!',
+      text: t('areas.deleteSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }

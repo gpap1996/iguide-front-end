@@ -8,6 +8,7 @@ export const useBaseStore = defineStore(
     const globalLoader = ref(true)
     const theme = ref('light')
     const drawer = ref(true)
+    const currentLanguage = ref('el')
     const snackbar = ref({
       show: false,
       text: '',
@@ -54,12 +55,13 @@ export const useBaseStore = defineStore(
       itemsPerPageDropdown,
       languages,
       getLanguages,
+      currentLanguage,
     }
   },
   {
     persist: [
       {
-        pick: ['theme'],
+        pick: ['theme', 'currentLanguage'],
         storage: localStorage,
       },
     ],

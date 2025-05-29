@@ -14,6 +14,33 @@
     </template>
 
     <template v-slot:append>
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn
+            v-bind="props"
+            icon="mdi-translate"
+            class="mr-2"
+            v-tooltip="$t('common.language')"
+          ></v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            v-for="lang in languages"
+            :key="lang.locale"
+            :value="lang.locale"
+            @click="changeLanguage(lang.locale)"
+          >
+            <template v-slot:prepend>
+              <v-icon
+                v-if="currentLocale === lang.locale"
+                color="primary"
+                icon="mdi-check"
+              ></v-icon>
+            </template>
+            <v-list-item-title>{{ lang.name }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-btn icon="mdi-theme-light-dark" @click="onToogleTheme"> </v-btn>
       <v-btn icon="mdi-logout" @click="onLogout"> </v-btn>
     </template>
@@ -33,10 +60,14 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFirebaseAuth } from 'vuefire'
 import { useTheme, useDisplay } from 'vuetify'
+import { useI18n } from 'vue-i18n'
+import { setI18nLanguage } from '@/i18n'
 
 const { mdAndDown } = useDisplay()
+const { locale } = useI18n()
 
 const baseStore = useBaseStore()
+const { currentLanguage } = storeToRefs(baseStore)
 const vuetifyTheme = useTheme()
 const { globalLoader, theme, drawer } = storeToRefs(baseStore)
 
@@ -46,6 +77,18 @@ const { user } = storeToRefs(authStore)
 
 const router = useRouter()
 const auth = useFirebaseAuth()
+
+const languages = [
+  { locale: 'el', name: 'Ελληνικά' },
+  { locale: 'en', name: 'English' },
+]
+
+const currentLocale = computed(() => locale.value)
+
+const changeLanguage = async (newLocale) => {
+  await setI18nLanguage(newLocale)
+  currentLanguage.value = newLocale
+}
 
 const onLogout = async () => {
   await signOut(auth)

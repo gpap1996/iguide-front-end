@@ -22,7 +22,7 @@
         active-class="active-item"
         color="primary"
         link
-        v-for="item in navigation"
+        v-for="item in navigationItems"
         :key="item.title"
         :prepend-icon="item.icon"
         :title="item.title"
@@ -40,63 +40,67 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
 import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const { isAdmin, isManager, user } = authStore
 
-onMounted(() => {
+const navigationItems = computed(() => {
+  const items = []
+
   if (isAdmin) {
-    navigation.value.push(
+    items.push(
       {
         icon: 'mdi-clipboard-text-multiple',
-        title: 'Projects',
+        title: t('navigation.projects'),
         path: '/projects',
       },
       {
         icon: 'mdi-account-multiple',
-        title: 'Users',
+        title: t('navigation.users'),
         path: '/users',
       },
     )
-  } else if (isManager)
-    navigation.value.push(
+  } else if (isManager) {
+    items.push(
       {
         icon: 'mdi-view-dashboard',
-        title: 'Dashboard',
+        title: t('navigation.dashboard'),
         path: '/dashboard',
       },
       {
         icon: 'mdi-image-area',
-        title: 'Areas',
+        title: t('navigation.areas'),
         path: '/areas',
       },
-
       {
         icon: 'mdi-folder',
-        title: 'Files',
+        title: t('navigation.files'),
         path: '/files',
       },
       {
         icon: 'mdi-link',
-        title: 'External Files',
+        title: t('navigation.externalFiles'),
         path: '/external-files',
       },
-
       {
         icon: 'mdi-translate',
-        title: 'Languages',
+        title: t('navigation.languages'),
         path: '/languages',
       },
     )
-})
-const { drawer } = storeToRefs(useBaseStore())
+  }
 
-const navigation = ref([])
+  return items
+})
+
+const { drawer } = storeToRefs(useBaseStore())
 
 const { mdAndDown } = useDisplay()
 const isMobile = computed(() => mdAndDown.value)

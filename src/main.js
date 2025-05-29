@@ -19,6 +19,8 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth' // Import the auth store
+import i18n, { initializeI18n } from './i18n'
+import { useBaseStore } from './stores/base'
 
 // Initialize Firebase with environment variables
 export const firebaseApp = initializeApp({
@@ -28,6 +30,7 @@ export const firebaseApp = initializeApp({
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 })
+
 const app = createApp(App)
 
 app.use(Particles, {
@@ -49,11 +52,25 @@ const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 app.use(pinia)
-app.use(router)
-app.use(vuetify)
-app.use(vuetifyProTipTap)
-app.use(MotionPlugin)
-app.use(VueQueryPlugin)
+
+// Get the base store
+const baseStore = useBaseStore()
+
+// Initialize i18n with store language
+initializeI18n(baseStore.currentLanguage).then(() => {
+  // Use i18n after initialization
+  app.use(i18n)
+
+  // Use other plugins
+  app.use(router)
+  app.use(vuetify)
+  app.use(vuetifyProTipTap)
+  app.use(MotionPlugin)
+  app.use(VueQueryPlugin)
+
+  // Mount the app
+  app.mount('#app')
+})
 
 // Set up axios default url and 401 interceptor
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
@@ -111,5 +128,3 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   },
 )
-
-app.mount('#app')

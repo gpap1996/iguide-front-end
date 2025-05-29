@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ isEdit ? 'Edit File' : 'Upload File' }}</div>
+      <div class="title">{{ isEdit ? $t('files.edit') : $t('files.upload') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -11,11 +11,11 @@
         <!-- Type selection - first field -->
         <v-select
           v-model="form.type"
-          label="Type"
+          :label="$t('files.type')"
           :items="fileTypes"
           variant="outlined"
           density="comfortable"
-          :rules="[(v) => !!v || 'File type is required']"
+          :rules="[(v) => !!v || $t('validation.required')]"
           required
           class="mb-4"
           @update:model-value="resetForm('type')"
@@ -32,12 +32,10 @@
             item-value="locale"
             variant="outlined"
             density="comfortable"
-            :label="form.type === 'audio' ? 'Language (single language only)' : 'Language'"
+            :label="form.type === 'audio' ? $t('files.languageSingle') : $t('files.language')"
             class="mb-4"
             :hint="
-              form.type === 'audio'
-                ? 'Audio files support only one language translation'
-                : 'You can add translations for multiple languages'
+              form.type === 'audio' ? $t('files.languageSingleHint') : $t('files.languageHint')
             "
             :disabled="form.type === 'audio' && isEdit"
             @update:model-value="form.type === 'audio' ? resetForm('language') : null"
@@ -48,11 +46,11 @@
             v-model="currentTitle"
             density="comfortable"
             variant="outlined"
-            label="Title"
+            :label="$t('files.fileTitle')"
           ></v-text-field>
 
           <VuetifyTiptap
-            label="Description"
+            :label="$t('files.description')"
             v-model="currentDescription"
             minHeight="250"
             maxHeight="250"
@@ -62,37 +60,43 @@
           <div class="d-flex flex-column align-center my-4">
             <v-file-input
               v-model="form.file"
-              :label="isEdit ? 'Replace File' : 'Upload File'"
+              :label="isEdit ? $t('files.replace') : $t('files.uploadFile')"
               variant="outlined"
               density="comfortable"
               :accept="getFileInputAccept(form.type)"
               @update:model-value="handleFileChange"
               width="100%"
-              :hint="`Max size: ${formatFileSize(FILE_LIMITS.MAX_FILE_SIZE)} | Allowed types: ${getAllowedTypesText(form.type)}`"
+              :hint="
+                $t('files.maxSize', { size: formatFileSize(FILE_LIMITS.MAX_FILE_SIZE) }) +
+                ' | ' +
+                $t('files.allowedTypes', { types: getAllowedTypesText(form.type) })
+              "
               persistent-hint
               :rules="[
                 (v) => {
-                  // File is required for new uploads
                   if (!isEdit && !v) {
-                    return 'File is required'
+                    return $t('validation.fileRequired')
                   }
                   return true
                 },
                 (v) => {
-                  // Validate file size if file exists and has size property
                   if (v && typeof v === 'object' && v.size !== undefined) {
                     return validateFileSize(v)
                       ? true
-                      : `File size must be less than ${formatFileSize(FILE_LIMITS.MAX_FILE_SIZE)}`
+                      : $t('validation.fileSize', {
+                          size: formatFileSize(FILE_LIMITS.MAX_FILE_SIZE),
+                        })
                   }
                   return true
                 },
                 (v) => {
-                  // Validate file type if file exists and has type property
                   if (v && typeof v === 'object' && v.type !== undefined && form.type) {
                     return validateFileType(v, form.type)
                       ? true
-                      : `Invalid file type for ${form.type}. Allowed types: ${getAllowedTypesText(form.type)}`
+                      : $t('validation.fileType', {
+                          type: form.type,
+                          types: getAllowedTypesText(form.type),
+                        })
                   }
                   return true
                 },
@@ -104,7 +108,7 @@
               <v-img
                 v-if="file?.type === 'image'"
                 :src="`${file?.url}`"
-                alt="Current file"
+                :alt="$t('files.currentFile')"
                 width="250"
                 height="250"
                 cover
@@ -113,7 +117,7 @@
 
               <audio controls v-if="file?.type === 'audio'">
                 <source :src="`${file?.url}`" type="audio/mp3" />
-                Your browser does not support the audio element.
+                {{ $t('files.audioNotSupported') }}
               </audio>
             </div>
           </div>
@@ -126,13 +130,13 @@
       <v-btn
         color="primary"
         variant="outlined"
-        text="Close"
+        :text="$t('common.close')"
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
       <v-btn
         color="primary"
-        text="Save"
+        :text="$t('common.save')"
         variant="flat"
         @click="onSubmitFile"
         :loading="isLoading"
@@ -147,7 +151,9 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const baseStore = useBaseStore()
 const { languages, snackbar } = storeToRefs(baseStore)
 
@@ -351,14 +357,13 @@ onMounted(() => {
 
 // File change handler
 const handleFileChange = (file) => {
-  // Clear any previous error messages
   errorMessage.value = ''
 
   if (file) {
-    // Validate file size
     if (!validateFileSize(file)) {
-      // Don't set form.value.file = null here, let the validation rules handle it
-      errorMessage.value = `File size exceeds maximum limit of ${formatFileSize(FILE_LIMITS.MAX_FILE_SIZE)}`
+      errorMessage.value = t('validation.fileSize', {
+        size: formatFileSize(FILE_LIMITS.MAX_FILE_SIZE),
+      })
       snackbar.value = {
         show: true,
         text: errorMessage.value,
@@ -368,10 +373,11 @@ const handleFileChange = (file) => {
       return
     }
 
-    // Validate file type
     if (!validateFileType(file, form.value.type)) {
-      // Don't set form.value.file = null here, let the validation rules handle it
-      errorMessage.value = `Invalid file type for ${form.value.type}. Allowed types: ${getAllowedTypesText(form.value.type)}`
+      errorMessage.value = t('validation.fileType', {
+        type: form.value.type,
+        types: getAllowedTypesText(form.value.type),
+      })
       snackbar.value = {
         show: true,
         text: errorMessage.value,
@@ -381,7 +387,6 @@ const handleFileChange = (file) => {
       return
     }
 
-    // If we reach here, the file is valid
     errorMessage.value = ''
   }
 }
@@ -392,14 +397,13 @@ const onSubmitFile = async () => {
     errorMessage.value = ''
     isLoading.value = true
 
-    // Validate form
     if (formRef.value) {
       const { valid } = await formRef.value.validate()
       if (!valid) {
         isLoading.value = false
         snackbar.value = {
           show: true,
-          text: 'Please fill in all required fields',
+          text: t('validation.required'),
           color: 'error',
           icon: 'mdi-alert-circle-outline',
         }
@@ -407,50 +411,48 @@ const onSubmitFile = async () => {
       }
     }
 
-    // Validate file type is selected
     if (!form.value.type) {
       isLoading.value = false
       snackbar.value = {
         show: true,
-        text: 'Please select a file type',
+        text: t('validation.required'),
         color: 'error',
         icon: 'mdi-alert-circle-outline',
       }
       return
     }
 
-    // Validate file is uploaded (only if not in edit mode)
     if (!isEdit.value && !form.value.file) {
       isLoading.value = false
       snackbar.value = {
         show: true,
-        text: 'Please upload a file',
+        text: t('validation.fileRequired'),
         color: 'error',
         icon: 'mdi-alert-circle-outline',
       }
       return
     }
 
-    // Additional file validation before submission
     if (form.value.file) {
-      // Check file size
       if (!validateFileSize(form.value.file)) {
         isLoading.value = false
         snackbar.value = {
           show: true,
-          text: `File size exceeds maximum limit of ${formatFileSize(FILE_LIMITS.MAX_FILE_SIZE)}`,
+          text: t('validation.fileSize', { size: formatFileSize(FILE_LIMITS.MAX_FILE_SIZE) }),
           color: 'error',
           icon: 'mdi-alert-circle-outline',
         }
         return
       }
 
-      // Check file type
       if (!validateFileType(form.value.file, form.value.type)) {
         isLoading.value = false
         snackbar.value = {
           show: true,
-          text: `Invalid file type for ${form.value.type}. Allowed types: ${getAllowedTypesText(form.value.type)}`,
+          text: t('validation.fileType', {
+            type: form.value.type,
+            types: getAllowedTypesText(form.value.type),
+          }),
           color: 'error',
           icon: 'mdi-alert-circle-outline',
         }
@@ -509,7 +511,7 @@ const onSubmitFile = async () => {
     emit('close')
     snackbar.value = {
       show: true,
-      text: `${isEdit.value ? 'File updated successfully!' : 'File uploaded successfully!'}`,
+      text: isEdit.value ? t('files.editSuccess') : t('files.uploadSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
