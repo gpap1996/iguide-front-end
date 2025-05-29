@@ -98,10 +98,10 @@ const { languages } = storeToRefs(useBaseStore())
 
 const selectedLanguageLocale = ref(languages.value[0]?.locale)
 
-// Check if a language has valid title and description
+// Check if a language has valid title
 const isLanguageValid = (locale) => {
   const translation = form.value.translations[locale]
-  return translation && !!translation.title && !!translation.description
+  return translation && !!translation.title
 }
 
 // Computed property to add validation status to language items
@@ -167,15 +167,14 @@ const validateAllLanguages = () => {
     }
   })
 
-  // Check all languages for required fields
-  const missingFields = languages.value.filter((lang) => {
+  // Check if at least one language has a title
+  const hasAtLeastOneTitle = languages.value.some((lang) => {
     const translation = form.value.translations[lang.locale]
-    return !translation || !translation.title || !translation.description
+    return translation && translation.title
   })
 
-  if (missingFields.length > 0) {
-    const missingLanguages = missingFields.map((lang) => lang.name).join(', ')
-    errorMessage.value = `Title and description are required for the following languages: ${missingLanguages}`
+  if (!hasAtLeastOneTitle) {
+    errorMessage.value = 'Title is required for at least one language'
     return false
   } else {
     errorMessage.value = ''

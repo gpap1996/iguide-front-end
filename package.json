@@ -23,14 +23,12 @@
     "lodash": "^4.17.21",
     "pinia": "^2.2.6",
     "pinia-plugin-persistedstate": "^4.1.2",
-    "vee-validate": "^4.14.7",
     "vue": "^3.5.12",
     "vue-echarts": "^6.0.0-alpha.5",
     "vue-router": "^4.4.5",
     "vuefire": "^3.2.0",
     "vuetify": "^3.7.4",
-    "vuetify-pro-tiptap": "^2.4.3",
-    "zod": "^3.23.8"
+    "vuetify-pro-tiptap": "^2.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

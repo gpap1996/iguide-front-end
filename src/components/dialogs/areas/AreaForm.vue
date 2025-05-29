@@ -74,11 +74,12 @@ const { snackbar } = storeToRefs(baseStore)
 const isPageLoading = ref(false)
 
 onMounted(async () => {
+  isPageLoading.value = true
+
   if (props?.areaId) {
     await fetchAreaById(props.areaId)
   }
 
-  isPageLoading.value = true
   try {
     const areasRes = await axios.get('/areas/dropdown', {
       headers: {
@@ -86,7 +87,11 @@ onMounted(async () => {
       },
     })
 
-    areas.value = areasRes.data.items
+    if (props?.areaId) {
+      areas.value = areasRes.data.items.filter((area) => area.id !== props.areaId)
+    } else {
+      areas.value = areasRes.data.items
+    }
 
     await getFilesDropdown()
     await getExternalFilesDropdown()
@@ -132,7 +137,7 @@ async function onSave() {
       validationError.value = true
       snackbar.value = {
         show: true,
-        text: 'Title and description are required for all languages',
+        text: 'Title is required for at least one language',
         color: 'error',
         icon: 'mdi-alert-circle-outline',
       }
