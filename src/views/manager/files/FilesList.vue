@@ -226,7 +226,7 @@
       <template v-slot:bottom>
         <v-divider></v-divider>
         <div class="d-flex ml-auto mr-10 mt-6">
-          <div class="mt-2 mr-2">Items per page:</div>
+          <div class="mt-2 mr-2">{{ $t('common.itemsPerPage') }}</div>
           <v-select
             variant="outlined"
             item-title="label"
@@ -354,7 +354,7 @@
 
 <script setup>
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
@@ -390,38 +390,34 @@ const selected = ref([])
 const massAction = ref(false)
 const massActionType = ref('delete') // 'delete' or 'copy'
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Preview',
+    title: t('files.preview'),
     key: 'preview',
     sortable: false,
   },
-
   {
-    title: 'Name',
+    title: t('files.name'),
     key: 'name',
     sortable: false,
   },
-
   {
-    title: 'Title',
+    title: t('files.fileTitle'),
     key: 'title',
     sortable: false,
   },
-
   {
-    title: 'Type',
+    title: t('files.type'),
     key: 'type',
     sortable: false,
   },
-
   {
-    title: 'Actions',
+    title: t('common.actions'),
     key: 'actions',
     align: 'start',
     sortable: false,
   },
-]
+])
 
 const fetchFiles = async () => {
   const res = await axios.get('/files', {

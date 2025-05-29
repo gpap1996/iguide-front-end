@@ -1,6 +1,6 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="External Files">
+    <page-title :title="$t('externalFiles.title')">
       <!-- Create Button -->
       <v-btn
         @click="fileFormDialog = true"
@@ -9,7 +9,7 @@
         variant="outlined"
         class="mr-3"
         density="comfortable"
-        v-tooltip="'Add External File'"
+        v-tooltip="$t('externalFiles.create')"
       ></v-btn>
 
       <v-text-field
@@ -17,7 +17,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search External Files"
+        :label="$t('externalFiles.search')"
         clearable
         hide-details
         class="ml-auto"
@@ -79,7 +79,7 @@
           icon="mdi-pencil"
           class="mr-1"
           @click="(currentFile = item), (fileFormDialog = true)"
-          v-tooltip="'Edit External File'"
+          v-tooltip="$t('externalFiles.edit')"
         >
         </v-btn>
 
@@ -88,7 +88,7 @@
           color="error"
           icon="mdi-delete"
           @click="(currentFile = item), (fileDeleteDialog = true)"
-          v-tooltip="'Delete External File'"
+          v-tooltip="$t('externalFiles.delete')"
         >
         </v-btn>
       </template>
@@ -97,7 +97,7 @@
       <template v-slot:bottom>
         <v-divider></v-divider>
         <div class="d-flex ml-auto mr-10 mt-6">
-          <div class="mt-2 mr-2">Items per page:</div>
+          <div class="mt-2 mr-2">{{ $t('common.itemsPerPage') }}</div>
           <v-select
             variant="outlined"
             item-title="label"
@@ -150,25 +150,27 @@
 
     <v-dialog v-model="fileDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete external file"
+        :title="$t('externalFiles.deleteTitle')"
         :isLoading="isDeleteLoading"
         @close="(fileDeleteDialog = false), (currentFile = null)"
         @confirm="onDeleteFile"
       >
-        Are you sure you want to delete this external file?
+        {{ $t('externalFiles.deleteConfirm') }}
       </confirm-dialog>
     </v-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 
+const { t } = useI18n()
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown } = baseStore
 const { snackbar } = storeToRefs(baseStore)
@@ -186,29 +188,29 @@ const filters = ref({
 
 const selected = ref([])
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('common.name'),
     key: 'name',
     sortable: false,
   },
   {
-    title: 'Title',
+    title: t('common.title'),
     key: 'title',
     sortable: false,
   },
   {
-    title: 'Type',
+    title: t('common.type'),
     key: 'type',
     sortable: false,
   },
   {
-    title: 'Actions',
+    title: t('common.actions'),
     key: 'actions',
     align: 'start',
     sortable: false,
   },
-]
+])
 
 const fetchExternalFiles = async () => {
   const res = await axios.get('/external-files', {
@@ -269,7 +271,7 @@ const onDeleteFile = async () => {
 
     snackbar.value = {
       show: true,
-      text: 'External file deleted successfully',
+      text: t('externalFiles.deleteSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }
@@ -277,7 +279,7 @@ const onDeleteFile = async () => {
     console.log(error)
     snackbar.value = {
       show: true,
-      text: error.response?.data?.error || 'Error deleting external file',
+      text: error.response?.data?.error || t('externalFiles.errorDeleting'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }

@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ isEdit ? 'Edit External File' : 'Add External File' }}</div>
+      <div class="title">{{ isEdit ? $t('externalFiles.edit') : $t('externalFiles.create') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -11,10 +11,10 @@
         <!-- Name input -->
         <v-text-field
           v-model="form.name"
-          label="Name"
+          :label="$t('common.name')"
           variant="outlined"
           density="comfortable"
-          :rules="[(v) => !!v || 'Name is required']"
+          :rules="[(v) => !!v || $t('externalFiles.nameRequired')]"
           required
           class="mb-4"
         ></v-text-field>
@@ -22,11 +22,11 @@
         <!-- Type selection -->
         <v-select
           v-model="form.type"
-          label="Type"
+          :label="$t('common.type')"
           :items="fileTypes"
           variant="outlined"
           density="comfortable"
-          :rules="[(v) => !!v || 'File type is required']"
+          :rules="[(v) => !!v || $t('externalFiles.typeRequired')]"
           required
           class="mb-4"
         ></v-select>
@@ -34,10 +34,10 @@
         <!-- URL input -->
         <v-textarea
           v-model="form.url"
-          label="URL"
+          :label="$t('common.url')"
           variant="outlined"
           density="comfortable"
-          :rules="[(v) => !!v || 'URL is required']"
+          :rules="[(v) => !!v || $t('externalFiles.urlRequired')]"
           required
           class="mb-4"
         ></v-textarea>
@@ -50,9 +50,9 @@
           item-value="locale"
           variant="outlined"
           density="comfortable"
-          label="Language"
+          :label="$t('common.language')"
           class="mb-4"
-          hint="You can add translations for multiple languages"
+          :hint="$t('files.languageHint')"
           persistent-hint
         ></v-select>
 
@@ -60,11 +60,11 @@
           v-model="currentTitle"
           density="comfortable"
           variant="outlined"
-          label="Title"
+          :label="$t('common.title')"
         ></v-text-field>
 
         <VuetifyTiptap
-          label="Description"
+          :label="$t('common.description')"
           v-model="currentDescription"
           minHeight="250"
           maxHeight="250"
@@ -78,13 +78,13 @@
       <v-btn
         color="primary"
         variant="outlined"
-        text="Close"
+        :text="$t('common.close')"
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
       <v-btn
         color="primary"
-        text="Save"
+        :text="$t('common.save')"
         variant="flat"
         @click="onSubmitFile"
         :loading="isLoading"
@@ -99,7 +99,9 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const baseStore = useBaseStore()
 const { languages, snackbar } = storeToRefs(baseStore)
 
@@ -132,7 +134,10 @@ const form = ref({
   translations: {},
 })
 
-const fileTypes = ['video', 'model']
+const fileTypes = computed(() => [
+  { title: t('externalFiles.video'), value: 'video' },
+  { title: t('externalFiles.model'), value: 'model' },
+])
 
 // Computed properties for current translation fields
 const currentTitle = computed({
@@ -221,7 +226,7 @@ const onSubmitFile = async () => {
         isLoading.value = false
         snackbar.value = {
           show: true,
-          text: 'Please fill in all required fields',
+          text: t('externalFiles.fillRequiredFields'),
           color: 'error',
           icon: 'mdi-alert-circle-outline',
         }
@@ -246,7 +251,7 @@ const onSubmitFile = async () => {
     emit('close')
     snackbar.value = {
       show: true,
-      text: `${isEdit.value ? 'External file updated successfully!' : 'External file added successfully!'}`,
+      text: isEdit.value ? t('externalFiles.editSuccess') : t('externalFiles.addSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }

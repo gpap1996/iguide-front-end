@@ -133,7 +133,8 @@
       <template v-slot:bottom>
         <v-divider></v-divider>
         <div class="d-flex ml-auto mr-10 mt-6">
-          <div class="mt-2 mr-2">Items per page:</div>
+          <div class="mt-2 mr-2">{{ $t('common.itemsPerPage') }}</div>
+
           <v-select
             variant="outlined"
             item-title="label"

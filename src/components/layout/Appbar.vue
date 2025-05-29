@@ -30,7 +30,7 @@
             :value="lang.locale"
             @click="changeLanguage(lang.locale)"
           >
-            <template v-slot:prepend>
+            <template v-slot:append>
               <v-icon
                 v-if="currentLocale === lang.locale"
                 color="primary"

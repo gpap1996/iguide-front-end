@@ -1,13 +1,13 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Languages">
+    <page-title :title="$t('languages.title')">
       <v-btn-group variant="outlined" class="mr-3" density="comfortable">
         <v-btn
           @click="languageFormDialog = true"
           color="primary"
           icon="mdi-plus"
           class="mr-2"
-          v-tooltip="'Create Language'"
+          v-tooltip="$t('languages.create')"
         ></v-btn>
       </v-btn-group>
     </page-title>
@@ -47,19 +47,19 @@
           variant="text"
           class="mr-4"
           icon="mdi-pencil"
-          v-tooltip="'Edit Language'"
+          v-tooltip="$t('languages.edit')"
           @click="(currentLanguage = item), (languageFormDialog = true)"
         >
         </v-btn>
 
-        <v-btn variant="text" color="error" icon="mdi-delete" v-tooltip="'Delete Language'">
+        <v-btn variant="text" color="error" icon="mdi-delete" v-tooltip="$t('languages.delete')">
         </v-btn>
       </template>
       <!-- table footer -->
       <template v-slot:bottom>
         <v-divider></v-divider>
         <div class="d-flex ml-auto mr-10 mt-6">
-          <div class="mt-2 mr-2">Items per page:</div>
+          <div class="mt-2 mr-2">{{ $t('common.itemsPerPage') }}</div>
           <v-select
             variant="outlined"
             item-title="label"
@@ -114,10 +114,12 @@
 
 <script setup>
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown, fileUrl } = baseStore
 const languageFormDialog = ref(false)
@@ -129,26 +131,24 @@ const filters = ref({
   title: null,
 })
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('languages.name'),
     key: 'name',
     sortable: false,
   },
   {
-    title: 'Locale',
+    title: t('languages.locale'),
     key: 'locale',
-
     sortable: false,
   },
-
   {
-    title: 'Actions',
+    title: t('common.actions'),
     key: 'actions',
     align: 'start',
     sortable: false,
   },
-]
+])
 
 const fetchLanguages = async () => {
   const res = await axios.get('/languages', {
