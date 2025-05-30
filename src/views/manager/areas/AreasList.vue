@@ -6,7 +6,7 @@
         color="primary"
         icon="mdi-plus"
         v-tooltip="$t('areas.create')"
-        class="mr-2"
+        class="mr-auto"
         variant="outlined"
         density="comfortable"
       ></v-btn>
@@ -19,7 +19,6 @@
         :label="$t('areas.search')"
         clearable
         hide-details
-        class="ml-auto"
         density="compact"
         @click:clear="
           () =>
@@ -185,15 +184,21 @@
       </div>
     </v-dialog>
 
-    <v-dialog v-model="areasDeleteDialog" max-width="500px">
-      <confirm-dialog
-        :title="$t('areas.deleteTitle')"
-        :isLoading="isDeleteLoading"
-        @close="(areasDeleteDialog = false), (form = null)"
-        @confirm="onDeleteArea"
-      >
-        {{ $t('areas.deleteConfirm') }}
-      </confirm-dialog>
+    <v-dialog v-model="areasDeleteDialog" max-width="600px" max-height="500px">
+      <div class="dialog-wrapper scrollable-dialog">
+        <strict-confirm-dialog
+          :title="$t('areas.deleteTitle')"
+          :entity-name="getAreaName(form)"
+          :warning-message="$t('areas.deleteWarning')"
+          :confirm-text="$t('areas.deleteConfirmText')"
+          :placeholder="$t('areas.deleteTypePlaceholder')"
+          :expected-input="getAreaName(form)"
+          :invalid-input-message="$t('areas.deleteInvalidInput')"
+          :is-loading="isDeleteLoading"
+          @close="(areasDeleteDialog = false), (form = null)"
+          @confirm="onDeleteArea"
+        ></strict-confirm-dialog>
+      </div>
     </v-dialog>
   </div>
 </template>
@@ -341,6 +346,23 @@ async function onDeleteArea() {
   } finally {
     isDeleteLoading.value = false
   }
+}
+
+function getAreaName(area) {
+  // Get area name from translations, preferring Greek (el) then English (en)
+  if (!area?.translations || area.translations.length === 0) return ''
+
+  // First try to find Greek translation
+  const greekTranslation = area.translations.find((t) => t.language?.locale === 'el')
+  if (greekTranslation?.title) return greekTranslation.title
+
+  // Then try English translation
+  const englishTranslation = area.translations.find((t) => t.language?.locale === 'en')
+  if (englishTranslation?.title) return englishTranslation.title
+
+  // Finally, use the first available translation
+  const firstTranslation = area.translations.find((t) => t.title)
+  return firstTranslation?.title || ''
 }
 </script>
 

@@ -7,7 +7,7 @@
         color="primary"
         icon="mdi-plus"
         variant="outlined"
-        class="mr-3"
+        class="mr-auto"
         density="comfortable"
         v-tooltip="$t('externalFiles.create')"
       ></v-btn>
@@ -20,7 +20,6 @@
         :label="$t('externalFiles.search')"
         clearable
         hide-details
-        class="ml-auto"
         density="compact"
         @click:clear="
           () =>

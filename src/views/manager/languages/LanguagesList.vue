@@ -1,15 +1,14 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
     <page-title :title="$t('languages.title')">
-      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
-        <v-btn
-          @click="languageFormDialog = true"
-          color="primary"
-          icon="mdi-plus"
-          class="mr-2"
-          v-tooltip="$t('languages.create')"
-        ></v-btn>
-      </v-btn-group>
+      <v-btn
+        @click="languageFormDialog = true"
+        color="primary"
+        icon="mdi-plus"
+        v-tooltip="$t('languages.create')"
+        variant="outlined"
+        density="comfortable"
+      ></v-btn>
     </page-title>
 
     <v-data-table-server
@@ -52,7 +51,13 @@
         >
         </v-btn>
 
-        <v-btn variant="text" color="error" icon="mdi-delete" v-tooltip="$t('languages.delete')">
+        <v-btn
+          variant="text"
+          color="error"
+          icon="mdi-delete"
+          v-tooltip="$t('languages.delete')"
+          @click="(currentLanguage = item), (languageDeleteDialog = true)"
+        >
         </v-btn>
       </template>
       <!-- table footer -->
@@ -109,6 +114,23 @@
         ></language-form>
       </div>
     </v-dialog>
+
+    <v-dialog v-model="languageDeleteDialog" max-width="600px" max-height="500px">
+      <div class="dialog-wrapper scrollable-dialog">
+        <strict-confirm-dialog
+          :title="$t('languages.deleteTitle')"
+          :entity-name="currentLanguage?.name || ''"
+          :warning-message="$t('languages.deleteWarning')"
+          :confirm-text="$t('languages.deleteConfirmText')"
+          :placeholder="$t('languages.deleteTypePlaceholder')"
+          :expected-input="currentLanguage?.name || ''"
+          :invalid-input-message="$t('languages.deleteInvalidInput')"
+          :is-loading="isDeleteLoading"
+          @close="(languageDeleteDialog = false), (currentLanguage = null)"
+          @confirm="onDeleteLanguage"
+        ></strict-confirm-dialog>
+      </div>
+    </v-dialog>
   </div>
 </template>
 
@@ -118,12 +140,17 @@ import { ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia'
 
 const { t } = useI18n()
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown, fileUrl } = baseStore
+const { snackbar } = storeToRefs(baseStore)
+
 const languageFormDialog = ref(false)
+const languageDeleteDialog = ref(false)
 const currentLanguage = ref(null)
+const isDeleteLoading = ref(false)
 
 const filters = ref({
   page: 1,
@@ -176,6 +203,42 @@ const onFiltersReset = async () => {
   languageFormDialog.value = false
 
   await queryClient.resetQueries({ queryKey: ['language'] })
+}
+
+const onDeleteLanguage = async () => {
+  isDeleteLoading.value = true
+  try {
+    await axios.delete(`/languages/${currentLanguage.value.id}`)
+    languageDeleteDialog.value = false
+
+    // If this was the last item on page (except page 1), go back to page 1
+    if (data.value?.languages?.length === 1 && filters.value.page > 1) {
+      filters.value = {
+        ...filters.value,
+        page: 1,
+      }
+    } else {
+      await onFiltersReset()
+    }
+
+    snackbar.value = {
+      show: true,
+      text: t('languages.deleteSuccess'),
+      color: 'success',
+      icon: 'mdi-check-circle-outline',
+    }
+  } catch (error) {
+    console.log(error)
+    snackbar.value = {
+      show: true,
+      text: error.response?.data?.message || t('common.error'),
+      color: 'error',
+      icon: 'mdi-alert-circle-outline',
+    }
+  } finally {
+    isDeleteLoading.value = false
+    currentLanguage.value = null
+  }
 }
 </script>
 

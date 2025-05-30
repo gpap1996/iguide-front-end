@@ -40,7 +40,7 @@
       </v-btn-group>
 
       <!-- Import/Export Button Group -->
-      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
+      <v-btn-group variant="outlined" class="mr-auto" density="comfortable">
         <v-btn
           @click="openImportDialog"
           color="primary"
@@ -105,7 +105,6 @@
         :label="$t('files.search')"
         clearable
         hide-details
-        class="ml-auto"
         density="compact"
         @click:clear="
           () =>

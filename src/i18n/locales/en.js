@@ -49,6 +49,11 @@ export default {
     deleteTitle: 'Delete Area',
     deleteConfirm: 'Are you sure you want to delete this area?',
     deleteSuccess: 'Area deleted successfully!',
+    deleteWarning:
+      'Warning: Deleting this area will permanently remove all POIs (Points of Interest) and routes that are included in this area. This action cannot be undone.',
+    deleteConfirmText: 'To confirm deletion, please type the area name',
+    deleteTypePlaceholder: 'Type area name here...',
+    deleteInvalidInput: 'Please type the exact area name to confirm deletion',
   },
   files: {
     title: 'Files',
@@ -158,6 +163,12 @@ export default {
     deleteSuccess: 'Language deleted successfully!',
     nameRequired: 'Name is required',
     localeRequired: 'Locale is required',
+    deleteTitle: 'Delete Language',
+    deleteWarning:
+      'Warning: Deleting this language will permanently remove all translations from all entities (areas, files, external files, etc.) in this language. This action cannot be undone.',
+    deleteConfirmText: 'To confirm deletion, please type the language name',
+    deleteTypePlaceholder: 'Type language name here...',
+    deleteInvalidInput: 'Please type the exact language name to confirm deletion',
   },
   validation: {
     required: 'This field is required',
