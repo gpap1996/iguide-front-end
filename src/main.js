@@ -3,8 +3,6 @@ import './assets/main.scss'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import Particles from '@tsparticles/vue3'
-import { loadSlim } from '@tsparticles/slim'
 
 import App from './App.vue'
 import router from './router'
@@ -32,12 +30,6 @@ export const firebaseApp = initializeApp({
 })
 
 const app = createApp(App)
-
-app.use(Particles, {
-  init: async (engine) => {
-    await loadSlim(engine)
-  },
-})
 
 app.use(VueFire, {
   // imported above but could also just be created here

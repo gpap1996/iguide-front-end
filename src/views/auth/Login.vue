@@ -1,60 +1,77 @@
 <template>
   <div
-    class="d-flex flex-column flex-lg-row"
+    class="d-flex flex-column flex-sm-row"
     style="width: 100vw"
     :style="isMobile ? 'min-height:500px' : 'min-height:100vh'"
   >
     <!-- 1st column -->
     <div class="left-column d-flex flex-grow-1" v-if="!isMobile">
-      <Particles />
+      <!-- <Particles /> -->
       <div class="content-wrapper">
         <div :class="{ 'text-center': isMobile }">
           <Logo />
           <div class="left-column-subtitle">Digital interactive tour</div>
         </div>
       </div>
+      <div class="waves waves-image"></div>
     </div>
     <!-- 2nd-column -->
-    <div class="d-flex flex-column align-center justify-center flex-grow-1 bg-surface">
-      <div class="mb-10" style="width: 50%" :class="{ 'text-center': isMobile }">
-        <div class="title">Hello again,</div>
-        <div class="subtitle">Welcome Back!</div>
+    <div
+      class="d-flex flex-column align-center flex-grow-1 bg-surface"
+      :class="isMobile ? 'mobile-container' : 'justify-center'"
+    >
+      <div v-if="isMobile" class="waves mobile waves-image waves-top">
+        <div class="content-wrapper">
+          <div :class="{ 'text-center': isMobile }" style="rotate: 180deg">
+            <Logo />
+            <div class="left-column-subtitle">Digital interactive tour</div>
+          </div>
+        </div>
       </div>
-
-      <v-form
-        @submit.prevent="onLogin"
-        class="d-flex flex-column"
-        style="width: 50%; min-width: 300px"
+      <div
+        :style="
+          isMobile
+            ? 'width: 90%; z-index: 99; height: 60vh; margin-top: 20vh; margin-bottom: 20vh; display: flex; flex-direction: column; justify-content: center;'
+            : 'width: 50%; z-index: 99'
+        "
       >
-        <v-text-field
-          prepend-inner-icon="mdi-email"
-          color="primary"
-          variant="outlined"
-          v-model="email"
-          label="Email"
-          type="email"
-        >
-        </v-text-field>
-        <v-text-field
-          prepend-inner-icon="mdi-lock"
-          color="primary"
-          variant="outlined"
-          v-model="password"
-          label="Password"
-          type="password"
-          style="font-family: 'Roboto'"
-        >
-        </v-text-field>
-        <v-btn
-          :loading="loginLoader"
-          type="submit"
-          color="primary"
-          width="100%"
-          size="x-large"
-          class="mt-4 ml-auto rounded-lg"
-          >Login
-        </v-btn>
-      </v-form>
+        <div class="mb-10" :class="{ 'text-center': isMobile }">
+          <div class="title">Hello again,</div>
+          <div class="subtitle">Welcome Back!</div>
+        </div>
+
+        <v-form @submit.prevent="onLogin" class="d-flex flex-column" style="min-width: 300px">
+          <v-text-field
+            prepend-inner-icon="mdi-email"
+            color="primary"
+            variant="outlined"
+            v-model="email"
+            label="Email"
+            type="email"
+          >
+          </v-text-field>
+          <v-text-field
+            prepend-inner-icon="mdi-lock"
+            color="primary"
+            variant="outlined"
+            v-model="password"
+            label="Password"
+            type="password"
+            style="font-family: 'Roboto'"
+          >
+          </v-text-field>
+          <v-btn
+            :loading="loginLoader"
+            type="submit"
+            color="primary"
+            width="100%"
+            size="x-large"
+            class="mt-4 ml-auto rounded-lg"
+            >Login
+          </v-btn>
+        </v-form>
+      </div>
+      <div v-if="isMobile" class="waves mobile waves-image waves-bottom"></div>
     </div>
   </div>
 </template>
@@ -69,8 +86,6 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFirebaseAuth } from 'vuefire'
 import { useDisplay } from 'vuetify'
-import Logo from '@/components/Logo.vue'
-import Particles from '@/components/Particles.vue'
 
 const authStore = useAuthStore()
 const { role, isAdmin, isManager, user } = storeToRefs(authStore)
@@ -79,13 +94,13 @@ const baseStore = useBaseStore()
 const { getLanguages } = baseStore
 const { snackbar } = storeToRefs(baseStore)
 
-const { mdAndDown } = useDisplay()
+const { smAndDown } = useDisplay()
 const router = useRouter()
 const auth = useFirebaseAuth()
 const email = ref(null)
 const password = ref(null)
 const loginLoader = ref(false)
-const isMobile = computed(() => mdAndDown.value)
+const isMobile = computed(() => smAndDown.value)
 
 const onLogin = async () => {
   loginLoader.value = true
@@ -128,7 +143,7 @@ const onLogin = async () => {
 
 <style lang="scss" scoped>
 .content-wrapper {
-  position: relative;
+  position: absolute;
   z-index: 1;
   width: 100%;
   height: 100%;
@@ -146,7 +161,7 @@ const onLogin = async () => {
   height: 100vh;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 900px) {
   .left-column {
     width: 100% !important;
     max-width: 100%;
@@ -167,5 +182,49 @@ const onLogin = async () => {
   to {
     opacity: 1;
   }
+}
+
+.waves {
+  aspect-ratio: 960 / 540;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.mobile-container {
+  height: 100vh !important;
+  position: relative;
+  justify-content: flex-start !important;
+}
+
+.waves.mobile {
+  position: absolute;
+  height: 20vh;
+  width: 100vw;
+  aspect-ratio: 540 / 960;
+  background-image: url('@/assets/waves-bg-green-vertical.svg');
+  z-index: 1;
+}
+
+.waves.mobile.waves-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: rotate(180deg);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.waves.mobile.waves-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.waves-image {
+  background-image: url('@/assets/waves-bg-green.svg');
 }
 </style>

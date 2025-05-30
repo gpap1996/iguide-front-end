@@ -12,8 +12,6 @@
   },
   "dependencies": {
     "@tanstack/vue-query": "^5.59.20",
-    "@tsparticles/slim": "^3.8.1",
-    "@tsparticles/vue3": "^3.0.1",
     "@vee-validate/zod": "^4.14.7",
     "@vueuse/core": "^11.2.0",
     "@vueuse/motion": "^2.2.6",
