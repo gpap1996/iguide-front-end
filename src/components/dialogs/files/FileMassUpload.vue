@@ -171,7 +171,7 @@
       ></v-btn>
       <v-btn
         color="primary"
-        :text="$t('files.massUpload')"
+        :text="$t('common.save')"
         variant="flat"
         @click="uploadFiles"
         :loading="isLoading"

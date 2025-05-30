@@ -23,7 +23,7 @@
         {{ $t('areas.basicInfo') }}
         <v-icon v-if="validationError" color="error" class="ml-2">mdi-alert-circle</v-icon>
       </v-tab>
-      <v-tab value="Files">{{ $t('areas.files') }}</v-tab>
+      <v-tab value="Files">{{ $t('areas.filesTab') }}</v-tab>
     </v-tabs>
 
     <v-tabs-window v-if="!isPageLoading" v-model="tab" class="mt-8" id="single-user-tabs">

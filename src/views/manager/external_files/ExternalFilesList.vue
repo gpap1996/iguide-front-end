@@ -147,10 +147,12 @@
       </div>
     </v-dialog>
 
-    <v-dialog v-model="fileDeleteDialog" max-width="500px">
+    <v-dialog v-model="fileDeleteDialog" max-width="600px">
       <confirm-dialog
         :title="$t('externalFiles.deleteTitle')"
         :isLoading="isDeleteLoading"
+        :confirmText="$t('common.delete')"
+        :cancelText="$t('common.cancel')"
         @close="(fileDeleteDialog = false), (currentFile = null)"
         @confirm="onDeleteFile"
       >

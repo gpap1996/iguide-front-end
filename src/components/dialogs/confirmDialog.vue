@@ -15,13 +15,13 @@
       <v-btn
         color="primary"
         variant="outlined"
-        text="Close"
+        :text="cancelText || $t('common.close')"
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
       <v-btn
         color="primary"
-        text="Save"
+        :text="confirmText || $t('common.save')"
         variant="flat"
         @click="$emit('confirm')"
         :loading="isLoading"
@@ -35,7 +35,10 @@
 defineProps({
   title: String,
   isLoading: Boolean,
+  confirmText: String,
+  cancelText: String,
 })
+
 defineEmits(['close', 'confirm'])
 </script>
 

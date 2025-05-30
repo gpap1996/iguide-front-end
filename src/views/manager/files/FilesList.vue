@@ -40,7 +40,7 @@
       </v-btn-group>
 
       <!-- Import/Export Button Group -->
-      <v-btn-group variant="outlined" class="mr-auto" density="comfortable">
+      <v-btn-group variant="outlined" class="mr-3" density="comfortable">
         <v-btn
           @click="openImportDialog"
           color="primary"
@@ -60,7 +60,7 @@
       </v-btn-group>
       <!-- Mass Action Controls - Visible when mass action is active -->
       <v-fade-transition>
-        <div v-if="massAction" class="d-flex align-center mr-4">
+        <div v-if="massAction" class="d-flex align-center">
           <v-chip color="primary" variant="tonal" class="mr-4">
             {{ $t('files.itemsSelected', { count: selected.length }) }}
           </v-chip>
@@ -96,6 +96,8 @@
           </v-btn>
         </div>
       </v-fade-transition>
+
+      <div class="mr-auto"></div>
 
       <v-text-field
         color="primary"
@@ -288,6 +290,8 @@
       <confirm-dialog
         :title="$t('files.delete')"
         :isLoading="isDeleteLoading"
+        :confirmText="$t('common.delete')"
+        :cancelText="$t('common.cancel')"
         @close="(fileDeleteDialog = false), (currentFile = null)"
         @confirm="onDeleteFile"
       >
@@ -298,6 +302,8 @@
       <confirm-dialog
         :title="$t('files.massDelete')"
         :isLoading="isDeleteLoading"
+        :confirmText="$t('common.delete')"
+        :cancelText="$t('common.cancel')"
         @close="massDeleteDialog = false"
         @confirm="onMassDeleteFiles"
       >
