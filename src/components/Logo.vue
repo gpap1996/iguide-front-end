@@ -1,10 +1,10 @@
 <template>
   <div class="logo">
-    <div class="logo-wrapper">
-      <div class="logo-i">i</div>
-      <div class="logo-dot"></div>
-      <div class="logo-guide">
-        <span class="guide-letter" v-for="(letter, index) in 'GUIDE'" :key="index">
+    <div class="logo-wrapper text-white">
+      <div class="logo-i text-white">i</div>
+      <div class="logo-dot text-white"></div>
+      <div class="logo-guide text-white">
+        <span class="guide-letter text-white" v-for="(letter, index) in 'GUIDE'" :key="index">
           {{ letter }}
         </span>
       </div>
@@ -41,7 +41,7 @@
 .logo-dot {
   width: 12px;
   height: 12px;
-  background: rgb(var(--v-theme-oposite));
+  background: white;
   border-radius: 50%;
   position: relative;
   animation: blink 2s ease-in-out infinite;
@@ -106,6 +106,70 @@
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Responsive design for smaller screens
+@media (max-width: 900px) {
+  .logo-i,
+  .guide-letter {
+    font-size: 48px;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .logo-wrapper {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-i,
+  .guide-letter {
+    font-size: 36px;
+  }
+
+  .logo-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .logo-wrapper {
+    gap: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .logo-i,
+  .guide-letter {
+    font-size: 28px;
+  }
+
+  .logo-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .logo-wrapper {
+    gap: 3px;
+  }
+
+  .guide-letter {
+    transform: translateY(15px);
+  }
+
+  @keyframes slideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 </style>

@@ -2,7 +2,7 @@
   <div
     class="d-flex flex-column flex-sm-row"
     style="width: 100vw"
-    :style="isMobile ? 'min-height:500px' : 'min-height:100vh'"
+    :style="isMobile ? 'min-height:500px' : 'min-height:100dvh'"
   >
     <!-- 1st column -->
     <div class="left-column d-flex flex-grow-1" v-if="!isMobile">
@@ -10,7 +10,7 @@
       <div class="content-wrapper">
         <div :class="{ 'text-center': isMobile }">
           <Logo />
-          <div class="left-column-subtitle">Digital interactive tour</div>
+          <div class="left-column-subtitle text-white">Digital interactive tour</div>
         </div>
       </div>
       <div class="waves waves-image"></div>
@@ -20,11 +20,6 @@
       class="d-flex flex-column align-center flex-grow-1 bg-surface"
       :class="isMobile ? 'mobile-container' : 'justify-center'"
     >
-      <div v-if="isMobile" style="z-index: 99">
-        <div :class="{ 'text-center': isMobile }">
-          <Logo />
-        </div>
-      </div>
       <div
         :style="
           isMobile
@@ -68,7 +63,25 @@
           </v-btn>
         </v-form>
       </div>
-      <div v-if="isMobile" class="waves mobile waves-image waves-bottom"></div>
+      <div v-if="isMobile" class="waves mobile waves-image waves-bottom">
+        <div
+          v-if="isMobile"
+          style="
+            z-index: 99;
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+          "
+        >
+          <div :class="{ 'text-center': isMobile }">
+            <Logo />
+            <div class="copyright text-white">
+              © {{ new Date().getFullYear() }} All rights reserved
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -155,7 +168,7 @@ const onLogin = async () => {
   overflow: hidden;
   flex: 1;
   max-width: 50%;
-  height: 100vh;
+  height: 100dvh;
 }
 
 @media (max-width: 900px) {
@@ -190,17 +203,17 @@ const onLogin = async () => {
 }
 
 .mobile-container {
-  height: 100vh !important;
+  height: 100dvh !important;
   position: relative;
   justify-content: flex-start !important;
 }
 
 .waves.mobile {
   position: absolute;
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
   aspect-ratio: 540 / 960;
-  background-image: url('@/assets/wave-bg-green-vertical.svg');
+  background-image: url('@/assets/wave-bg-green-vertical1.svg');
   z-index: 1;
 }
 
