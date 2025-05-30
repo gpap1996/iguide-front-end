@@ -1,20 +1,20 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Users">
+    <page-title :title="$t('users.title')">
       <v-btn-group variant="outlined" class="mr-3" density="comfortable">
         <v-btn
           @click="onOpenUserFormDialog(null)"
           color="primary"
           icon="mdi-plus"
           class="mr-2"
-          v-tooltip="'Create User'"
+          v-tooltip="$t('users.create')"
         ></v-btn>
       </v-btn-group>
 
-      <v-autocomplete 
+      <v-autocomplete
         clearable
         hide-details
-        label="Projects"
+        :label="$t('users.projects')"
         variant="outlined"
         item-title="name"
         item-value="id"
@@ -30,7 +30,7 @@
         "
         :items="projects"
         max-width="250px"
-      </v-autocomplete>
+      ></v-autocomplete>
     </page-title>
 
     <v-data-table-server
@@ -44,22 +44,23 @@
     >
       <template v-slot:[`item.fullName`]="{ item }">
         <div>{{ item.firstName }} {{ item.lastName }}</div>
-      </template>      <template v-slot:[`item.actions`]="{ item }">
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
         <v-btn
           variant="text"
           class="mr-4"
           icon="mdi-pencil"
-          v-tooltip="'Edit User'"
+          v-tooltip="$t('users.edit')"
           @click="onOpenUserFormDialog(item)"
         >
         </v-btn>
-        
+
         <v-btn
           variant="text"
           color="error"
           icon="mdi-delete"
           @click="(currentUser = item), (userDeleteDialog = true)"
-          v-tooltip="'Delete User'"
+          v-tooltip="$t('users.delete')"
         >
         </v-btn>
       </template>
@@ -67,7 +68,7 @@
       <template v-slot:bottom>
         <v-divider></v-divider>
         <div class="d-flex ml-auto mr-10 mt-6">
-          <div class="mt-2 mr-2">Items per page:</div>
+          <div class="mt-2 mr-2">{{ $t('common.itemsPerPage') }}</div>
           <v-select
             variant="outlined"
             item-title="label"
@@ -106,7 +107,8 @@
       :length="data?.pagination?.totalPages"
       :total-visible="7"
       class="mt-10"
-    ></v-pagination>    <v-dialog v-model="userFormDialog.open" max-width="700px" max-height="800px" persistent>
+    ></v-pagination>
+    <v-dialog v-model="userFormDialog.open" max-width="700px" max-height="800px" persistent>
       <div class="dialog-wrapper scrollable-dialog">
         <user-form
           :projects="projects"
@@ -116,15 +118,15 @@
         ></user-form>
       </div>
     </v-dialog>
-    
+
     <v-dialog v-model="userDeleteDialog" max-width="500px">
       <confirm-dialog
-        title="Delete User"
+        :title="$t('users.deleteTitle')"
         :isLoading="isDeleteLoading"
         @close="(userDeleteDialog = false), (currentUser = null)"
         @confirm="onDeleteUser"
       >
-        Are you sure you want to delete this user?
+        {{ $t('users.deleteConfirm') }}
       </confirm-dialog>
     </v-dialog>
   </div>
@@ -132,12 +134,14 @@
 
 <script setup>
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 
-onMounted(async()=> {
+onMounted(async () => {
   const res = await axios.get('/projects')
   projects.value = res.data.projects
 })
@@ -157,42 +161,42 @@ const currentUser = ref(null)
 const filters = ref({
   page: 1,
   itemsPerPage: 10,
-  projectId: null
+  projectId: null,
 })
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Full Name',
+    title: t('users.fullName'),
     key: 'fullName',
     sortable: false,
   },
 
   {
-    title: 'Email',
+    title: t('users.email'),
     key: 'email',
     sortable: false,
   },
 
   {
-    title: 'Project',
+    title: t('users.project'),
     key: 'project.name',
     sortable: false,
   },
 
   {
-    title: 'Actions',
+    title: t('common.actions'),
     key: 'actions',
     align: 'start',
     sortable: false,
   },
-]
+])
 
 const fetchUsers = async () => {
   const res = await axios.get('/users', {
     params: {
       limit: filters.value.itemsPerPage,
       page: filters.value.page,
-      projectId: filters.value.projectId
+      projectId: filters.value.projectId,
     },
   })
   await new Promise((resolve) => {
@@ -231,10 +235,10 @@ async function onOpenUserFormDialog(user) {
 }
 
 const onDeleteUser = async () => {
-  isDeleteLoading.value = true;
+  isDeleteLoading.value = true
   try {
-    await axios.delete(`/users/${currentUser.value.id}`);
-    userDeleteDialog.value = false;
+    await axios.delete(`/users/${currentUser.value.id}`)
+    userDeleteDialog.value = false
 
     // If this was the last item on page (except page 1), go back to page 1
     if (data.value?.users?.length === 1 && filters.value.page > 1) {
@@ -243,29 +247,28 @@ const onDeleteUser = async () => {
         page: 1,
       }
     } else {
-      await onFiltersReset();
+      await onFiltersReset()
     }
-    
+
     baseStore.snackbar = {
       show: true,
-      text: 'User deleted successfully',
+      text: t('users.deleteSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
-    };
+    }
   } catch (error) {
-    console.log(error);
+    console.log(error)
     baseStore.snackbar = {
       show: true,
-      text: error.response?.data?.message || 'Error deleting user',
+      text: error.response?.data?.message || t('common.error'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
-    };
+    }
   } finally {
-    isDeleteLoading.value = false;
-    currentUser.value = null;
+    isDeleteLoading.value = false
+    currentUser.value = null
   }
-};
-
+}
 </script>
 
 <style lang="scss" scoped></style>

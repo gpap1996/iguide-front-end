@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ user ? 'Edit User' : 'Create User' }}</div>
+      <div class="title">{{ user ? $t('users.edit') : $t('users.create') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -12,7 +12,7 @@
           v-model="form.username"
           density="comfortable"
           variant="outlined"
-          label="Username"
+          :label="$t('users.username')"
           :rules="[rules.required]"
           tabindex="1"
         ></v-text-field>
@@ -20,7 +20,7 @@
           v-model="form.email"
           density="comfortable"
           variant="outlined"
-          label="Email"
+          :label="$t('users.email')"
           type="email"
           :rules="[rules.required, rules.email]"
           class="mt-4"
@@ -33,7 +33,7 @@
             :type="showPassword ? 'text' : 'password'"
             density="comfortable"
             variant="outlined"
-            label="Password"
+            :label="$t('users.password')"
             :rules="rules.password"
             class="mt-4"
             :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
@@ -48,7 +48,7 @@
             :type="showConfirmPassword ? 'text' : 'password'"
             density="comfortable"
             variant="outlined"
-            label="Confirm Password"
+            :label="$t('users.confirmPassword')"
             :rules="[user ? rules.passwordMatch : rules.required, rules.passwordMatch]"
             class="mt-4"
             :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
@@ -65,7 +65,7 @@
             v-model="form.firstName"
             density="comfortable"
             variant="outlined"
-            label="First Name"
+            :label="$t('users.firstName')"
             :rules="[rules.required]"
             class="mt-4"
             autocomplete="new-name"
@@ -77,7 +77,7 @@
             v-model="form.lastName"
             density="comfortable"
             variant="outlined"
-            label="Last Name"
+            :label="$t('users.lastName')"
             :rules="[rules.required]"
             class="mt-4"
             autocomplete="new-name"
@@ -93,23 +93,23 @@
           item-value="id"
           density="comfortable"
           variant="outlined"
-          label="Project"
+          :label="$t('users.project')"
           :rules="[rules.required]"
           class="mt-4"
           :loading="isProjectsLoading"
-          no-data-text="No projects available"
+          :no-data-text="$t('users.noProjectsAvailable')"
           tabindex="7"
         ></v-autocomplete>
 
         <v-radio-group
           v-model="form.role"
-          label="Role"
+          :label="$t('users.role')"
           inline
           :rules="[rules.required]"
           class="mt-4"
           tabindex="8"
         >
-          <v-radio value="manager" label="Manager"></v-radio>
+          <v-radio value="manager" :label="$t('users.manager')"></v-radio>
         </v-radio-group>
       </v-form>
     </div>
@@ -119,13 +119,13 @@
       <v-btn
         color="primary"
         variant="outlined"
-        text="Close"
+        :text="$t('common.close')"
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
       <v-btn
         color="primary"
-        text="Save"
+        :text="$t('common.save')"
         variant="flat"
         @click="onSubmitUser"
         :loading="isSubmitting"
@@ -139,6 +139,9 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const { user, projects } = defineProps({ user: Object, projects: Array })
 const emits = defineEmits(['close', 'reset'])
@@ -165,23 +168,24 @@ const form = ref({
 })
 
 const rules = {
-  required: (value) => !!value || 'This field is required',
+  required: (value) => !!value || t('validation.required'),
   email: (value) => {
     const pattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
-    return pattern.test(value) || 'Invalid email format'
+    return pattern.test(value) || t('validation.email')
   },
   passwordMatch: (value) =>
-    !value || !form.value.password || value === form.value.password || 'Passwords do not match',
+    !value ||
+    !form.value.password ||
+    value === form.value.password ||
+    t('validation.passwordMatch'),
   password: [
     // Only require password for new users (not when editing)
-    (value) => user || !!value || 'Password is required',
-    (value) => !value || value.length >= 5 || 'Password must be at least 5 characters long',
-    (value) => !value || value.length <= 12 || 'Password must be at most 12 characters long',
-    (value) =>
-      !value || /[a-z]/.test(value) || 'Password must contain at least one lowercase letter',
-    (value) =>
-      !value || /[A-Z]/.test(value) || 'Password must contain at least one uppercase letter',
-    (value) => !value || /[^A-Za-z0-9]/.test(value) || 'Password must contain at least one symbol',
+    (value) => user || !!value || t('validation.passwordRequired'),
+    (value) => !value || value.length >= 5 || t('validation.passwordLength'),
+    (value) => !value || value.length <= 12 || t('validation.passwordMaxLength'),
+    (value) => !value || /[a-z]/.test(value) || t('validation.passwordLowercase'),
+    (value) => !value || /[A-Z]/.test(value) || t('validation.passwordUppercase'),
+    (value) => !value || /[^A-Za-z0-9]/.test(value) || t('validation.passwordSymbol'),
   ],
 }
 
@@ -200,7 +204,7 @@ const onSubmitUser = async () => {
     // Show validation error in snackbar
     snackbar.value = {
       show: true,
-      text: 'Please fill in all required fields correctly',
+      text: t('users.fillRequiredFields'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
@@ -225,7 +229,7 @@ const onSubmitUser = async () => {
 
     snackbar.value = {
       show: true,
-      text: `User ${user ? 'updated' : 'created'} successfully!`,
+      text: user ? t('users.editSuccess') : t('users.addSuccess'),
       color: 'success',
       icon: 'mdi-check-circle-outline',
     }

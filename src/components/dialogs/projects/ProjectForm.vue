@@ -1,7 +1,7 @@
 <template>
   <v-card class="flex-grow-1 d-flex flex-column">
     <v-card-title class="d-flex align-center bg-primary-darken-1">
-      <div class="title">{{ project ? 'Edit Project' : 'Create Project' }}</div>
+      <div class="title">{{ project ? $t('projects.edit') : $t('projects.create') }}</div>
       <v-spacer></v-spacer>
       <v-btn icon="mdi-close" variant="text" @click="$emit('close')"></v-btn>
     </v-card-title>
@@ -11,7 +11,7 @@
           v-model="form.name"
           density="comfortable"
           variant="outlined"
-          label="Name"
+          :label="$t('projects.name')"
           :rules="[rules.required]"
         ></v-text-field>
 
@@ -19,7 +19,7 @@
           v-model="form.description"
           density="comfortable"
           variant="outlined"
-          label="Description"
+          :label="$t('projects.description')"
           rows="3"
           auto-grow
           class="mt-4"
@@ -29,7 +29,7 @@
           v-model="form.file"
           density="comfortable"
           variant="outlined"
-          label="Logo (Optional)"
+          :label="$t('projects.logoOptional')"
           prepend-icon="mdi-camera"
           accept="image/*"
           show-size
@@ -50,7 +50,7 @@
         <v-switch
           v-model="form.status"
           color="primary"
-          label="Active"
+          :label="$t('projects.active')"
           class="mt-4"
           hide-details
         ></v-switch>
@@ -62,13 +62,13 @@
       <v-btn
         color="primary"
         variant="outlined"
-        text="Close"
+        :text="$t('common.close')"
         @click="$emit('close')"
         class="mr-2"
       ></v-btn>
       <v-btn
         color="primary"
-        text="Save"
+        :text="$t('common.save')"
         variant="flat"
         @click="onSubmitProject"
         :loading="loader"
@@ -82,6 +82,9 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useBaseStore } from '@/stores/base'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const { project } = defineProps({ project: Object })
 const emits = defineEmits(['close', 'reset'])
@@ -100,7 +103,7 @@ const form = ref({
 })
 
 const rules = {
-  required: (value) => !!value || 'This field is required.',
+  required: (value) => !!value || t('validation.required'),
   fileSize: (value) => {
     if (!value || value.length === 0) return true // No file selected is valid
     const file = value[0] // v-file-input returns an array
@@ -126,7 +129,7 @@ const onSubmitProject = async () => {
   if (!valid) {
     snackbar.value = {
       show: true,
-      text: 'Please correct the form errors.',
+      text: t('projects.fillRequiredFields'),
       color: 'error',
       icon: 'mdi-alert-circle-outline',
     }
@@ -150,8 +153,20 @@ const onSubmitProject = async () => {
 
     if (project) {
       await axios.put(`/projects/${project.id}`, formData, config)
+      snackbar.value = {
+        show: true,
+        text: t('projects.editSuccess'),
+        color: 'success',
+        icon: 'mdi-check-circle-outline',
+      }
     } else {
       await axios.post('/projects', formData, config)
+      snackbar.value = {
+        show: true,
+        text: t('projects.addSuccess'),
+        color: 'success',
+        icon: 'mdi-check-circle-outline',
+      }
     }
 
     emits('reset')

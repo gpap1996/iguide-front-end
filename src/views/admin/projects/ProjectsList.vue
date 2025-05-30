@@ -1,13 +1,13 @@
 <template>
   <div class="component-wrapper d-flex flex-column">
-    <page-title title="Projects">
+    <page-title :title="$t('projects.title')">
       <v-btn-group variant="outlined" class="mr-3" density="comfortable">
         <v-btn
           @click="onOpenProjectFormDialog(null)"
           color="primary"
           icon="mdi-plus"
           class="mr-2"
-          v-tooltip="'Create Project'"
+          v-tooltip="$t('projects.create')"
         ></v-btn>
       </v-btn-group>
 
@@ -16,7 +16,7 @@
         append-inner-icon="mdi-magnify"
         maxWidth="300px"
         variant="outlined"
-        label="Search Projects"
+        :label="$t('projects.search')"
         clearable
         hide-details
         class="ml-auto"
@@ -60,7 +60,7 @@
           variant="text"
           class="mr-4"
           icon="mdi-pencil"
-          v-tooltip="'Edit Project'"
+          v-tooltip="$t('projects.edit')"
           @click="onOpenProjectFormDialog(item)"
         >
         </v-btn>
@@ -69,7 +69,7 @@
       <template v-slot:bottom>
         <v-divider></v-divider>
         <div class="d-flex ml-auto mr-10 mt-6">
-          <div class="mt-2 mr-2">Items per page:</div>
+          <div class="mt-2 mr-2">{{ $t('common.itemsPerPage') }}</div>
           <v-select
             variant="outlined"
             item-title="label"
@@ -124,10 +124,13 @@
 
 <script setup>
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useBaseStore } from '@/stores/base'
 import { debounce } from 'lodash'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const baseStore = useBaseStore()
 const { itemsPerPageDropdown } = baseStore
@@ -142,37 +145,37 @@ const filters = ref({
   title: null,
 })
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Logo',
+    title: t('projects.logo'),
     key: 'logo',
     sortable: false,
     width: '80px', // Adjust width as needed
   },
   {
-    title: 'Name',
+    title: t('projects.name'),
     key: 'name',
     sortable: false,
   },
 
   {
-    title: 'Description',
+    title: t('projects.description'),
     key: 'description',
     sortable: false,
   },
 
   {
-    title: 'Status',
+    title: t('projects.status'),
     key: 'status',
     sortable: false,
   },
   {
-    title: 'Actions',
+    title: t('common.actions'),
     key: 'actions',
     align: 'start',
     sortable: false,
   },
-]
+])
 
 const fetchProjects = async () => {
   const res = await axios.get('/projects', {
