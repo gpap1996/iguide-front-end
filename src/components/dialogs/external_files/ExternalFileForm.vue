@@ -234,11 +234,20 @@ const onSubmitFile = async () => {
       }
     }
 
+    // Filter out empty translations (where both title and description are empty)
+    const filteredTranslations = {}
+    Object.keys(form.value.translations).forEach((locale) => {
+      const translation = form.value.translations[locale]
+      if (translation.title?.trim() || translation.description?.trim()) {
+        filteredTranslations[locale] = translation
+      }
+    })
+
     const payload = {
       name: form.value.name,
       type: form.value.type,
       url: form.value.url,
-      translations: form.value.translations,
+      translations: filteredTranslations,
     }
 
     if (isEdit.value) {
