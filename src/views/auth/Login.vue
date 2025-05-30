@@ -20,18 +20,15 @@
       class="d-flex flex-column align-center flex-grow-1 bg-surface"
       :class="isMobile ? 'mobile-container' : 'justify-center'"
     >
-      <div v-if="isMobile" class="waves mobile waves-image waves-top">
-        <div class="content-wrapper">
-          <div :class="{ 'text-center': isMobile }" style="rotate: 180deg">
-            <Logo />
-            <div class="left-column-subtitle">Digital interactive tour</div>
-          </div>
+      <div v-if="isMobile" style="z-index: 99">
+        <div :class="{ 'text-center': isMobile }">
+          <Logo />
         </div>
       </div>
       <div
         :style="
           isMobile
-            ? 'width: 90%; z-index: 99; height: 60vh; margin-top: 20vh; margin-bottom: 20vh; display: flex; flex-direction: column; justify-content: center;'
+            ? 'width: 90%; z-index: 99; height: 60vh; margin-bottom: 20vh; display: flex; flex-direction: column; justify-content: center;'
             : 'width: 50%; z-index: 99'
         "
       >
@@ -200,20 +197,11 @@ const onLogin = async () => {
 
 .waves.mobile {
   position: absolute;
-  height: 20vh;
+  height: 100vh;
   width: 100vw;
   aspect-ratio: 540 / 960;
-  background-image: url('@/assets/waves-bg-green-vertical.svg');
+  background-image: url('@/assets/wave-green-vertical.svg');
   z-index: 1;
-}
-
-.waves.mobile.waves-top {
-  top: 0;
-  left: 0;
-  right: 0;
-  transform: rotate(180deg);
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
 }
 
 .waves.mobile.waves-bottom {
