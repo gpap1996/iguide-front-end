@@ -200,7 +200,7 @@ const onLogin = async () => {
   height: 100vh;
   width: 100vw;
   aspect-ratio: 540 / 960;
-  background-image: url('@/assets/wave-green-vertical.svg');
+  background-image: url('@/assets/wave-bg-green-vertical.svg');
   z-index: 1;
 }
 
